@@ -17,10 +17,6 @@ const nextConfig: NextConfig = {
         destination: "https://gpu-unlock.com/:path*",
         permanent: true,
       },
-      // The bare root has to answer with a path-relative Location. Letting next-intl do it
-      // produced `https://localhost:3200/en`, because a standalone build has no public
-      // origin to put in the URL. Declared here, the redirect is a plain 307 to "/en".
-      { source: "/", destination: "/en", permanent: false },
     ];
   },
   async headers() {
