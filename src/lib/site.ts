@@ -1,6 +1,14 @@
 export const SITE = "https://gpu-unlock.com";
 export const SITE_NAME = "GPU Unlock";
 
+/**
+ * The companion reference site. It owns the card list, the accepted device IDs and the
+ * same-card measurements; this site owns the build, the boot order and the checks. The two
+ * are deliberately different documents, so a reader who needs "does my card work" follows
+ * the link instead of finding the same table twice.
+ */
+export const REFERENCE_SITE = "https://gpuunlock.com";
+
 export const REPOS = {
   ampere: "https://github.com/Zagitta/gpu-unlock",
   ada: "https://github.com/JustAResearcher/gpu-unlock-ada",

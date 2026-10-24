@@ -2,47 +2,49 @@
   "nav": {
     "label": "主导航",
     "skip": "跳到正文",
-    "gpus": "显卡",
-    "benchmarks": "性能实测",
+    "modules": "模块",
     "install": "安装",
-    "faq": "常见问题"
+    "faq": "常见问题",
+    "reference": "显卡参考"
   },
   "home": {
-    "title": "GPU Unlock — 支持的 NVIDIA 显卡、实测提速与安装步骤",
-    "description": "GPU Unlock 内核模块在 Ampere、Ada 与 Turing（RTX 20 系列）上支持哪些显卡、同卡前后对比实测到了什么，以及每种卡怎么安装。",
-    "h1": "解锁 NVIDIA SM 速率选择，并附上实测数字",
-    "lead": "三个上游内核模块让消费级 GeForce 显卡达到 NVIDIA 保留给其他产品的张量吞吐。本站收集它们支持什么、同一张卡在解锁前后的实测结果，以及会出什么问题。",
-    "statIds": "个 PCI ID 被接受",
-    "statIdsNote": "覆盖 AD102、AD103、GA102、GA103、GA104、GA106、TU102、TU104、TU106。被接受不等于已有确认结果。",
-    "statMeasured": "张卡有公开的同卡实测",
-    "statMeasuredNote": "RTX 4090、RTX 4070 Ti SUPER 与 RTX 2080 Ti。其余要么依赖用户反馈，要么尚未测试。",
-    "statGain": "峰值张量提升",
-    "statGainNote": "RTX 4090 的 f16/f32 与 bf16/f32。FP32 与 INT8 本来就没有被限速，不会变化。",
-    "whatTitle": "解锁做了什么",
-    "whatBody": "模块在官方 NVIDIA 驱动绑定显卡之前启用 SM 速率选择覆盖。它从 initramfs 中加载，因此驱动看到的已经不是被锁状态的卡。顺序就是全部机制——驱动绑定之后再手动加载模块不会有效果。",
-    "whatWarnTitle": "硬件风险真实存在且有据可查",
-    "whatWarnBody": "解锁会写入速率选择寄存器，并在驱动加载前执行 FLR。请保留一个未修改的官方启动项；在做任何持久化之前先验证一次冷启动；AD103 路径属于实验性，仅在单张卡上验证过。",
-    "benchTitle": "同卡实测",
-    "benchBody": "下表每一行都是同一张卡、同一份程序在解锁前后的对比。本来就满速的模式在此省略，完整数据见性能实测页。",
-    "colCard": "显卡",
-    "colMode": "模式",
-    "colStock": "解锁前",
-    "colUnlocked": "解锁后",
-    "colGain": "提升",
-    "seeAllBench": "查看全部实测行，包括没有变化的路径",
-    "cardsTitle": "显卡",
-    "cardsBody": "按「实际已知多少」分组，而不是按「模块接受多少」。",
-    "cardCount": "全部 {count} 张卡，含未测试与不支持的 ID",
-    "startTitle": "从哪里开始",
-    "startStep1": "确认你的卡在被接受的列表中，以及它被了解得多深",
-    "startStep2": "阅读安装顺序——initramfs 这一步不可省略",
-    "startStep3": "动手前先看失败模式",
+    "title": "GPU Unlock — 构建、安装并验证 SM speed-select 模块",
+    "description": "NVIDIA SM speed-select override 内核模块的项目站：按显卡选择模块、构建、写入 initramfs、在内核命令行启用，并逐步验证结果。",
+    "h1": "按模块安装 SM speed-select override",
+    "lead": "三个内核模块可以解锁 NVIDIA 为芯片其他部分保留的 Tensor 吞吐。本站是项目的构建与安装侧：你的卡需要哪个模块、具体命令、参数名，以及证明它生效的检查步骤。支持哪些卡、实测数据是多少，则记录在另一个参考站上。",
+    "modulesTitle": "选择模块",
+    "modulesIntro": "其中两个模块同名，都是 gpu_unlock；Turing 那个是另一个模块，参数名也不同。装错模块时参数根本不会生效，而且不会报错。",
+    "colModule": "模块",
+    "colChips": "芯片",
+    "colParam": "内核参数",
+    "colRepo": "上游",
+    "colInstall": "安装",
+    "quickstartTitle": "构建与安装",
+    "quickstartBody": "三个模块都不提供预编译二进制，必须在目标机器上构建：固件载荷要基于该机已安装的 NVIDIA 固件生成。所有发行版共用同一个 make install 入口。",
+    "quickstartAmpere": "Ampere（RTX 30 系）",
+    "quickstartAda": "Ada（RTX 40 系）",
+    "quickstartTuring": "Turing（RTX 20 系）",
+    "optInTitle": "在内核命令行启用",
+    "optInBody": "模块加载了但没被要求做任何事，卡片仍然是锁着的。参数就是开关，而且必须保留到启动项里。",
+    "verifyTitle": "固化之前先验证",
+    "verifyBody": "失败时不会有任何提示，所以要一步步检查，不要想当然。",
+    "verify1": "带参数启动一次，在内核日志里找 unlock 那一行",
+    "verify2": "确认显卡的设备 ID 在对应模块的接受列表里",
+    "verify3": "在同一张卡上重新测一遍本应被改变的路径",
+    "riskTitle": "硬件风险是有记录的，不是空谈",
+    "riskBody": "模块会写 speed-select 寄存器，并在驱动绑定前执行一次 FLR。请保留未修改的原始启动项，固化之前先验证一次冷启动，并把 AD103 路径当作实验性功能——它只在单张卡上验证过。",
+    "referenceTitle": "支持列表与实测结果在参考站",
+    "referenceBody": "支持的设备 ID、每张卡的状态，以及同卡 stock 与解锁后的实测数据，都在配套的参考站维护，证据也放在那里。本站负责构建、启动顺序与检查。",
+    "referenceCards": "支持的显卡与设备 ID",
+    "referenceBench": "同卡实测数据",
     "upstreamTitle": "上游项目",
-    "upstreamBody": "本站是对这些仓库的文档整理，不是它们的分支。",
-    "upstreamAmpere": "Ampere 模块：GA102、GA103、GA104、GA106（v1.0.0）",
-    "upstreamAda": "Ada 分支：新增 AD102 RTX 4090 与实验性 AD103 金丝雀（v1.1.1）",
-    "upstreamTuring": "Turing 模块：TU102、TU104、TU106（RTX 20 系列）；仅 2080 Ti 有实测数据",
-    "upstreamUsage": "本站的公开使用说明"
+    "upstreamBody": "本站记录这些仓库，但并不 fork 它们。",
+    "upstreamUsage": "本项目自己的使用说明与安装演练",
+    "modules": {
+      "ampere": "最早的模块：覆盖 GA102、GA103、GA104、GA106，以 gpu_unlock 加载。",
+      "ada": "Ada 分支：新增 AD102 与实验性的 AD103 金丝雀，同时仍覆盖 Ampere 的列表。",
+      "turing": "面向 20 系显卡的独立模块，以 turing_unlock 加载，参数名也不同。"
+    }
   },
   "gpus": {
     "title": "支持的 NVIDIA 显卡",
@@ -125,10 +127,104 @@
     "repoAmpere": "Ampere：GA102、GA103、GA104、GA106，不支持 Ada。",
     "repoAda": "Ada：新增 AD102 RTX 4090 与实验性 AD103 金丝雀，并保留 Ampere 设备表。",
     "faqLink": "常见问题",
-    "repoTuring": "Turing：RTX 20 系列（TU102、TU104、TU106），使用独立模块 turing_unlock。Ampere/Ada 模块不会处理这些显卡。"
+    "repoTuring": "Turing：RTX 20 系列（TU102、TU104、TU106），使用独立模块 turing_unlock。Ampere/Ada 模块不会处理这些显卡。",
+    "requirements": {
+      "linux-headers": "带内核头文件和可用 DKMS 工具链的 Linux（三个分支都一样）。",
+      "source-build": "在本机编译的 GPL-2.0-only 源码：锁定版本的 NVIDIA 固件会下载并在你自己的机器上生成。",
+      "stock-entry": "保留一个未经修改的官方启动项，解锁失败时可以退回。",
+      "accepted-pci-id": "显卡的 PCI ID 必须在模块的接受列表里（见显卡索引）。"
+    },
+    "steps": {
+      "pick-fork": {
+        "title": "选择与你的显卡匹配的分支",
+        "body": "Ampere 分支（Zagitta/gpu-unlock，v1.0.0）覆盖 GA102、GA103、GA104 与 GA106。Ada 分支（JustAResearcher/gpu-unlock-ada，v1.1.1）是同一个模块加上 AD102（RTX 4090）和实验性的 AD103 金丝雀，因此也包含 Ampere 设备表。Turing 分支（nlzy/turing-unlock，v2.0.0）是面向 RTX 20 系列的独立模块，覆盖 TU102、TU104 与 TU106。",
+        "note": "Ada 分支保留了原有的 GeForce/CMP GA102、GA104 列表，并新增 GA103/GA106 列表。专业级 RTX A 系列和数据中心产品都不在其接受范围内。Turing 与 Ampere/Ada 模块不可互换：TU102 显卡不会被 `gpu_unlock` 处理。"
+      },
+      "clone": {
+        "title": "在本地克隆并构建软件包",
+        "body": "三个分支都不提供预编译二进制：每台机器都要自行构建，因为固件生成这一步锁定的是你已经装好的那版 NVIDIA 固件。",
+        "note": "三个分支共用同一个 `make install` 入口，会自动识别发行版系列；也可以显式指定 `make install-arch`、`make install-deb`、`make install-rpm`。内核头文件与 DKMS 工具链必须已经就绪。Turing 构建会下载两个锁定版本的 NVIDIA 文件并校验 SHA-256，它们保存在 `~/.cache/turing-unlock/inputs`，可以提前用 `make inputs` 拉取。"
+      },
+      "initramfs": {
+        "title": "让软件包把模块接入 initramfs",
+        "body": "只有模块在 NVIDIA 驱动绑定显卡之前加载，解锁才会生效：Ampere/Ada 上是 `gpu_unlock`，RTX 20 系列上是 `turing_unlock`。事后再手动加载无法解锁，因为模块会拒绝已经绑定驱动的显卡（`-EBUSY`）。因此各软件包都会把自己的模块与固件放进 initramfs，并在那里加载。",
+        "note": "使用 initramfs-tools 与 dracut 时，每个已安装且带头文件的内核都会重新构建模块，安装与卸载时都会重建镜像；之后新装的内核由各自的安装钩子生成模块。mkinitcpio 对用 `-c <config>` 或预设 `_config` 构建的镜像会忽略 drop-in，需要你在该配置的 MODULES 里自己把 `gpu_unlock`（或 `turing_unlock`）放在 `nvidia` 前面。"
+      },
+      "opt-in": {
+        "title": "在内核命令行里显式开启",
+        "body": "除非内核命令行明确要求，模块什么都不做。Ampere 路径把 `gpu_unlock.targets=` 设为 `all`，或设为具体的 PCI 地址。",
+        "note": "这里刻意不用 `softdep nvidia pre:` 规则：kmod 只认它读到的第一条 `softdep nvidia`，别的软件包的规则会悄悄生效。加载顺序改由 initramfs 的 drop-in 保证。"
+      },
+      "turing-opt-in": {
+        "title": "Turing 用的是另一个参数名",
+        "body": "RTX 20 系列的模块是 `turing_unlock`，因此选项是 `turing_unlock.targets=`，不是 `gpu_unlock.targets=`。它接受 `all`，也接受 `lspci -D` 打印出的 PCI 地址逗号分隔列表，大小写不敏感。没有这个选项时，模块加载后直接返回，不会碰任何设备。",
+        "note": "目标按 PCI 地址匹配，模块用一把互斥锁把显卡串行处理，所以是一张一张解锁。如果驱动已经占用了显卡，模块会跳过它并记录 `unlock failed (-16)`（EBUSY），这是加载顺序问题，不是显卡问题。显卡状态需要时模块会先做 PCIe FLR。成功时不会复位显卡；某一步失败则可能复位，此时屏幕会一直黑到 `nvidia-drm` 接管。"
+      },
+      "ad103": {
+        "title": "AD103 需要两个开关和一个精确地址",
+        "body": "RTX 4070 Ti SUPER（`10de:2705`）属于实验性支持，只在一张卡上验证过。它同时需要 `gpu_unlock.ad103_experimental=1` 和把 `gpu_unlock.targets=` 设为该卡唯一的确切 PCI 地址。`targets=all` 永远不会选中它。",
+        "note": "其他 Ada ID、专业级 A 系列与数据中心产品都不被接受。Ada 芯片之间共享固件，不能据此推断未测试的显卡也受支持。"
+      },
+      "resume": {
+        "title": "了解挂起/恢复时的行为",
+        "body": "这一条只适用于 `gpu_unlock`（Ampere/Ada）：它会在恢复时重新应用覆盖，这可能复位用作显示的显卡。在内核命令行加 `gpu_unlock.resume=0`，或向 `/sys/module/gpu_unlock/parameters/resume` 写入 `0`，即可关闭。休眠两种情况都不覆盖。",
+        "note": "`turing_unlock` 没有 resume 参数，也没有恢复钩子；它只在 initramfs 阶段运行一次，除 `targets` 外没有其他模块参数。"
+      },
+      "make-persistent": {
+        "title": "冷启动成功后再持久化启动项",
+        "body": "先在这张具体的卡上验证一次冷启动和一次热重启，确认无误后，才把引导程序条目改成持久配置。始终保留一个未经修改的官方启动项，并在每次启动后重新确认 `gpu_unlock: unlocked`、速率回读结果与显卡健康状态。",
+        "note": "已验证的金丝雀使用的是绑定具体内核版本的镜像；在升级中删除其锁定内核之前，请先重新生成并重新验证。"
+      },
+      "avoid": {
+        "title": "不要让驱动提前加载",
+        "body": "在手动冷卡尝试之前，避免运行 `nvidia-smi`、CUDA、NVML 与 `nvidia-modprobe`：它们会按名字加载 NVIDIA，而普通的 modprobe 黑名单规则拦不住显式按名加载。用软件包的 initramfs 流程就不需要手动准备固件。"
+      }
+    },
+    "failures": {
+      "tensor-unchanged": {
+        "symptom": "显卡保持解锁状态但张量吞吐没有变化",
+        "cause": "有些卡完成了解锁却没有拿到速率（RTX 3080 Ti 20 GB OEM 报告 BF16 仍为半速）。请用同一张卡的解锁前后对比实测来确认，不要假设解锁必然带来提速。"
+      },
+      "blank-display": {
+        "symptom": "解锁后屏幕一直黑",
+        "cause": "交接过程中属于预期现象：固件帧缓冲会在 FLR 前被移除，屏幕一直黑到 `nvidia-drm` 接管。RTX 4090 的验证并不包含显示交接。"
+      },
+      "unlocked-log-only": {
+        "symptom": "日志里出现 `gpu_unlock` 但显卡并未解锁",
+        "cause": "模块是在 NVIDIA 已绑定显卡之后才加载的，或者 `gpu_unlock.targets=` 缺失/写错。覆盖必须在 initramfs 阶段、驱动绑定之前运行。"
+      },
+      "turing-silent": {
+        "symptom": "RTX 20 显卡上 `turing_unlock` 完全没有日志",
+        "cause": "`turing_unlock.targets=` 缺失，模块加载后立即返回：没有这个选项它什么都不做。若改用 `gpu_unlock.targets=` 就会出现同样的静默，因为 Ampere/Ada 模块从不处理 TU102/TU104/TU106。"
+      },
+      "turing-ebusy": {
+        "symptom": "`turing_unlock` 记录 `unlock failed (-16)`",
+        "cause": "EBUSY：模块运行时驱动已经绑定了显卡。解锁必须发生在 initramfs 阶段、`nvidia` 绑定之前；检查软件包的 initramfs drop-in 是否存在，以及镜像是否已重建。"
+      },
+      "turing-unlock-failed": {
+        "symptom": "`turing_unlock` 报告解锁失败",
+        "cause": "模块会记录错误码并放弃该卡。某一步失败可能复位显卡，屏幕会黑到 `nvidia-drm` 加载为止。如果 GPU 固件没有停下，模块会保留它可能仍在使用的 DMA 缓冲区，直到下次断电——重试前请先断电。"
+      },
+      "firmware-never-stops": {
+        "symptom": "显卡上的固件始终不停",
+        "cause": "模块会记录这一点，并保留固件可能仍在使用的 DMA 缓冲区直到下次断电。再次尝试前请先断电。"
+      }
+    }
   },
   "faq": {
-    "title": "GPU Unlock 常见问题",
-    "description": "解锁改了什么、哪些卡已确认、能快多少、能否在 Windows 上使用、硬件风险有多大、以及如何关闭。"
+    "title": "GPU Unlock 模块问答",
+    "description": "三个模块有什么区别、某张卡该装哪个、initramfs 的加载顺序怎么起作用，以及解锁没反应时先查什么。",
+    "q1": "我该用哪个模块？",
+    "a1": "30 系用 Ampere 模块；40 系用 Ada 分支，它同时保留 Ampere 的设备列表；20 系用 Turing 模块，那是另一个内核模块、另一个参数名。卡片列表与接受的 PCI ID 在 gpuunlock.com 上。",
+    "q2": "能只用一个模块覆盖全部吗？",
+    "a2": "不能。Ada 分支包含 Ampere，所以 30、40 系一张卡 clone 就够。Turing 模块与它没有共用代码，20 系和 30/40 系同时存在时必须一起装。",
+    "q3": "为什么必须赶在 NVIDIA 驱动之前加载？",
+    "a3": "覆盖必须发生在驱动绑定显卡之前。驱动在探测阶段会写入锁定的 speed-select 状态，之后再加载模块就没有可改的对象了。所以安装包把模块放进 initramfs，让它在驱动还没装上时先跑。",
+    "q4": "解锁没反应，先查什么？",
+    "a4": "先看内核环形缓冲区里模块自己的日志。完全没有日志，说明 initramfs 的 drop-in 缺失或参数没进内核命令行；有日志但写着跳过该卡，说明这张卡的 PCI ID 不在该模块的接受列表里。",
+    "q5": "能撤销吗？",
+    "a5": "能。把 opt-in 参数从内核命令行去掉，模块就不再动这张卡。内核参数既是开关也是选择卡片的机制。",
+    "q6": "Turing 模块的流程一样吗？",
+    "a6": "原理一样，名字不同：参数是 turing_unlock.targets= 而不是 gpu_unlock.targets=，initramfs 里是 turing_unlock 而不是 gpu_unlock。把 Ampere 的命令照搬到 20 系上，是最常见的白费一次启动的做法。"
   }
 }

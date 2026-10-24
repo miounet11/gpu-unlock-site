@@ -1,48 +1,50 @@
 {
   "nav": {
-    "label": "Principal",
+    "label": "Navegação principal",
     "skip": "Ir para o conteúdo",
-    "gpus": "Placas",
-    "benchmarks": "Benchmarks",
+    "modules": "Módulos",
     "install": "Instalação",
-    "faq": "FAQ"
+    "faq": "Perguntas frequentes",
+    "reference": "Referência de placas"
   },
   "home": {
-    "title": "GPU Unlock — placas NVIDIA suportadas, ganhos medidos e passos de instalação",
-    "description": "Quais placas NVIDIA os módulos do kernel GPU Unlock suportam em Ampere, Ada e Turing (série RTX 20), o que as medições na mesma placa mostraram e como instalar.",
-    "h1": "Desbloqueie o SM speed-select da NVIDIA, com os números junto",
-    "lead": "Três módulos de kernel upstream permitem que placas GeForce de consumidor alcancem a vazão tensorial que a NVIDIA reserva a outros produtos. Este site reúne o que eles suportam, o que foi medido na mesma placa antes e depois, e o que quebra.",
-    "statIds": "IDs PCI aceitos",
-    "statIdsNote": "Abrange AD102, AD103, GA102, GA103, GA104, GA106, TU102, TU104 e TU106. Ser aceito não é o mesmo que resultado confirmado.",
-    "statMeasured": "placas com números publicados na mesma placa",
-    "statMeasuredNote": "RTX 4090, RTX 4070 Ti SUPER e RTX 2080 Ti. Todo o resto depende de relatos de usuários ou não foi testado.",
-    "statGain": "ganho tensorial máximo",
-    "statGainNote": "f16/f32 e bf16/f32 na RTX 4090. FP32 e INT8 nunca foram limitados e não mudam.",
-    "whatTitle": "O que o desbloqueio faz",
-    "whatBody": "O módulo habilita a substituição do SM speed-select antes de o driver NVIDIA original se vincular. Ele roda a partir do initramfs, então o driver nunca vê a placa no estado travado. Essa ordem é o mecanismo inteiro — carregar o módulo depois que o driver se vinculou não funciona.",
-    "whatWarnTitle": "O risco de hardware é real e documentado",
-    "whatWarnBody": "O desbloqueio grava registradores speed-select e executa um FLR antes de o driver carregar. Mantenha uma entrada de boot original sem modificações, valide um boot a frio antes de tornar qualquer coisa persistente e trate o caminho AD103 como experimental — ele foi validado em uma única placa.",
-    "benchTitle": "Medições na mesma placa",
-    "benchBody": "Cada linha abaixo compara original e desbloqueado na mesma placa com o mesmo binário. Modos que já estavam em taxa máxima são omitidos aqui e aparecem por completo na página de benchmarks.",
-    "colCard": "Placa",
-    "colMode": "Modo",
-    "colStock": "Original",
-    "colUnlocked": "Desbloqueado",
-    "colGain": "Ganho",
-    "seeAllBench": "Todas as linhas de benchmark, incluindo os caminhos que não mudaram",
-    "cardsTitle": "Placas",
-    "cardsBody": "Agrupadas pelo que realmente se sabe, não pelo que o módulo aceita.",
-    "cardCount": "Todas as {count} placas, incluindo IDs não testados e não suportados",
-    "startTitle": "Por onde começar",
-    "startStep1": "Verifique se sua placa está na lista aceita e quão bem ela é conhecida",
-    "startStep2": "Leia a ordem de instalação — o passo do initramfs não é opcional",
-    "startStep3": "Leia os modos de falha antes de gravar qualquer coisa",
-    "upstreamTitle": "Projetos upstream",
-    "upstreamBody": "Este site documenta esses repositórios; não os bifurca.",
-    "upstreamAmpere": "o módulo Ampere: GA102, GA103, GA104, GA106 (v1.0.0)",
-    "upstreamAda": "o fork Ada: adiciona AD102 RTX 4090 e um canário AD103 experimental (v1.1.1)",
-    "upstreamTuring": "o módulo Turing: TU102, TU104, TU106 (série RTX 20); apenas a 2080 Ti foi medida",
-    "upstreamUsage": "as notas públicas de uso deste site"
+    "title": "GPU Unlock — compilar, instalar e verificar os módulos SM speed-select",
+    "description": "Um site de projeto para os módulos de kernel da NVIDIA com override de SM speed-select: escolher o módulo para a sua placa, compilar, integrar ao initramfs, ativar pela linha de comando do kernel e verificar o resultado.",
+    "h1": "Instale o override SM speed-select, módulo por módulo",
+    "lead": "Três módulos de kernel liberam a vazão de tensores que a NVIDIA reserva para outras partes do chip. Este site é a parte de compilação e instalação do projeto: qual módulo sua placa exige, os comandos exatos, os nomes dos parâmetros e as verificações que provam que funcionou. Quais placas têm suporte e o que foi medido nelas fica registrado separadamente no site de referência.",
+    "modulesTitle": "Escolha o seu módulo",
+    "modulesIntro": "Dois dos três têm o mesmo nome, gpu_unlock; o de Turing é outro módulo, com outro parâmetro. Instale o que corresponde ao seu chip: o parâmetro errado não faz nada, e sem nenhuma mensagem.",
+    "colModule": "Módulo",
+    "colChips": "Chips",
+    "colParam": "Parâmetro do kernel",
+    "colRepo": "Origem",
+    "colInstall": "Instalação",
+    "quickstartTitle": "Compilar e instalar",
+    "quickstartBody": "Nenhum dos módulos vem com binários prontos. Cada um é compilado na máquina de destino, porque a carga útil é gerada contra o firmware da NVIDIA já instalado ali. A mesma interface make install atende a todas as famílias de distribuição.",
+    "quickstartAmpere": "Ampere (série RTX 30)",
+    "quickstartAda": "Ada (série RTX 40)",
+    "quickstartTuring": "Turing (série RTX 20)",
+    "optInTitle": "Ativar pela linha de comando do kernel",
+    "optInBody": "Um módulo carregado sem ter o que fazer deixa a placa bloqueada. O parâmetro é o interruptor, e precisa chegar à entrada de inicialização.",
+    "verifyTitle": "Verifique antes de tornar permanente",
+    "verifyBody": "O desbloqueio é invisível quando falha, então confira cada etapa em vez de supor.",
+    "verify1": "Inicie uma vez com o parâmetro definido e procure a linha de desbloqueio no log do kernel",
+    "verify2": "Confirme que a placa está na lista de IDs de dispositivo aceitos do seu módulo",
+    "verify3": "Meça de novo, na mesma placa, um caminho que o override deveria alterar",
+    "riskTitle": "O risco de hardware está documentado, não é teórico",
+    "riskBody": "Os módulos escrevem nos registradores speed-select e executam um FLR antes de o driver assumir. Mantenha uma entrada de boot de fábrica sem modificações, valide uma inicialização a frio antes de tornar algo permanente e trate o caminho AD103 como experimental: ele foi validado em uma única placa.",
+    "referenceTitle": "Suporte a placas e resultados medidos ficam no site de referência",
+    "referenceBody": "Os IDs de dispositivo suportados, o status por placa e as medições stock contra desbloqueado na mesma placa são mantidos no site de referência acompanhante, onde ficam também as evidências. Este site cobre a compilação, a ordem de boot e as verificações.",
+    "referenceCards": "Placas suportadas e IDs de dispositivo",
+    "referenceBench": "Linhas de medição na mesma placa",
+    "upstreamTitle": "Projetos de origem",
+    "upstreamBody": "Este site documenta estes repositórios; não os bifurca.",
+    "upstreamUsage": "as notas de uso e o roteiro de instalação deste projeto",
+    "modules": {
+      "ampere": "O módulo original: GA102, GA103, GA104 e GA106, carregado como gpu_unlock.",
+      "ada": "O fork de Ada: adiciona AD102 e um canary AD103 experimental, e ainda cobre as listas Ampere.",
+      "turing": "Um módulo separado para as placas da série RTX 20, carregado como turing_unlock com parâmetro próprio."
+    }
   },
   "gpus": {
     "title": "Placas NVIDIA suportadas",
@@ -125,10 +127,104 @@
     "repoAmpere": "Ampere: GA102, GA103, GA104, GA106. Sem suporte a Ada.",
     "repoAda": "Ada: adiciona AD102 RTX 4090 e o canário AD103 experimental, e mantém a lista de dispositivos Ampere.",
     "faqLink": "Perguntas comuns",
-    "repoTuring": "Turing: a série RTX 20 (TU102, TU104, TU106) por um módulo separado, turing_unlock. Os módulos Ampere/Ada não atuam nessas placas."
+    "repoTuring": "Turing: a série RTX 20 (TU102, TU104, TU106) por um módulo separado, turing_unlock. Os módulos Ampere/Ada não atuam nessas placas.",
+    "requirements": {
+      "linux-headers": "Linux com os headers do kernel e uma cadeia DKMS funcional (nos três forks).",
+      "source-build": "Código GPL-2.0-only compilado localmente — o firmware da NVIDIA fixado é baixado e gerado na sua própria máquina.",
+      "stock-entry": "Uma entrada de boot original sem modificações mantida disponível, para recuperar caso o desbloqueio falhe.",
+      "accepted-pci-id": "Uma placa cujo ID PCI esteja na lista aceita pelo módulo (veja o índice de placas)."
+    },
+    "steps": {
+      "pick-fork": {
+        "title": "Escolha o fork que corresponde à sua placa",
+        "body": "O fork Ampere (Zagitta/gpu-unlock, v1.0.0) cobre GA102, GA103, GA104 e GA106. O fork Ada (JustAResearcher/gpu-unlock-ada, v1.1.1) é esse mesmo módulo com AD102 (RTX 4090) e um canário AD103 experimental adicionados, então também trata a lista de dispositivos Ampere. O fork Turing (nlzy/turing-unlock, v2.0.0) é um módulo separado para a série RTX 20: TU102, TU104 e TU106.",
+        "note": "O fork Ada mantém as listas originais de GeForce/CMP para GA102 e GA104 e acrescenta a lista GA103/GA106. As RTX A-series profissionais e os modelos de datacenter não são aceitos por nenhum dos três. Os módulos Turing e Ampere/Ada não são intercambiáveis — uma placa TU102 não será tocada pelo `gpu_unlock`."
+      },
+      "clone": {
+        "title": "Clone e compile os pacotes localmente",
+        "body": "Nenhum dos três forks distribui binários pré-compilados: cada um compila na máquina de destino, porque a etapa de geração do firmware está fixada no firmware da NVIDIA que você já tem instalado.",
+        "note": "Os três forks usam a mesma fachada `make install`, que detecta a família da distribuição. Os alvos explícitos são `make install-arch`, `make install-deb` e `make install-rpm`. Os headers do kernel e uma cadeia DKMS já devem estar presentes. A compilação Turing baixa dois arquivos fixados da NVIDIA e verifica o SHA-256 deles — eles ficam em `~/.cache/turing-unlock/inputs`, e `make inputs` os obtém antecipadamente."
+      },
+      "initramfs": {
+        "title": "Deixe o pacote ligar o módulo ao initramfs",
+        "body": "O desbloqueio só vale se o módulo for carregado antes de o driver da NVIDIA vincular a placa — `gpu_unlock` no Ampere/Ada, `turing_unlock` na série RTX 20. Carregá-lo manualmente depois não desbloqueia, porque o módulo recusa uma placa que já tem driver vinculado (`-EBUSY`). Por isso cada pacote coloca seu módulo e firmware no initramfs e os carrega ali.",
+        "note": "Com initramfs-tools e dracut o módulo é recompilado para cada kernel instalado que tenha headers, e as imagens são reconstruídas na instalação e na remoção. Kernels instalados depois recebem o módulo pelos próprios hooks. O mkinitcpio ignora drop-ins numa imagem construída com `-c <config>` ou um `_config` de preset — coloque você mesmo `gpu_unlock` (ou `turing_unlock`) logo antes de `nvidia` nos MODULES dessa configuração."
+      },
+      "opt-in": {
+        "title": "Ative na linha de comando do kernel",
+        "body": "O módulo não faz nada a menos que a linha de comando do kernel peça. Defina `gpu_unlock.targets=` como `all` para o caminho Ampere, ou como endereços PCI explícitos.",
+        "note": "Não existe regra `softdep nvidia pre:` de propósito: o kmod respeita apenas a primeira linha `softdep nvidia` que lê, então a regra de outro pacote venceria silenciosamente. A ordem de carregamento fica a cargo do drop-in do initramfs."
+      },
+      "turing-opt-in": {
+        "title": "Turing usa outro nome de parâmetro",
+        "body": "O módulo da série RTX 20 é `turing_unlock`, então a opção é `turing_unlock.targets=` — não `gpu_unlock.targets=`. Ele aceita `all` ou uma lista de endereços PCI separados por vírgula, como impressos por `lspci -D`; maiúsculas e minúsculas não importam. Sem a opção o módulo carrega e retorna sem tocar em nada.",
+        "note": "Os alvos são comparados por endereço PCI, e o módulo serializa as placas atrás de um mutex, então elas são desbloqueadas uma de cada vez. Se um driver já domina a placa, o módulo a deixa em paz e registra `unlock failed (-16)` (EBUSY) — isso é um problema de ordem de carregamento, não da placa. O módulo faz um FLR PCIe antes, se o estado da placa exigir. Em caso de sucesso a placa não é reiniciada; um passo falho pode reiniciá-la, e a tela fica preta até o `nvidia-drm` assumir."
+      },
+      "ad103": {
+        "title": "AD103 exige dois opt-ins e um endereço exato",
+        "body": "A RTX 4070 Ti SUPER (`10de:2705`) é experimental e foi validada em uma única placa. Ela exige tanto `gpu_unlock.ad103_experimental=1` quanto `gpu_unlock.targets=` definido com o endereço PCI exato dessa placa. `targets=all` nunca a seleciona.",
+        "note": "Outros IDs Ada, as RTX A-series profissionais e os modelos de datacenter não são aceitos. Compartilhar firmware entre chips Ada não comprova suporte a placas não testadas."
+      },
+      "resume": {
+        "title": "Saiba o que acontece ao suspender",
+        "body": "Isto vale apenas para o `gpu_unlock` (Ampere/Ada): ele reaplica a sobreposição ao retomar, o que pode reiniciar uma placa de vídeo de exibição. Adicione `gpu_unlock.resume=0` à linha de comando do kernel — ou escreva `0` em `/sys/module/gpu_unlock/parameters/resume` — para desligar isso. A hibernação não é coberta em nenhum dos casos.",
+        "note": "O `turing_unlock` não tem parâmetro nem hook de retomada; ele roda uma vez a partir do initramfs e não tem outros parâmetros de módulo além de `targets`."
+      },
+      "make-persistent": {
+        "title": "Persista a entrada de boot só depois de um boot a frio funcionar",
+        "body": "Valide primeiro um boot a frio e um reboot a quente nessa placa exata. Só então torne a entrada do gerenciador de boot permanente. Mantenha uma entrada original sem modificações disponível e revalide `gpu_unlock: unlocked`, a leitura da taxa e a saúde da GPU a cada boot.",
+        "note": "O canário testado usa uma imagem específica de uma versão de kernel; regenere e revalide antes de remover seu kernel fixado durante uma atualização."
+      },
+      "avoid": {
+        "title": "Não deixe o driver carregar cedo",
+        "body": "Evite `nvidia-smi`, CUDA, NVML e `nvidia-modprobe` antes de uma tentativa manual com a placa fria: eles podem carregar a NVIDIA pelo nome, e as regras comuns de lista negra do modprobe não bloqueiam cargas explícitas por nome. O fluxo de initramfs do pacote evita a necessidade de preparar o firmware à mão."
+      }
+    },
+    "failures": {
+      "tensor-unchanged": {
+        "symptom": "A placa fica desbloqueada mas a taxa tensorial não muda",
+        "cause": "Algumas placas concluem o desbloqueio sem ganhar a taxa (a RTX 3080 Ti 20 GB OEM reporta BF16 ainda em metade da taxa). Verifique com um benchmark antes/depois na mesma placa em vez de supor que o desbloqueio implica o ganho."
+      },
+      "blank-display": {
+        "symptom": "A tela fica preta após o desbloqueio",
+        "cause": "Esperado durante a transição: o framebuffer do firmware é removido logo antes do FLR e a tela fica preta até o `nvidia-drm` assumir. A transição de exibição não fez parte da validação da RTX 4090."
+      },
+      "unlocked-log-only": {
+        "symptom": "`gpu_unlock` aparece no log mas a placa não é desbloqueada",
+        "cause": "O módulo carregou depois de a NVIDIA já ter vinculado a placa, ou `gpu_unlock.targets=` está ausente/errado. A sobreposição precisa rodar do initramfs, antes de o driver vincular."
+      },
+      "turing-silent": {
+        "symptom": "`turing_unlock` não registra absolutamente nada numa placa RTX 20",
+        "cause": "Falta `turing_unlock.targets=`, então o módulo retorna imediatamente: sem a opção ele não faz nada. Usar `gpu_unlock.targets=` no lugar produz exatamente esse silêncio, porque o módulo Ampere/Ada nunca toca TU102/TU104/TU106."
+      },
+      "turing-ebusy": {
+        "symptom": "`turing_unlock` registra `unlock failed (-16)`",
+        "cause": "EBUSY: um driver já havia vinculado a placa quando o módulo rodou. O desbloqueio deve acontecer a partir do initramfs, antes de o `nvidia` vincular; confira se o drop-in do initramfs do pacote está presente e se a imagem foi reconstruída."
+      },
+      "turing-unlock-failed": {
+        "symptom": "`turing_unlock` reporta falha no desbloqueio",
+        "cause": "O módulo registra o código de erro e deixa a placa em paz. Um passo falho pode reiniciar a placa, o que deixa a tela preta até o `nvidia-drm` carregar. Se o firmware da GPU não parar, o módulo mantém os buffers DMA até o próximo desligamento — desligue antes de tentar de novo."
+      },
+      "firmware-never-stops": {
+        "symptom": "O firmware de uma placa nunca para",
+        "cause": "O módulo registra isso e mantém os buffers DMA que o firmware ainda pode usar até o próximo desligamento. Desligue antes de tentar de novo."
+      }
+    }
   },
   "faq": {
-    "title": "FAQ do GPU Unlock",
-    "description": "O que o desbloqueio muda, quais placas estão confirmadas, quanto mais rápido fica, se funciona no Windows, qual é o risco de hardware e como desativá-lo."
+    "title": "FAQ dos módulos GPU Unlock",
+    "description": "O que diferencia os três módulos, qual uma placa precisa, como funciona a ordem de carga no initramfs e o que checar quando a ativação não faz nada.",
+    "q1": "Qual módulo eu preciso?",
+    "a1": "Placas da série RTX 30 usam o módulo Ampere. A série RTX 40 usa o fork de Ada, que também mantém a lista Ampere. A série RTX 20 usa o módulo Turing, um módulo de kernel separado com parâmetro próprio. A lista de placas e os IDs PCI aceitos ficam em gpuunlock.com.",
+    "q2": "Um único módulo basta?",
+    "a2": "Não. O fork de Ada cobre Ampere, então um clone só basta para as séries 30 e 40. O módulo Turing não compartilha código com ele e precisa ser instalado junto se houver uma 20 junto de uma 30 ou 40.",
+    "q3": "Por que o módulo precisa carregar antes do driver da NVIDIA?",
+    "a3": "A ativação precisa acontecer antes de o driver vincular a placa. O driver grava o estado bloqueado de speed-select durante a sondagem, então um módulo carregado depois não tem mais o que mudar. Por isso o pacote coloca o módulo no initramfs, que roda antes do driver.",
+    "q4": "A ativação não faz nada, o que verifico primeiro?",
+    "a4": "O buffer circular do kernel e a linha de log do módulo. Se não houver nenhuma, falta o drop-in do initramfs ou o parâmetro não chegou à linha de comando. Se disser que a placa foi ignorada, o ID PCI dela não está na lista aceita.",
+    "q5": "Dá para reverter?",
+    "a5": "Dá. Remova o parâmetro de ativação da linha de comando e o módulo para de tocar na placa. O mesmo parâmetro é a ativação e a desativação.",
+    "q6": "O módulo Turing funciona do mesmo jeito?",
+    "a6": "Mesmo princípio, nomes diferentes: turing_unlock.targets= em vez de gpu_unlock.targets=, e turing_unlock em vez de gpu_unlock no initramfs. Copiar um comando Ampere para uma série 20 é a forma mais rápida de desperdiçar um boot."
   }
 }

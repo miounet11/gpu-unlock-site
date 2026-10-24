@@ -8,18 +8,14 @@
 // Exits non-zero if the key file is not being served, because the submission would be
 // rejected anyway and a green exit would hide that.
 
-import { readFileSync } from "node:fs";
 
 const SITE = "https://gpu-unlock.com";
 const KEY = "fe762070f9f94699958963f0e664db51";
 const LOCALES = ["en", "zh", "ja", "de", "fr", "es", "pt"];
-const HUBS = ["", "/gpus", "/benchmarks", "/install", "/faq"];
+const HUBS = ["", "/install", "/faq"];
 
-// Slugs are read from the build output so a new card cannot be forgotten here.
-const built = readFileSync(new URL("./indexnow-slugs.txt", import.meta.url), "utf8")
-  .split("\n")
-  .map((line) => line.trim())
-  .filter(Boolean);
+// The card pages live on the reference site now, so this site has no card slugs to submit.
+const built = [];
 
 const keyLocation = `${SITE}/${KEY}.txt`;
 const keyResponse = await fetch(keyLocation);

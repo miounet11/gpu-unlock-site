@@ -1,6 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { FAQS } from "@/data/faq";
 import { breadcrumbLd, jsonLdGraph, pageLd } from "@/lib/jsonld";
 import { pageMeta } from "@/lib/seo";
 
@@ -20,6 +19,11 @@ export default async function Faq({ params }: { params: Promise<{ locale: string
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("faq");
+  // The questions live in the message files, so every locale carries its own wording.
+  const faqs = Array.from({ length: 6 }, (_, i) => ({
+    q: t(`q${i + 1}`),
+    a: t(`a${i + 1}`),
+  }));
 
   return (
     <div className="container page">
@@ -35,7 +39,7 @@ export default async function Faq({ params }: { params: Promise<{ locale: string
               ]),
               {
                 "@type": "FAQPage",
-                mainEntity: FAQS.map((f) => ({
+                mainEntity: faqs.map((f) => ({
                   "@type": "Question",
                   name: f.q,
                   acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -53,7 +57,7 @@ export default async function Faq({ params }: { params: Promise<{ locale: string
       <h1>{t("title")}</h1>
       <p className="page-intro">{t("description")}</p>
 
-      {FAQS.map((f) => (
+      {faqs.map((f) => (
         <section key={f.q} className="faq-item">
           <h2>{f.q}</h2>
           <p>{f.a}</p>

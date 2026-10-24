@@ -1,6 +1,10 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { INSTALL_STEPS, REQUIREMENTS, FAILURE_MODES } from "@/data/install";
+import {
+  FAILURE_MODE_KEYS,
+  INSTALL_STEPS,
+  REQUIREMENT_KEYS,
+} from "@/data/install";
 import { breadcrumbLd, jsonLdGraph, pageLd } from "@/lib/jsonld";
 import { pageMeta } from "@/lib/seo";
 import { REPOS } from "@/lib/site";
@@ -26,6 +30,10 @@ export default async function Install({ params }: { params: Promise<{ locale: st
   setRequestLocale(locale);
   const t = await getTranslations("install");
 
+  // `avoid` has no note in any locale; every other step does. Asking next-intl for a missing
+  // key throws, so the presence check has to happen before the t() call rather than after it.
+  const hasNote = (id: string) => Boolean((t.raw(`steps.${id}`) as { note?: string }).note);
+
   return (
     <div className="container page">
       <script
@@ -47,8 +55,8 @@ export default async function Install({ params }: { params: Promise<{ locale: st
                 step: INSTALL_STEPS.map((s, i) => ({
                   "@type": "HowToStep",
                   position: i + 1,
-                  name: s.title,
-                  text: s.body,
+                  name: t(`steps.${s.id}.title`),
+                  text: t(`steps.${s.id}.body`),
                   url: `https://gpu-unlock.com/${locale}/install#step-${s.id}`,
                 })),
               },
@@ -73,19 +81,23 @@ export default async function Install({ params }: { params: Promise<{ locale: st
 
       <h2>{t("reqTitle")}</h2>
       <ul>
-        {REQUIREMENTS.map((r) => (
-          <li key={r}>{r}</li>
+        {REQUIREMENT_KEYS.map((key) => (
+          <li key={key}>{t(`requirements.${key}`)}</li>
         ))}
       </ul>
 
       {INSTALL_STEPS.map((s, i) => (
         <section key={s.id} id={`step-${s.id}`}>
           <h2>
-            {i + 1}. {s.title}
+            {i + 1}. {t(`steps.${s.id}.title`)}
           </h2>
-          <p>{s.body}</p>
-          {s.code ? <pre><code>{s.code}</code></pre> : null}
-          {s.note ? <p className="meta">{s.note}</p> : null}
+          <p>{t(`steps.${s.id}.body`)}</p>
+          {s.code ? (
+            <pre>
+              <code>{s.code}</code>
+            </pre>
+          ) : null}
+          {hasNote(s.id) ? <p className="meta">{t(`steps.${s.id}.note`)}</p> : null}
         </section>
       ))}
 
@@ -97,9 +109,9 @@ export default async function Install({ params }: { params: Promise<{ locale: st
 
       <h2>{t("failTitle")}</h2>
       <ul>
-        {FAILURE_MODES.map((f) => (
-          <li key={f.symptom}>
-            <strong>{f.symptom}</strong> — {f.cause}
+        {FAILURE_MODE_KEYS.map((key) => (
+          <li key={key}>
+            <strong>{t(`failures.${key}.symptom`)}</strong> — {t(`failures.${key}.cause`)}
           </li>
         ))}
       </ul>

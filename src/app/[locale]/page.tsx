@@ -1,10 +1,8 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
-import { DEVICES, acceptedCount } from "@/data/devices";
-import { BENCH_RUNS } from "@/data/benchmarks";
+import { MODULES } from "@/data/modules";
 import { jsonLdGraph, organizationLd, pageLd, websiteLd } from "@/lib/jsonld";
 import { pageMeta } from "@/lib/seo";
-import { REPOS, SITE } from "@/lib/site";
+import { REPOS, REFERENCE_SITE, SITE } from "@/lib/site";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -15,8 +13,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: t("title"),
     description: t("description"),
     keywords: [
-      "gpu unlock", "nvidia gpu unlock", "SM speed select override", "RTX 4090 unlock",
-      "RTX 3090 unlock", "gpu_unlock kernel module", "ampere unlock", "ada unlock",
+      "gpu unlock install", "gpu_unlock.targets", "turing_unlock.targets",
+      "gpu unlock initramfs", "SM speed select override module", "nvidia kernel module install",
     ],
   });
 }
@@ -25,8 +23,6 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("home");
-  const measured = DEVICES.filter((d) => d.status === "measured");
-  const reported = DEVICES.filter((d) => d.status === "reported");
 
   return (
     <div className="container page">
@@ -44,7 +40,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 headline: t("h1"),
                 description: t("description"),
                 inLanguage: locale,
-                about: ["NVIDIA GPU", "kernel module", "SM speed select override"],
+                about: ["NVIDIA GPU", "kernel module", "SM speed select override", "initramfs"],
               },
             ]),
           ),
@@ -54,121 +50,102 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <h1>{t("h1")}</h1>
       <p className="lead">{t("lead")}</p>
 
-      <div className="grid" style={{ marginTop: "2rem" }}>
-        <div className="card">
-          <div className="stat">
-            <span className="v">{acceptedCount()}</span>
-            <span className="k">{t("statIds")}</span>
-          </div>
-          <p className="meta">{t("statIdsNote")}</p>
-        </div>
-        <div className="card">
-          <div className="stat">
-            <span className="v">{measured.length}</span>
-            <span className="k">{t("statMeasured")}</span>
-          </div>
-          <p className="meta">{t("statMeasuredNote")}</p>
-        </div>
-        <div className="card">
-          <div className="stat">
-            <span className="v">2×</span>
-            <span className="k">{t("statGain")}</span>
-          </div>
-          <p className="meta">{t("statGainNote")}</p>
-        </div>
-      </div>
-
-      <h2>{t("whatTitle")}</h2>
-      <p>{t("whatBody")}</p>
-      <div className="callout">
-        <p>
-          <strong>{t("whatWarnTitle")}</strong>
-        </p>
-        <p>{t("whatWarnBody")}</p>
-      </div>
-
-      <h2>{t("benchTitle")}</h2>
-      <p>{t("benchBody")}</p>
-      <table>
+      <h2>{t("modulesTitle")}</h2>
+      <p>{t("modulesIntro")}</p>
+      <table className="module-table">
         <thead>
           <tr>
-            <th>{t("colCard")}</th>
-            <th>{t("colMode")}</th>
-            <th>{t("colStock")}</th>
-            <th>{t("colUnlocked")}</th>
-            <th>{t("colGain")}</th>
+            <th>{t("colModule")}</th>
+            <th>{t("colChips")}</th>
+            <th>{t("colParam")}</th>
+            <th>{t("colRepo")}</th>
+            <th>{t("colInstall")}</th>
           </tr>
         </thead>
         <tbody>
-          {BENCH_RUNS.flatMap((run) =>
-            run.rows
-              .filter((r) => r.ratio > 1.1)
-              .map((r) => (
-                <tr key={`${r.cardSlug}-${r.mode}`}>
-                  <td>
-                    <Link href={`/gpus/${r.cardSlug}`}>{r.card}</Link>
-                  </td>
-                  <td>
-                    <code>{r.mode}</code>
-                  </td>
-                  <td>{r.stock.toFixed(1)}</td>
-                  <td>{r.unlocked.toFixed(1)}</td>
-                  <td>
-                    <strong>{r.ratio.toFixed(2)}×</strong>
-                  </td>
-                </tr>
-              )),
-          )}
+          {MODULES.map((m) => (
+            <tr key={m.id}>
+              <td>
+                <code>{m.module}</code>
+                <br />
+                <span className="meta">{m.version}</span>
+              </td>
+              <td>{m.chips}</td>
+              <td>
+                <code>{m.parameter}</code>
+              </td>
+              <td>
+                <a href={m.repo} rel="noopener noreferrer">
+                  {m.repoName}
+                </a>
+              </td>
+              <td>
+                <a href={`${SITE}/${locale}/install#module-${m.id}`}>{m.id}</a>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
-      <p className="meta">
-        <Link href="/benchmarks">{t("seeAllBench")}</Link>
-      </p>
-
-      <h2>{t("cardsTitle")}</h2>
-      <p>{t("cardsBody")}</p>
-      <ul className="gpu-list">
-        {measured.map((d) => (
-          <li key={d.slug}>
-            <Link className="name" href={`/gpus/${d.slug}`}>
-              {d.name}
-            </Link>
-            <span className="pid">{d.pciId}</span>
-            <span className="badge measured">{d.chip}</span>
-            {d.gainMin ? (
-              <span className="meta">
-                +{d.gainMin}
-                {d.gainMax && d.gainMax !== d.gainMin ? `–${d.gainMax}` : ""}%
-              </span>
-            ) : null}
-          </li>
-        ))}
-        {reported.slice(0, 5).map((d) => (
-          <li key={d.slug}>
-            <Link className="name" href={`/gpus/${d.slug}`}>
-              {d.name}
-            </Link>
-            <span className="pid">{d.pciId}</span>
-            <span className="badge reported">{d.chip}</span>
+      <ul className="module-notes">
+        {MODULES.map((m) => (
+          <li key={m.id}>
+            <strong>{m.module}</strong> — {t(`modules.${m.summaryKey}`)}
           </li>
         ))}
       </ul>
-      <p className="meta">
-        <Link href="/gpus">{t("cardCount", { count: DEVICES.length })}</Link>
-      </p>
 
-      <h2>{t("startTitle")}</h2>
+      <h2>{t("quickstartTitle")}</h2>
+      <p>{t("quickstartBody")}</p>
+      <div className="quickstart">
+        <div>
+          <h3>Ampere / Ada</h3>
+          <pre>
+            <code>{MODULES[0].commands.join("\n")}</code>
+          </pre>
+        </div>
+        <div>
+          <h3>Turing</h3>
+          <pre>
+            <code>{MODULES[2].commands.join("\n")}</code>
+          </pre>
+        </div>
+      </div>
+      <p className="meta">{t("quickstartAmpere")}</p>
+      <p className="meta">{t("quickstartTuring")}</p>
+
+      <h2>{t("optInTitle")}</h2>
+      <p>{t("optInBody")}</p>
+      <pre>
+        <code>{"# all accepted cards\ngpu_unlock.targets=all\n\n# one card, by PCI address\ngpu_unlock.targets=0000:21:00.0\n\n# RTX 20 series — a different module, a different parameter\nturing_unlock.targets=all"}</code>
+      </pre>
+
+      <h2>{t("verifyTitle")}</h2>
+      <p>{t("verifyBody")}</p>
       <ol>
-        <li>
-          <Link href="/gpus">{t("startStep1")}</Link>
-        </li>
-        <li>
-          <Link href="/install">{t("startStep2")}</Link>
-        </li>
-        <li>
-          <Link href="/faq">{t("startStep3")}</Link>
-        </li>
+        <li>{t("verify1")}</li>
+        <li>{t("verify2")}</li>
+        <li>{t("verify3")}</li>
       </ol>
+
+      <h2>{t("riskTitle")}</h2>
+      <div className="callout danger">
+        <p>{t("riskBody")}</p>
+      </div>
+
+      <h2>{t("referenceTitle")}</h2>
+      <p>{t("referenceBody")}</p>
+      <ul>
+        <li>
+          <a href={REFERENCE_SITE} rel="noopener noreferrer">
+            {t("referenceCards")}
+          </a>
+        </li>
+        <li>
+          <a href={REFERENCE_SITE} rel="noopener noreferrer">
+            {t("referenceBench")}
+          </a>
+        </li>
+      </ul>
 
       <h2>{t("upstreamTitle")}</h2>
       <p>{t("upstreamBody")}</p>
@@ -176,26 +153,22 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <li>
           <a href={REPOS.ampere} rel="noopener noreferrer">
             Zagitta/gpu-unlock
-          </a>{" "}
-          — {t("upstreamAmpere")}
+          </a>
         </li>
         <li>
           <a href={REPOS.ada} rel="noopener noreferrer">
             JustAResearcher/gpu-unlock-ada
-          </a>{" "}
-          — {t("upstreamAda")}
+          </a>
         </li>
         <li>
           <a href={REPOS.turing} rel="noopener noreferrer">
             nlzy/turing-unlock
-          </a>{" "}
-          — {t("upstreamTuring")}
+          </a>
         </li>
         <li>
           <a href={REPOS.usage} rel="noopener noreferrer">
             miounet11/gpu-unlock
-          </a>{" "}
-          — {t("upstreamUsage")}
+          </a>
         </li>
       </ul>
     </div>
