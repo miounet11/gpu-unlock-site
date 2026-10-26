@@ -5,7 +5,8 @@
     "modules": "Modules",
     "install": "Installation",
     "faq": "Questions fréquentes",
-    "reference": "Référence des cartes"
+    "reference": "Référence des cartes",
+    "windows": "Windows"
   },
   "home": {
     "title": "GPU Unlock — construire, installer et vérifier les modules SM speed-select",
@@ -226,5 +227,91 @@
     "a5": "Oui. Retirez le paramètre d'opt-in de la ligne de commande : le module ne touche plus la carte. Le paramètre est à la fois l'opt-in et l'opt-out.",
     "q6": "Le module Turing fonctionne-t-il pareil ?",
     "a6": "Même principe, noms différents : turing_unlock.targets= au lieu de gpu_unlock.targets=, et turing_unlock au lieu de gpu_unlock dans l'initramfs. Copier une commande Ampere sur une 20 est la façon la plus rapide de gâcher un boot."
+  },
+  "windows": {
+    "title": "GPU Unlock sous Windows",
+    "description": "La voie Windows de impacifist/Windows-GPU-UNLOCK : une application UEFI déverrouille la carte puis chaîne le Windows Boot Manager, si bien que la carte reste déverrouillée sous le pilote NVIDIA d'origine sans redémarrer sous Linux.",
+    "lead": "Le module Linux présenté sur ce site doit se charger avant le pilote NVIDIA, ce qui impose un redémarrage sous Linux. Ce projet fait l'inverse : une application UEFI compilée localement effectue la même écriture de registre, puis passe la main au Windows Boot Manager dans le même démarrage. La carte apparaît déverrouillée sous le pilote Windows d'origine.",
+    "packageTitle": "Programme d'installation Windows",
+    "packageBody": "Ce site construit un programme d'installation à partir de l'archive source v0.3.1 épinglée. Il installe les scripts, la documentation et les licences, c'est-à-dire une copie des sources. Aucun binaire précompilé : l'image EFI doit être compilée pour vos propres partitions. Les vidages de firmware et les DLL de pilote n'y sont pas et ne peuvent pas y être ; l'installateur épargne donc le checkout, pas le déverrouillage.",
+    "download": "Télécharger le programme d'installation",
+    "packageVersion": "Source épinglée",
+    "packageChecksum": "SHA-256 de l'archive source",
+    "packageInstallerChecksum": "SHA-256 de l’installateur",
+    "installerChecksumLink": "Télécharger le fichier .sha256",
+    "packageSource": "Version amont",
+    "packageNote": "Non signé et non officiel : ni NVIDIA, ni ASUS, ni impacifist ne le publient. Windows signalera un éditeur inconnu. Vérifiez le SHA-256 de l'archive avant d'exécuter les scripts, et lisez la page de compatibilité avant de compiler — une compilation réussie n'est pas une autorisation de déverrouiller.",
+    "routesTitle": "Trois voies de démarrage",
+    "routesIntro": "Même charge utile EFI, trois façons de la placer devant Windows. Choisissez-en une ; ce ne sont pas des étapes successives. Les commandes sont reprises telles quelles de la documentation épinglée.",
+    "routes": {
+      "source": {
+        "h": "1. Récupérer la source épinglée",
+        "b": "Clonez l'étiquette v0.3.1, pas la branche par défaut. La documentation et la compilation EFI sont liées à cette révision, et les fichiers locaux écrits par les scripts ne se transportent pas d'une révision à l'autre."
+      },
+      "usb": {
+        "h": "2a. Clé USB, sans toucher aux partitions",
+        "b": "Une clé FAT32 ordinaire ; aucune partition n'est créée, réduite ni retypée et aucune entrée de démarrage firmware n'est enregistrée. L'outil valide taille et empreinte des cinq fichiers et écrit un nouveau dossier local — vous copiez vous-même son contenu à la racine de la clé."
+      },
+      "internal": {
+        "h": "2b. ESP interne dédiée",
+        "b": "Une partition EFI système GPT FAT32 distincte d'au moins 1 GiB, préparée à la main après sauvegarde. Configure.ps1 écrit des fichiers locaux ignorés ; Build.ps1 compile un wrapper et un enfant liés par un contrat d'empreinte. Ni l'un ni l'autre ne modifie les réglages de démarrage."
+      },
+      "headless": {
+        "h": "3. Déposer, puis éventuellement enregistrer",
+        "b": "Le simple dépôt ne change ni entrée de démarrage, ni ordre, ni démarrage rapide. -Register ajoute une entrée F8 distincte et conserve la priorité existante. Le démarrage documenté est F8 → GPU Headless UNLOCK, sans aucune touche ensuite."
+      },
+      "restore": {
+        "h": "Revenir en arrière",
+        "b": "Une commande documentée remet Windows en premier. Conservez l'état local et les sauvegardes écrites par les scripts : ce sont des entrées de récupération, pas des fichiers de version."
+      }
+    },
+    "assetsTitle": "Cinq fichiers de firmware à fournir",
+    "assetsBody": "L'outil d'empaquetage et l'application UEFI rejettent tous deux une empreinte différente : une version voisine ne remplace pas. Générez-les à partir d'entrées NVIDIA obtenues légalement avec le pipeline amont épinglé ; ce site donne la procédure, pas les fichiers.",
+    "assetsNote": "Non redistribués ici ni dans l'installateur : firmware NVIDIA, vidages VBIOS/PROM, DLL de pilote et binaires EFI privés liés à une partition. Conservez avec eux la licence NVIDIA et l'avis générés.",
+    "profileTitle": "L'unique succès documenté",
+    "profileIntro": "Une machine, une carte, un démarrage : ASUS BIOS 3057 et une RTX 3090 Founders Edition le 2026-10-24. Ce sont des valeurs relevées, pas une liste d'autorisation — le code revérifie configuration, PROM, état à froid et code du pilote, et refuse ce pour quoi il n'a pas été compilé.",
+    "labels": {
+      "card": "Carte",
+      "pci": "Identité PCI",
+      "bdf": "BDF du GPU",
+      "board": "Carte mère / BIOS",
+      "cpu": "Processeur",
+      "os": "Windows / pilote",
+      "uefi": "Mode de démarrage",
+      "prom": "PROM SHA-256"
+    },
+    "benchTitle": "Mesure sur la même carte",
+    "benchIntro": "Médiane de trois exécutions, CUDA 12.6 / cuBLAS, avant et après le déverrouillage sur la même carte, pilote 617.14. Valeurs en TFLOPS.",
+    "benchCard": "Charge",
+    "benchBefore": "Avant",
+    "benchAfter": "Après",
+    "benchDelta": "Écart",
+    "howTitle": "Pourquoi ce n'est pas le module Linux",
+    "howBody": "Les modules Linux de ce site restent installés et s'exécutent à chaque démarrage, activés carte par carte sur la ligne de commande du noyau. Ici, c'est une application UEFI à usage unique, liée à un GUID de partition et à un profil de firmware ; elle déverrouille, chaîne Windows, puis n'est plus résidente. Pas de paramètre noyau, pas de drop-in initramfs, pas de paquet DKMS.",
+    "limitsTitle": "Les limites qui décident de l'essai",
+    "limits": {
+      "one-pc": {
+        "h": "Compilé pour un seul PC",
+        "b": "L'exécutable est lié au profil PCI/PROM/MMIO mesuré et à une disposition de partitions précise. Une autre machine demande un portage, pas un rapport de compatibilité."
+      },
+      "no-firmware": {
+        "h": "Apportez votre firmware",
+        "b": "Les cinq fichiers sont des entrées que vous générez. Sans eux, l'empaquetage échoue au contrôle d'empreinte, et l'installateur ne les fournit pas."
+      },
+      "safety": {
+        "h": "Ne pas contourner les contrôles",
+        "b": "Les vérifications préalables existent pour arrêter une exécution sur une machine non conforme. Les sauter, c'est transformer un démarrage raté en écran noir ou en système qui ne démarre plus."
+      },
+      "untested": {
+        "h": "Aucun résultat à long terme",
+        "b": "Sont documentés un démarrage réussi, une campagne de mesure et une session Windows. La stabilité à long terme, d'autres jeux et le débit réel en charge restent des questions distinctes et non vérifiées."
+      }
+    },
+    "linksTitle": "Documents amont",
+    "linkUpstream": "Dépôt et versions",
+    "linkGuide": "Guide USB",
+    "linkHeadless": "Guide headless interne",
+    "linkCompatibility": "Compatibilité et autres profils",
+    "faqLink": "Vous cherchez plutôt les modules Linux ? Voir la page d'installation Linux."
   }
 }

@@ -37,6 +37,7 @@ export default async function LocaleLayout({
               <nav className="site-nav" aria-label={nav.label ?? "Main"}>
                 <Link href="/#modules">{nav.modules ?? "Modules"}</Link>
                 <Link href="/install">{nav.install ?? "Install"}</Link>
+                <Link href="/windows">{nav.windows ?? "Windows"}</Link>
                 <Link href="/faq">{nav.faq ?? "FAQ"}</Link>
                 {/* The card list and the measurements are the reference site's job. Linking out
                     keeps one copy of that content instead of two nearly identical ones. */}

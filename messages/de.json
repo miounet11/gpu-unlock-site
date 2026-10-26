@@ -5,7 +5,8 @@
     "modules": "Module",
     "install": "Installation",
     "faq": "FAQ",
-    "reference": "Karten-Referenz"
+    "reference": "Karten-Referenz",
+    "windows": "Windows"
   },
   "home": {
     "title": "GPU Unlock — SM-speed-select-Module bauen, installieren und prüfen",
@@ -226,5 +227,91 @@
     "a5": "Ja. Den opt-in-Parameter aus der Kernel-Cmdline entfernen, und das Modul fasst die Karte nicht mehr an. Derselbe Parameter ist Opt-in und Opt-out.",
     "q6": "Läuft das Turing-Modul genauso?",
     "a6": "Gleiches Prinzip, andere Namen: turing_unlock.targets= statt gpu_unlock.targets= und turing_unlock statt gpu_unlock in der initramfs. Einen Ampere-Befehl auf eine 20er zu kopieren ist der häufigste Weg, einen Boot zu verschwenden."
+  },
+  "windows": {
+    "title": "GPU Unlock unter Windows",
+    "description": "Der Windows-Weg aus impacifist/Windows-GPU-UNLOCK: eine UEFI-Anwendung entsperrt die Karte und lädt den Windows Boot Manager nach, sodass die Karte ohne Neustart nach Linux unter dem originalen NVIDIA-Treiber entsperrt bleibt.",
+    "lead": "Das Linux-Modul dieser Seite muss vor dem NVIDIA-Treiber laden, was einen Neustart nach Linux bedeutet. Dieses Projekt geht den umgekehrten Weg: eine selbst gebaute UEFI-Anwendung schreibt dieselben Register und übergibt dann im selben Start an den Windows Boot Manager. Die Karte kommt entsperrt unter dem originalen Windows-Treiber hoch.",
+    "packageTitle": "Installer für Windows",
+    "packageBody": "Diese Seite baut ein Setup-Programm aus dem festgeschriebenen Quellarchiv v0.3.1. Installiert werden Skripte, Dokumentation und Lizenzen – also eine Quellkopie. Vorgebaute Artefakte enthält es nicht, weil das EFI-Image gegen die eigenen Partitionen kompiliert werden muss. Firmware-Dumps und Treiber-DLLs sind nicht enthalten und können es nicht sein; der Installer spart also den Checkout, nicht das Entsperren.",
+    "download": "Installer herunterladen",
+    "packageVersion": "Festgeschriebene Quelle",
+    "packageChecksum": "SHA-256 des Quellarchivs",
+    "packageInstallerChecksum": "SHA-256 des Installers",
+    "installerChecksumLink": "SHA-256-Datei herunterladen",
+    "packageSource": "Upstream-Release",
+    "packageNote": "Unsigniert und inoffiziell: weder von NVIDIA noch von ASUS oder impacifist veröffentlicht. Windows warnt vor einem unbekannten Herausgeber. Prüfe die SHA-256 des Archivs, bevor du die Skripte ausführst, und lies die Kompatibilitätsseite vor dem Build – ein erfolgreicher Build ist keine Erlaubnis zum Entsperren.",
+    "routesTitle": "Drei Startwege",
+    "routesIntro": "Gleiche EFI-Nutzlast, drei Arten, sie vor Windows zu bringen. Einen wählen; es sind keine Schritte einer Reihenfolge. Alle Befehle sind wörtlich aus der festgeschriebenen Dokumentation übernommen.",
+    "routes": {
+      "source": {
+        "h": "1. Festgeschriebene Quelle holen",
+        "b": "Klone das Tag v0.3.1, nicht den Standardzweig. Dokumentation und EFI-Build hängen an dieser Revision, und die lokalen Dateien der Skripte sind zwischen Revisionen nicht übertragbar."
+      },
+      "usb": {
+        "h": "2a. USB-Stick, keine Partitionsänderung",
+        "b": "Ein gewöhnlicher FAT32-Stick; es wird keine Partition erstellt, verkleinert oder umtypisiert und kein Firmware-Starteintrag registriert. Das Werkzeug prüft Größe und Hash der fünf Assets und schreibt einen neuen lokalen Ordner – dessen Inhalt kopierst du selbst ins Stick-Wurzelverzeichnis."
+      },
+      "internal": {
+        "h": "2b. Eigene interne ESP",
+        "b": "Eine separate GPT-FAT32-EFI-Systempartition von mindestens 1 GiB, nach einem Backup von Hand vorbereitet. Configure.ps1 schreibt ignorierte lokale Dateien; Build.ps1 kompiliert einen Wrapper und ein Kind mit Hash-Vertrag. Keines von beiden ändert Starteinstellungen."
+      },
+      "headless": {
+        "h": "3. Bereitstellen, dann optional registrieren",
+        "b": "Nur Bereitstellen ändert weder Starteintrag noch Startreihenfolge oder Schnellstart. -Register hängt einen separaten F8-Eintrag an und behält die bestehende Priorität. Der dokumentierte Start ist F8 → GPU Headless UNLOCK, danach keine Tastendrücke."
+      },
+      "restore": {
+        "h": "Zurückrollen",
+        "b": "Ein dokumentierter Befehl setzt Windows wieder nach vorn. Behalte den lokalen Zustand und die Backups der Skripte: sie sind Wiederherstellungsdaten, keine Release-Dateien."
+      }
+    },
+    "assetsTitle": "Fünf Firmware-Dateien, die du liefern musst",
+    "assetsBody": "Packaging-Werkzeug und UEFI-Anwendung lehnen abweichende Hashes ab, ähnliche Versionen ersetzen sie also nicht. Erzeuge sie aus legal beschafften NVIDIA-Eingaben mit der festgeschriebenen Upstream-Pipeline; diese Seite verlinkt das Verfahren, nicht die Dateien.",
+    "assetsNote": "Weder hier noch im Installer weitergegeben: NVIDIA-Firmware, VBIOS/PROM-Dumps, Treiber-DLLs und private, partitionsgebundene EFI-Binaries. Bewahre die erzeugte NVIDIA-Lizenz und den Hinweis dazu auf.",
+    "profileTitle": "Der eine dokumentierte Erfolg",
+    "profileIntro": "Eine Maschine, eine Karte, ein Start: ASUS BIOS 3057 mit einer RTX 3090 Founders Edition am 2026-10-24. Das sind aufgezeichnete Werte, keine Positivliste – der Code prüft Konfiguration, PROM, Kaltzustand und Treibercode erneut und lehnt ab, wofür er nicht gebaut wurde.",
+    "labels": {
+      "card": "Karte",
+      "pci": "PCI-Identität",
+      "bdf": "GPU-BDF",
+      "board": "Mainboard / BIOS",
+      "cpu": "CPU",
+      "os": "Windows / Treiber",
+      "uefi": "Startmodus",
+      "prom": "PROM SHA-256"
+    },
+    "benchTitle": "Messung auf derselben Karte",
+    "benchIntro": "Median aus je drei Läufen, CUDA 12.6 / cuBLAS, vor und nach dem Entsperren auf derselben Karte mit Treiber 617.14. Werte in TFLOPS.",
+    "benchCard": "Last",
+    "benchBefore": "Vorher",
+    "benchAfter": "Nachher",
+    "benchDelta": "Änderung",
+    "howTitle": "Warum das nicht das Linux-Modul ist",
+    "howBody": "Die Linux-Module dieser Seite bleiben installiert und laufen bei jedem Start, pro Karte über die Kernel-Kommandozeile freigeschaltet. Dies hier ist eine einmalige UEFI-Anwendung, gebunden an eine Partitions-GUID und ein Firmware-Profil; sie entsperrt, lädt Windows nach und ist danach nicht resident. Kein Kernel-Parameter, kein initramfs-Drop-in, kein DKMS-Paket.",
+    "limitsTitle": "Grenzen, die über den Versuch entscheiden",
+    "limits": {
+      "one-pc": {
+        "h": "Für einen PC gebaut",
+        "b": "Die ausführbare Datei hängt am gemessenen PCI/PROM/MMIO-Profil und einem bestimmten Partitionslayout. Andere Rechner brauchen einen eigenen Port, keinen Kompatibilitätsbericht."
+      },
+      "no-firmware": {
+        "h": "Firmware selbst mitbringen",
+        "b": "Die fünf Assets sind Eingaben, die du erzeugst. Ohne sie scheitert die Hash-Prüfung beim Packaging, und der Installer liefert sie nicht."
+      },
+      "safety": {
+        "h": "Prüfungen nicht aushebeln",
+        "b": "Die Vorabprüfungen existieren, um ein Release auf einer nicht passenden Maschine zu stoppen. Sie zu überspringen macht aus einem fehlgeschlagenen Start einen schwarzen Bildschirm oder ein nicht startendes System."
+      },
+      "untested": {
+        "h": "Kein Langzeitergebnis",
+        "b": "Dokumentiert sind ein erfolgreicher Start, ein Benchmark-Lauf und eine Windows-Sitzung. Langzeitstabilität, andere Spiele und realer Durchsatz sind separate, ungeprüfte Fragen."
+      }
+    },
+    "linksTitle": "Upstream-Dokumente",
+    "linkUpstream": "Repository und Releases",
+    "linkGuide": "USB-Anleitung",
+    "linkHeadless": "Interne Headless-Anleitung",
+    "linkCompatibility": "Kompatibilität und andere Profile",
+    "faqLink": "Du willst die Linux-Module? Dann zur Linux-Installationsseite."
   }
 }

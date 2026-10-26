@@ -21,10 +21,12 @@ export function GET() {
   );
   lines.push("- Linux only. The module must load before the stock NVIDIA driver, via the initramfs.");
   lines.push("- The module is not a driver: it writes speed-select registers, then the stock NVIDIA driver binds the card as usual.");
+  lines.push("- The Windows route is a separate project: a UEFI application unlocks the card and chain-loads the Windows Boot Manager, so no Linux boot is involved.");
   lines.push("");
   lines.push("## Pages");
   lines.push(`- [Home](${SITE}/en): the module table, the build commands and the verification steps`);
   lines.push(`- [Install](${SITE}/en/install): initramfs ordering, kernel parameters, verification, rollback`);
+  lines.push(`- [Windows](${SITE}/en/windows): UEFI unlock that returns the card to Windows, the installer and its limits`);
   lines.push(`- [FAQ](${SITE}/en/faq): module choice, safety, driver requirements, failure modes`);
   lines.push(`- [Card reference](${REFERENCE_SITE}/en): accepted device IDs and same-card measurements`);
   lines.push("");

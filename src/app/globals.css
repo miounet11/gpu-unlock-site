@@ -184,6 +184,18 @@ li { margin: 0.35rem 0; }
 .stat .v { font-size: 1.6rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
 .stat .k { font-size: 0.85rem; color: var(--muted); }
 
+.download-button {
+  display: inline-block;
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--accent);
+  font-weight: 600;
+  padding: 0.7rem 1.1rem;
+  word-break: break-all;
+}
+.download-button:hover { background: var(--surface); text-decoration: none; }
+
 details { border: 1px solid var(--border); border-radius: var(--radius); padding: 0.9rem 1.1rem; margin: 0.6rem 0; background: var(--surface); }
 summary { cursor: pointer; font-weight: 600; }
 details[open] summary { margin-bottom: 0.6rem; }

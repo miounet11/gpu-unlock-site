@@ -16,6 +16,9 @@ export const REPOS = {
   turing: "https://github.com/nlzy/turing-unlock",
   // The public repo the site's own usage notes live in.
   usage: "https://github.com/miounet11/gpu-unlock",
+  // Windows-side port: UEFI unlock that hands the card back to Windows without rebooting
+  // into Linux. Separate project, separate boot routes; see /windows.
+  windows: "https://github.com/impacifist/Windows-GPU-UNLOCK",
 } as const;
 
 export function absUrl(path: string): string {

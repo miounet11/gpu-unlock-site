@@ -5,7 +5,8 @@
     "modules": "Módulos",
     "install": "Instalação",
     "faq": "Perguntas frequentes",
-    "reference": "Referência de placas"
+    "reference": "Referência de placas",
+    "windows": "Windows"
   },
   "home": {
     "title": "GPU Unlock — compilar, instalar e verificar os módulos SM speed-select",
@@ -226,5 +227,91 @@
     "a5": "Dá. Remova o parâmetro de ativação da linha de comando e o módulo para de tocar na placa. O mesmo parâmetro é a ativação e a desativação.",
     "q6": "O módulo Turing funciona do mesmo jeito?",
     "a6": "Mesmo princípio, nomes diferentes: turing_unlock.targets= em vez de gpu_unlock.targets=, e turing_unlock em vez de gpu_unlock no initramfs. Copiar um comando Ampere para uma série 20 é a forma mais rápida de desperdiçar um boot."
+  },
+  "windows": {
+    "title": "GPU Unlock no Windows",
+    "description": "A rota Windows do impacifist/Windows-GPU-UNLOCK: um aplicativo UEFI desbloqueia a placa e encadeia o Windows Boot Manager, então a placa fica desbloqueada sob o driver NVIDIA original, sem reiniciar no Linux.",
+    "lead": "O módulo Linux deste site precisa carregar antes do driver NVIDIA, o que exige reiniciar no Linux. Este projeto faz o contrário: um aplicativo UEFI compilado por você faz a mesma escrita de registrador e então entrega o controle ao Windows Boot Manager na mesma inicialização. A placa sobe desbloqueada sob o driver original do Windows.",
+    "packageTitle": "Instalador para Windows",
+    "packageBody": "Este site compila um programa de instalação a partir do arquivo-fonte v0.3.1 fixado. Ele instala os scripts, a documentação e as licenças, ou seja, uma cópia do código. Não há binários pré-compilados: a imagem EFI precisa ser compilada para as suas próprias partições. Despejos de firmware e DLLs de driver não estão nem podem estar incluídos; o instalador poupa o checkout, não o desbloqueio.",
+    "download": "Baixar o instalador",
+    "packageVersion": "Fonte fixada",
+    "packageChecksum": "SHA-256 do arquivo-fonte",
+    "packageInstallerChecksum": "SHA-256 do instalador",
+    "installerChecksumLink": "Baixar o arquivo .sha256",
+    "packageSource": "Versão upstream",
+    "packageNote": "Sem assinatura e não oficial: não é publicado pela NVIDIA, pela ASUS nem pelo impacifist. O Windows avisará sobre um editor desconhecido. Confira o SHA-256 do arquivo antes de rodar os scripts e leia a página de compatibilidade antes de compilar — compilar com sucesso não é permissão para desbloquear.",
+    "routesTitle": "Três rotas de inicialização",
+    "routesIntro": "A mesma carga EFI, três formas de colocá-la diante do Windows. Escolha uma; não são etapas em sequência. Os comandos foram copiados literalmente da documentação fixada.",
+    "routes": {
+      "source": {
+        "h": "1. Obter a fonte fixada",
+        "b": "Clone a tag v0.3.1, não o branch padrão. A documentação e a compilação EFI dependem dessa revisão, e os arquivos locais gravados pelos scripts não são portáveis entre revisões."
+      },
+      "usb": {
+        "h": "2a. Pendrive, sem mexer em partições",
+        "b": "Um pendrive FAT32 comum; nenhuma partição é criada, reduzida ou tem o tipo alterado, e nenhuma entrada de boot do firmware é registrada. A ferramenta valida tamanho e hash dos cinco arquivos e grava uma pasta local nova — copie você mesmo o conteúdo para a raiz do pendrive."
+      },
+      "internal": {
+        "h": "2b. ESP interna dedicada",
+        "b": "Uma partição de sistema EFI GPT FAT32 separada, de pelo menos 1 GiB, preparada à mão após backup. O Configure.ps1 grava arquivos locais ignorados; o Build.ps1 compila um wrapper e um filho com contrato de hash. Nenhum dos dois muda configurações de boot."
+      },
+      "headless": {
+        "h": "3. Depositar e, se quiser, registrar",
+        "b": "Apenas depositar não altera entrada de boot, ordem nem inicialização rápida. O -Register acrescenta uma entrada F8 separada e mantém a prioridade existente. A inicialização documentada é F8 → GPU Headless UNLOCK, sem pressionar nada depois."
+      },
+      "restore": {
+        "h": "Reverter",
+        "b": "Um comando documentado devolve o Windows ao primeiro lugar. Guarde o estado local e os backups gravados pelos scripts: são entradas de recuperação, não arquivos de release."
+      }
+    },
+    "assetsTitle": "Cinco arquivos de firmware que você precisa fornecer",
+    "assetsBody": "A ferramenta de empacotamento e o aplicativo UEFI rejeitam hash divergente, então uma versão parecida não substitui. Gere-os a partir de entradas NVIDIA obtidas legalmente com o pipeline upstream fixado; este site indica o procedimento, não os arquivos.",
+    "assetsNote": "Não são redistribuídos aqui nem no instalador: firmware NVIDIA, despejos VBIOS/PROM, DLLs de driver e binários EFI privados ligados a uma partição. Guarde junto deles a licença e o aviso da NVIDIA gerados.",
+    "profileTitle": "O único sucesso documentado",
+    "profileIntro": "Uma máquina, uma placa, uma inicialização: ASUS BIOS 3057 com uma RTX 3090 Founders Edition em 2026-10-24. São valores registrados, não uma lista de permissão — o código reconfere configuração, PROM, estado frio e código do driver, e recusa aquilo para o que não foi compilado.",
+    "labels": {
+      "card": "Placa",
+      "pci": "Identidade PCI",
+      "bdf": "BDF da GPU",
+      "board": "Placa-mãe / BIOS",
+      "cpu": "CPU",
+      "os": "Windows / driver",
+      "uefi": "Modo de boot",
+      "prom": "PROM SHA-256"
+    },
+    "benchTitle": "Medição na mesma placa",
+    "benchIntro": "Mediana de três execuções, CUDA 12.6 / cuBLAS, antes e depois do desbloqueio na mesma placa com o driver 617.14. Valores em TFLOPS.",
+    "benchCard": "Carga",
+    "benchBefore": "Antes",
+    "benchAfter": "Depois",
+    "benchDelta": "Variação",
+    "howTitle": "Por que não é o módulo do Linux",
+    "howBody": "Os módulos Linux deste site ficam instalados e rodam a cada boot, habilitados placa a placa na linha de comando do kernel. Aqui é um aplicativo UEFI de uso único, preso a um GUID de partição e a um perfil de firmware; desbloqueia, encadeia o Windows e deixa de residir. Sem parâmetro de kernel, sem drop-in de initramfs e sem pacote DKMS.",
+    "limitsTitle": "Limites que decidem se vale tentar",
+    "limits": {
+      "one-pc": {
+        "h": "Compilado para um PC",
+        "b": "O executável está preso ao perfil PCI/PROM/MMIO medido e a um layout de partições específico. Outra máquina exige um porte, não um relatório de compatibilidade."
+      },
+      "no-firmware": {
+        "h": "Traga seu firmware",
+        "b": "Os cinco arquivos são entradas que você gera. Sem eles o empacotamento falha na checagem de hash, e o instalador não os fornece."
+      },
+      "safety": {
+        "h": "Não burle as checagens",
+        "b": "As verificações prévias existem para barrar uma execução numa máquina que não corresponde. Ignorá-las é o que transforma um boot falho em tela preta ou sistema que não inicia."
+      },
+      "untested": {
+        "h": "Sem resultado de longo prazo",
+        "b": "Estão documentados um boot bem-sucedido, uma rodada de medições e uma sessão do Windows. Estabilidade de longo prazo, outros jogos e vazão real sob carga são questões separadas e não verificadas."
+      }
+    },
+    "linksTitle": "Documentos upstream",
+    "linkUpstream": "Repositório e versões",
+    "linkGuide": "Guia USB",
+    "linkHeadless": "Guia headless interno",
+    "linkCompatibility": "Compatibilidade e outros perfis",
+    "faqLink": "Quer os módulos Linux? Veja a página de instalação do Linux."
   }
 }

@@ -12,7 +12,7 @@
 const SITE = "https://gpu-unlock.com";
 const KEY = "fe762070f9f94699958963f0e664db51";
 const LOCALES = ["en", "zh", "ja", "de", "fr", "es", "pt"];
-const HUBS = ["", "/install", "/faq"];
+const HUBS = ["", "/install", "/windows", "/faq"];
 
 // The card pages live on the reference site now, so this site has no card slugs to submit.
 const built = [];

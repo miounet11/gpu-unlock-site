@@ -5,7 +5,8 @@
     "modules": "Modules",
     "install": "Install",
     "faq": "FAQ",
-    "reference": "Card reference"
+    "reference": "Card reference",
+    "windows": "Windows"
   },
   "home": {
     "title": "GPU Unlock — build, install and verify the SM speed-select modules",
@@ -226,5 +227,91 @@
     "a5": "Yes. Remove the opt-in parameter from the kernel command line and the module stops touching the card. The kernel parameter is what selects the card, so the same mechanism is both the opt-in and the opt-out.",
     "q6": "Does the Turing module work the same way?",
     "a6": "Same principle, different names: turing_unlock.targets= instead of gpu_unlock.targets=, and turing_unlock instead of gpu_unlock in the initramfs. Copying an Ampere command onto a 20 series card is the most common way to waste a boot cycle."
+  },
+  "windows": {
+    "title": "GPU Unlock on Windows",
+    "description": "The Windows route from impacifist/Windows-GPU-UNLOCK: a UEFI application unlocks the card and chain-loads the Windows Boot Manager, so the card stays unlocked under the stock NVIDIA driver without rebooting into Linux.",
+    "lead": "The Linux module on this site has to load before the NVIDIA driver, which means a reboot into Linux. This project goes the other way: a self-built UEFI application does the same register write, then hands control to the Windows Boot Manager in the same boot. The card comes up unlocked under the stock Windows driver.",
+    "packageTitle": "Installer for Windows",
+    "packageBody": "This site builds a setup program from the pinned v0.3.1 source archive. It installs the scripts, the documentation and the licences as a plain source drop — nothing is prebuilt, because the EFI image has to be compiled against your own partitions. Firmware dumps and driver DLLs are not included and cannot be, so the installer is a shortcut for the checkout, not for the unlock.",
+    "download": "Download the installer",
+    "packageVersion": "Pinned source",
+    "packageChecksum": "Source archive SHA-256",
+    "packageInstallerChecksum": "Installer SHA-256",
+    "installerChecksumLink": "Download the .sha256 file",
+    "packageSource": "Upstream release",
+    "packageNote": "Unsigned and unofficial: it is not published by NVIDIA, ASUS or impacifist. Windows will warn about an unknown publisher. Verify the SHA-256 of the archive before running the scripts, and read the compatibility page before building — a successful build is not a permission to unlock.",
+    "routesTitle": "Three boot routes",
+    "routesIntro": "Same EFI payload, three ways to get it in front of Windows. Pick one; they are not steps in a sequence. All commands are copied verbatim from the pinned documentation.",
+    "routes": {
+      "source": {
+        "h": "1. Get the pinned source",
+        "b": "Clone the v0.3.1 tag rather than the default branch. The documentation and the EFI build are tied to that revision, and the local files the scripts write are not portable between revisions."
+      },
+      "usb": {
+        "h": "2a. USB stick, no partition changes",
+        "b": "An ordinary FAT32 stick; no partition is created, resized or retyped and no firmware boot entry is registered. The tool validates the five asset sizes and hashes and writes a new local folder — copy its contents to the stick root yourself."
+      },
+      "internal": {
+        "h": "2b. Dedicated internal ESP",
+        "b": "A separate GPT FAT32 EFI System Partition of at least 1 GiB, prepared by hand after a backup. Configure.ps1 writes ignored local files; Build.ps1 compiles a wrapper and a child with a hash contract. Neither changes boot settings."
+      },
+      "headless": {
+        "h": "3. Stage, then optionally register",
+        "b": "Staging alone changes no boot entry, boot order or Fast Startup. -Register appends a separate F8 entry and keeps the existing boot priority. The documented boot is F8 → GPU Headless UNLOCK, with no key presses after that."
+      },
+      "restore": {
+        "h": "Roll back",
+        "b": "One documented command puts Windows first again. Keep the local state and backups the scripts write: they are recovery inputs, not release files."
+      }
+    },
+    "assetsTitle": "Five firmware files you must supply",
+    "assetsBody": "The packaging tool and the UEFI application both reject mismatched hashes, so similar versions cannot be substituted. Generate them from legally obtained NVIDIA inputs with the pinned upstream pipeline; the site links the procedure rather than the files.",
+    "assetsNote": "Not redistributed here or in the installer: NVIDIA firmware, VBIOS/PROM dumps, driver DLLs and private per-partition EFI binaries. Keep the generated NVIDIA licence and notice with them.",
+    "profileTitle": "The one documented success",
+    "profileIntro": "One machine, one card, one boot: ASUS BIOS 3057 with an RTX 3090 Founders Edition on 2026-10-24. These are recorded values, not an allowlist — the code re-checks configuration, PROM, cold state and driver code, and refuses what it was not built for.",
+    "labels": {
+      "card": "Card",
+      "pci": "PCI identity",
+      "bdf": "GPU BDF",
+      "board": "Motherboard / BIOS",
+      "cpu": "CPU",
+      "os": "Windows / driver",
+      "uefi": "Boot mode",
+      "prom": "PROM SHA-256"
+    },
+    "benchTitle": "Same-card measurement",
+    "benchIntro": "Median of three runs each, CUDA 12.6 / cuBLAS, before and after the unlock on the same card and driver 617.14. Numbers are TFLOPS.",
+    "benchCard": "Workload",
+    "benchBefore": "Before",
+    "benchAfter": "After",
+    "benchDelta": "Change",
+    "howTitle": "Why this is not the Linux module",
+    "howBody": "The Linux modules on this site stay installed and run at every boot, opted in per card on the kernel command line. This is a one-shot UEFI application pinned to a partition GUID and a firmware profile; it unlocks, chain-loads Windows, and is not resident afterwards. There is no kernel parameter, no initramfs drop-in and no DKMS package.",
+    "limitsTitle": "Limits that decide whether to try",
+    "limits": {
+      "one-pc": {
+        "h": "Built for one PC",
+        "b": "The executable is tied to the tested PCI/PROM/MMIO profile and a specific partition layout. Other machines need a separate port, not a compatibility report."
+      },
+      "no-firmware": {
+        "h": "Bring your own firmware",
+        "b": "The five assets are inputs you generate. Without them packaging fails the hash check, and nothing in the installer supplies them."
+      },
+      "safety": {
+        "h": "Do not defeat the checks",
+        "b": "The pre-release checks exist to stop a release on a machine the code does not match. Skipping them is what turns a failed boot into a blank display or an unbootable system."
+      },
+      "untested": {
+        "h": "No long-term result",
+        "b": "One successful boot, one benchmark run and one Windows session are documented. Long-term stability, other games and real workload throughput are separate, unverified questions."
+      }
+    },
+    "linksTitle": "Upstream documents",
+    "linkUpstream": "Repository and releases",
+    "linkGuide": "USB guide",
+    "linkHeadless": "Internal headless guide",
+    "linkCompatibility": "Compatibility and other profiles",
+    "faqLink": "Still installing the Linux modules? Read the Linux install page."
   }
 }
