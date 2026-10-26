@@ -6,7 +6,9 @@
     "install": "安装",
     "faq": "常见问题",
     "reference": "显卡参考",
-    "windows": "Windows"
+    "windows": "Windows",
+    "footerSister": "姊妹站点",
+    "footerSisterBody": "模块接受的设备 ID，以及同卡实测数据"
   },
   "home": {
     "title": "GPU Unlock — 构建、安装并验证 SM speed-select 模块",

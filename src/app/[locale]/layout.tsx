@@ -73,6 +73,15 @@ export default async function LocaleLayout({
                 </a>
                 .
               </p>
+              {/* The reference site already links here from its footer. Naming it in a
+                  labelled group keeps the pair symmetric instead of one-sided. */}
+              <p>
+                {nav.footerSister ?? "Sister site"}:{" "}
+                <a href={`${REFERENCE_SITE}/${locale}`} rel="noopener noreferrer">
+                  {REFERENCE_SITE.replace(/^https?:\/\//, "")}
+                </a>{" "}
+                — {nav.footerSisterBody ?? "accepted device IDs and same-card measurements"}
+              </p>
               <p className="meta">
                 Source available under GPL-2.0-only. NVIDIA firmware remains under its own terms.
                 Not affiliated with NVIDIA.

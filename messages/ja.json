@@ -6,7 +6,9 @@
     "install": "導入",
     "faq": "よくある質問",
     "reference": "カード情報",
-    "windows": "Windows"
+    "windows": "Windows",
+    "footerSister": "姉妹サイト",
+    "footerSisterBody": "対応デバイス ID と同一カードでの実測値"
   },
   "home": {
     "title": "GPU Unlock — SM speed-select モジュールのビルド・導入・検証",

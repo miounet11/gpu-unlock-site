@@ -6,7 +6,9 @@
     "install": "Installation",
     "faq": "Questions fréquentes",
     "reference": "Référence des cartes",
-    "windows": "Windows"
+    "windows": "Windows",
+    "footerSister": "Site jumeau",
+    "footerSisterBody": "identifiants de périphériques acceptés et mesures sur la même carte"
   },
   "home": {
     "title": "GPU Unlock — construire, installer et vérifier les modules SM speed-select",
