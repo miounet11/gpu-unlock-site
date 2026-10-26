@@ -14,6 +14,11 @@ import { MODULES, moduleForChip } from "../src/data/modules.ts";
 import { INSTALL_STEPS, FAILURE_MODE_KEYS, REQUIREMENT_KEYS } from "../src/data/install.ts";
 
 const LOCALES = ["en", "zh", "ja", "de", "fr", "es", "pt"];
+// The pinned upstream tag, shared by the site and the installer build. Read from the JSON the
+// same way they read it, so a version bump is compared against its own single source.
+const packageFacts = JSON.parse(
+  readFileSync(new URL("../src/data/windows-package.json", import.meta.url), "utf8"),
+);
 const loadMessages = (loc) =>
   JSON.parse(readFileSync(new URL(`../messages/${loc}.json`, import.meta.url), "utf8"));
 
@@ -85,14 +90,33 @@ test("the sitemap only lists the paths this site owns", () => {
 // the hash printed on /windows has to come from the .sha256 file written beside the .exe. If
 // the page were to carry its own copy of the hash, a rebuild would leave the site advertising
 // a checksum that no longer matches the download. This compares the two files directly.
-test("the published installer hash matches the installer being served", () => {
+test("the published installer hash matches the installer being served", async () => {
   const dir = new URL("../public/downloads/", import.meta.url);
-  const exe = readFileSync(new URL("GPU-Unlock-Windows-0.3.1-Setup.exe", dir));
-  const sidecar = readFileSync(new URL("GPU-Unlock-Windows-0.3.1-Setup.exe.sha256", dir), "utf8");
+  const name = `GPU-Unlock-Windows-${packageFacts.version}-Setup.exe`;
+  // The page builds its own name from the version; if those two ever disagree the download
+  // link points at a file that is not there, so compare it against the artifact on disk.
+  const { WINDOWS_PACKAGE } = await import("../src/data/windows.ts");
+  assert.equal(WINDOWS_PACKAGE.fileName, name);
+  assert.equal(WINDOWS_PACKAGE.downloadPath, `/downloads/${name}`);
+  const exe = readFileSync(new URL(name, dir));
+  const sidecar = readFileSync(new URL(`${name}.sha256`, dir), "utf8");
   const expected = createHash("sha256").update(exe).digest("hex");
   assert.equal(sidecar.trim().split(/\s+/)[0], expected);
   // MZ is the DOS header every Windows PE starts with; an HTML error page would not have it.
   assert.equal(exe.subarray(0, 2).toString("latin1"), "MZ");
+});
+
+// A version bump renames the artifact, and the old one stays downloadable unless the build
+// removes it. Both carry a self-consistent .sha256, so a stale release is invisible to every
+// other check — the reader just has two installers to choose from.
+test("the download directory holds only the pinned version", () => {
+  const names = readdirSync(new URL("../public/downloads/", import.meta.url));
+  const releases = names.filter((n) => /^GPU-Unlock-Windows-.+-Setup\.exe(\.sha256)?$/.test(n));
+  const expected = [
+    `GPU-Unlock-Windows-${packageFacts.version}-Setup.exe`,
+    `GPU-Unlock-Windows-${packageFacts.version}-Setup.exe.sha256`,
+  ];
+  assert.deepEqual(releases.sort(), expected.sort());
 });
 
 // The /windows page tells the reader its command blocks are copied verbatim from the pinned
@@ -103,7 +127,10 @@ test("the published installer hash matches the installer being served", () => {
 // `npm run check:installer` into deploy/installer/.build/unpacked.
 test("documented commands appear verbatim in the pinned upstream sources", async (t) => {
   const { WINDOWS_ROUTES } = await import("../src/data/windows.ts");
-  const root = new URL("../deploy/installer/.build/unpacked/Windows-GPU-UNLOCK-0.3.1/", import.meta.url);
+  const root = new URL(
+    `../deploy/installer/.build/unpacked/Windows-GPU-UNLOCK-${packageFacts.version}/`,
+    import.meta.url,
+  );
   let upstream;
   try {
     upstream = ["docs/GUIDE.en.md", "docs/HEADLESS.en.md", "docs/INTERNAL-BOOT.en.md", "README.md"]
@@ -166,6 +193,19 @@ test("cross-site redirects point at the host that owns the path", () => {
     !/source: "\/:locale\/faq"[\s\S]*?destination: "https:\/\/gpuunlock\.com/.test(nextConfig),
     "faq must stay on this host",
   );
+});
+
+// The page renders `v{version}` from windows-package.json. A locale that spells the tag out
+// instead keeps showing the old release after a bump, in one language, where nobody notices.
+test("no locale hardcodes the upstream version in prose", () => {
+  for (const loc of LOCALES) {
+    const windows = loadMessages(loc).windows;
+    const prose = JSON.stringify(windows);
+    assert.ok(
+      !prose.includes(`v${packageFacts.version}`) && !prose.includes(packageFacts.version),
+      `${loc}: windows text spells out version ${packageFacts.version}; use the {version} placeholder`,
+    );
+  }
 });
 
 test("every locale carries the same top-level namespaces", () => {

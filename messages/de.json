@@ -233,7 +233,7 @@
     "description": "Der Windows-Weg aus impacifist/Windows-GPU-UNLOCK: eine UEFI-Anwendung entsperrt die Karte und lädt den Windows Boot Manager nach, sodass die Karte ohne Neustart nach Linux unter dem originalen NVIDIA-Treiber entsperrt bleibt.",
     "lead": "Das Linux-Modul dieser Seite muss vor dem NVIDIA-Treiber laden, was einen Neustart nach Linux bedeutet. Dieses Projekt geht den umgekehrten Weg: eine selbst gebaute UEFI-Anwendung schreibt dieselben Register und übergibt dann im selben Start an den Windows Boot Manager. Die Karte kommt entsperrt unter dem originalen Windows-Treiber hoch.",
     "packageTitle": "Installer für Windows",
-    "packageBody": "Diese Seite baut ein Setup-Programm aus dem festgeschriebenen Quellarchiv v0.3.1. Installiert werden Skripte, Dokumentation und Lizenzen – also eine Quellkopie. Vorgebaute Artefakte enthält es nicht, weil das EFI-Image gegen die eigenen Partitionen kompiliert werden muss. Firmware-Dumps und Treiber-DLLs sind nicht enthalten und können es nicht sein; der Installer spart also den Checkout, nicht das Entsperren.",
+    "packageBody": "Diese Seite baut ein Setup-Programm aus dem festgeschriebenen Quellarchiv v{version}. Installiert werden Skripte, Dokumentation und Lizenzen – also eine Quellkopie. Vorgebaute Artefakte enthält es nicht, weil das EFI-Image gegen die eigenen Partitionen kompiliert werden muss. Firmware-Dumps und Treiber-DLLs sind nicht enthalten und können es nicht sein; der Installer spart also den Checkout, nicht das Entsperren.",
     "download": "Installer herunterladen",
     "packageVersion": "Festgeschriebene Quelle",
     "packageChecksum": "SHA-256 des Quellarchivs",
@@ -246,7 +246,7 @@
     "routes": {
       "source": {
         "h": "1. Festgeschriebene Quelle holen",
-        "b": "Klone das Tag v0.3.1, nicht den Standardzweig. Dokumentation und EFI-Build hängen an dieser Revision, und die lokalen Dateien der Skripte sind zwischen Revisionen nicht übertragbar."
+        "b": "Klone das Tag v{version}, nicht den Standardzweig. Dokumentation und EFI-Build hängen an dieser Revision, und die lokalen Dateien der Skripte sind zwischen Revisionen nicht übertragbar."
       },
       "usb": {
         "h": "2a. USB-Stick, keine Partitionsänderung",

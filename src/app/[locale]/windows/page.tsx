@@ -75,7 +75,7 @@ export default async function Windows({ params }: { params: Promise<{ locale: st
 
       <section id="package">
         <h2>{t("packageTitle")}</h2>
-        <p>{t("packageBody")}</p>
+        <p>{t("packageBody", { version: WINDOWS_PACKAGE.version })}</p>
         <p>
           {installerSha256 ? (
             <a className="download-button" href={WINDOWS_PACKAGE.downloadPath} download>
@@ -139,7 +139,7 @@ export default async function Windows({ params }: { params: Promise<{ locale: st
         {WINDOWS_ROUTES.map((route) => (
           <section key={route.id} id={`route-${route.id}`}>
             <h3>{t(`routes.${route.id}.h`)}</h3>
-            <p>{t(`routes.${route.id}.b`)}</p>
+            <p>{t(`routes.${route.id}.b`, { version: WINDOWS_PACKAGE.version })}</p>
             {route.code ? (
               <pre>
                 <code>{route.code}</code>

@@ -34,12 +34,17 @@ for (const [from, to] of pairs) {
   console.log(`standalone copy  ${from.slice(root.length + 1)} -> ${to.slice(root.length + 1)}`);
 }
 
-// The /windows page prints the installer hash it reads at build time. If the installer is
-// repacked after `next build` — the normal order, since the artifact has to exist before the
-// page that advertises it — the standalone copy would otherwise keep serving the previous
-// repository while the site shows the new hash. Comparing the two here turns that silent
-// mismatch into a failed build instead of a wrong checksum on a download page.
-const downloads = join(standalone, "public", "downloads");
+// The /windows page bakes in the installer hash when it is prerendered. NSIS output is not
+// reproducible, so repacking after `next build` produces a different artifact while the page
+// keeps advertising the previous checksum — a reader following the site would verify their
+// download against a value that can never match.
+//
+// The check has to compare the *rendered page* against the artifact. Comparing the copied .exe
+// with its copied .sha256 (both from public/) would always pass and catch nothing; that
+// tautology was here before and let this exact drift through.
+const downloads = join(root, "public", "downloads");
+const pagesDir = join(root, ".next", "server", "app");
+
 if (existsSync(downloads)) {
   for (const name of readdirSync(downloads)) {
     if (!name.endsWith(".exe")) continue;
@@ -48,11 +53,24 @@ if (existsSync(downloads)) {
     if (!existsSync(sidecarPath)) throw new Error(`missing checksum file for ${name}`);
     const declared = readFileSync(sidecarPath, "utf8").trim().split(/\s+/)[0];
     if (actual !== declared) {
+      throw new Error(`${name} does not match its own .sha256\n  actual   ${actual}\n  declared ${declared}`);
+    }
+
+    // Every locale prerendered its own copy of /windows, so every one has to carry it.
+    const stale = [];
+    for (const locale of readdirSync(pagesDir)) {
+      const page = join(pagesDir, locale, "windows.html");
+      if (!existsSync(page)) continue;
+      if (!readFileSync(page, "utf8").includes(actual)) stale.push(locale);
+    }
+    if (stale.length) {
       throw new Error(
-        `${name} does not match its .sha256 in the standalone tree\n  actual   ${actual}\n  declared ${declared}\n` +
-          "Repack with `npm run build:installer` and rebuild; do not serve a stale artifact.",
+        `the prerendered /windows page advertises a different installer hash than ${name}\n` +
+          `  artifact ${actual}\n  stale locales ${stale.join(", ")}\n` +
+          "Repacking changes the bytes every time: run `npm run build:installer` before " +
+          "`npm run build`, not after.",
       );
     }
-    console.log(`standalone ok    ${name} matches its published sha256`);
+    console.log(`standalone ok    ${name} — hash matches the served artifact and every page`);
   }
 }

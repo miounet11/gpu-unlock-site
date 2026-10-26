@@ -1,5 +1,5 @@
-// Facts for the Windows route, taken from impacifist/Windows-GPU-UNLOCK at the pinned
-// v0.3.1 tag (commit 9352abd27480203ea146f766e7c96957912d148a).
+// Facts for the Windows route, taken from impacifist/Windows-GPU-UNLOCK at the pinned tag
+// recorded in windows-package.json (v0.3.1, commit 9352abd27480203ea146f766e7c96957912d148a).
 //
 // This is a different mechanism from the Linux modules on the rest of the site: a UEFI
 // application unlocks the card and chain-loads the Windows Boot Manager, so the card is
@@ -12,6 +12,8 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+
+import PACKAGE_FACTS from "./windows-package.json" with { type: "json" };
 
 export interface WindowsRoute {
   /** Matches windows.routes.<id> in the message files and produces the #route-<id> anchor. */
@@ -93,17 +95,20 @@ export const WINDOWS_LIMIT_KEYS = [
 /**
  * The installer this site builds, and the archive it is built from.
  *
+ * The version, commit and archive hash come from windows-package.json, which
+ * deploy/installer/build.mjs reads as well. They used to be written out here and again in the
+ * build script, so bumping the upstream tag meant editing two files and remembering both: a
+ * page advertising 0.3.1 next to a 0.4.0 download is the failure that follows.
+ *
  * `installerSha256` is read from the `.sha256` file `npm run build:installer` writes next to
  * the executable, so the page cannot drift from the artifact it offers. If the installer has
  * not been built yet the value is null and the page says so instead of printing a stale hash.
  */
 export const WINDOWS_PACKAGE = {
-  version: "0.3.1",
-  sourceCommit: "9352abd27480203ea146f766e7c96957912d148a",
-  sourceSha256:
-    "d81ddec78fb260f6e9bbb0e5d66d4b9d168dbe53222813d2cce9c2e29e07d9c6",
-  fileName: "GPU-Unlock-Windows-0.3.1-Setup.exe",
-  downloadPath: "/downloads/GPU-Unlock-Windows-0.3.1-Setup.exe",
+  ...PACKAGE_FACTS,
+  // Derived, not stored: a second copy of the file name is a second thing to forget on a bump.
+  fileName: `GPU-Unlock-Windows-${PACKAGE_FACTS.version}-Setup.exe`,
+  downloadPath: `/downloads/GPU-Unlock-Windows-${PACKAGE_FACTS.version}-Setup.exe`,
   buildCommand: "npm run build:installer",
 } as const;
 

@@ -233,7 +233,7 @@
     "description": "A rota Windows do impacifist/Windows-GPU-UNLOCK: um aplicativo UEFI desbloqueia a placa e encadeia o Windows Boot Manager, então a placa fica desbloqueada sob o driver NVIDIA original, sem reiniciar no Linux.",
     "lead": "O módulo Linux deste site precisa carregar antes do driver NVIDIA, o que exige reiniciar no Linux. Este projeto faz o contrário: um aplicativo UEFI compilado por você faz a mesma escrita de registrador e então entrega o controle ao Windows Boot Manager na mesma inicialização. A placa sobe desbloqueada sob o driver original do Windows.",
     "packageTitle": "Instalador para Windows",
-    "packageBody": "Este site compila um programa de instalação a partir do arquivo-fonte v0.3.1 fixado. Ele instala os scripts, a documentação e as licenças, ou seja, uma cópia do código. Não há binários pré-compilados: a imagem EFI precisa ser compilada para as suas próprias partições. Despejos de firmware e DLLs de driver não estão nem podem estar incluídos; o instalador poupa o checkout, não o desbloqueio.",
+    "packageBody": "Este site compila um programa de instalação a partir do arquivo-fonte v{version} fixado. Ele instala os scripts, a documentação e as licenças, ou seja, uma cópia do código. Não há binários pré-compilados: a imagem EFI precisa ser compilada para as suas próprias partições. Despejos de firmware e DLLs de driver não estão nem podem estar incluídos; o instalador poupa o checkout, não o desbloqueio.",
     "download": "Baixar o instalador",
     "packageVersion": "Fonte fixada",
     "packageChecksum": "SHA-256 do arquivo-fonte",
@@ -246,7 +246,7 @@
     "routes": {
       "source": {
         "h": "1. Obter a fonte fixada",
-        "b": "Clone a tag v0.3.1, não o branch padrão. A documentação e a compilação EFI dependem dessa revisão, e os arquivos locais gravados pelos scripts não são portáveis entre revisões."
+        "b": "Clone a tag v{version}, não o branch padrão. A documentação e a compilação EFI dependem dessa revisão, e os arquivos locais gravados pelos scripts não são portáveis entre revisões."
       },
       "usb": {
         "h": "2a. Pendrive, sem mexer em partições",

@@ -233,7 +233,7 @@
     "description": "The Windows route from impacifist/Windows-GPU-UNLOCK: a UEFI application unlocks the card and chain-loads the Windows Boot Manager, so the card stays unlocked under the stock NVIDIA driver without rebooting into Linux.",
     "lead": "The Linux module on this site has to load before the NVIDIA driver, which means a reboot into Linux. This project goes the other way: a self-built UEFI application does the same register write, then hands control to the Windows Boot Manager in the same boot. The card comes up unlocked under the stock Windows driver.",
     "packageTitle": "Installer for Windows",
-    "packageBody": "This site builds a setup program from the pinned v0.3.1 source archive. It installs the scripts, the documentation and the licences as a plain source drop — nothing is prebuilt, because the EFI image has to be compiled against your own partitions. Firmware dumps and driver DLLs are not included and cannot be, so the installer is a shortcut for the checkout, not for the unlock.",
+    "packageBody": "This site builds a setup program from the pinned v{version} source archive. It installs the scripts, the documentation and the licences as a plain source drop — nothing is prebuilt, because the EFI image has to be compiled against your own partitions. Firmware dumps and driver DLLs are not included and cannot be, so the installer is a shortcut for the checkout, not for the unlock.",
     "download": "Download the installer",
     "packageVersion": "Pinned source",
     "packageChecksum": "Source archive SHA-256",
@@ -246,7 +246,7 @@
     "routes": {
       "source": {
         "h": "1. Get the pinned source",
-        "b": "Clone the v0.3.1 tag rather than the default branch. The documentation and the EFI build are tied to that revision, and the local files the scripts write are not portable between revisions."
+        "b": "Clone the v{version} tag rather than the default branch. The documentation and the EFI build are tied to that revision, and the local files the scripts write are not portable between revisions."
       },
       "usb": {
         "h": "2a. USB stick, no partition changes",

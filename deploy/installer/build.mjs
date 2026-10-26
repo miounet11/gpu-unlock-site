@@ -18,11 +18,16 @@ import { fileURLToPath } from "node:url";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "../..");
 
-const VERSION = "0.3.1";
-const SOURCE_COMMIT = "9352abd27480203ea146f766e7c96957912d148a";
+// The pinned tag, commit and archive hash live in src/data/windows-package.json, which the
+// site imports too. Keeping one copy means a bump cannot leave /windows claiming one version
+// while the artifact it links is another.
+const {
+  version: VERSION,
+  sourceCommit: SOURCE_COMMIT,
+  sourceSha256: ARCHIVE_SHA256,
+} = JSON.parse(readFileSync(join(ROOT, "src/data/windows-package.json"), "utf8"));
+
 const ARCHIVE_URL = `https://codeload.github.com/impacifist/Windows-GPU-UNLOCK/zip/refs/tags/v${VERSION}`;
-const ARCHIVE_SHA256 =
-  "d81ddec78fb260f6e9bbb0e5d66d4b9d168dbe53222813d2cce9c2e29e07d9c6";
 const BUILD = join(ROOT, "deploy/installer/.build");
 const ARCHIVE = join(BUILD, `upstream-v${VERSION}.zip`);
 const STAGE = join(BUILD, "stage");
@@ -126,6 +131,19 @@ function build() {
   mkdirSync(OUT_DIR, { recursive: true });
   const outfile = join(OUT_DIR, OUT_NAME);
   rmSync(outfile, { force: true });
+
+  // A version bump renames the artifact, so the previous release would sit in the served
+  // directory next to the new one, each with a valid .sha256 of its own. Nothing downstream
+  // can tell which is current — the page links the new name, but the old file is still
+  // downloadable, and the postbuild check passes for both. Remove releases it does not own.
+  for (const name of readdirSync(OUT_DIR)) {
+    const stale = /^GPU-Unlock-Windows-.+-Setup\.exe(\.sha256)?$/.test(name) &&
+      name !== OUT_NAME && name !== `${OUT_NAME}.sha256`;
+    if (!stale) continue;
+    rmSync(join(OUT_DIR, name), { force: true });
+    console.log(`removed     ${name} (not version ${VERSION})`);
+  }
+
   console.log(`makensis    ${OUT_NAME}`);
   execFileSync(
     "makensis",

@@ -233,7 +233,7 @@
     "description": "La voie Windows de impacifist/Windows-GPU-UNLOCK : une application UEFI déverrouille la carte puis chaîne le Windows Boot Manager, si bien que la carte reste déverrouillée sous le pilote NVIDIA d'origine sans redémarrer sous Linux.",
     "lead": "Le module Linux présenté sur ce site doit se charger avant le pilote NVIDIA, ce qui impose un redémarrage sous Linux. Ce projet fait l'inverse : une application UEFI compilée localement effectue la même écriture de registre, puis passe la main au Windows Boot Manager dans le même démarrage. La carte apparaît déverrouillée sous le pilote Windows d'origine.",
     "packageTitle": "Programme d'installation Windows",
-    "packageBody": "Ce site construit un programme d'installation à partir de l'archive source v0.3.1 épinglée. Il installe les scripts, la documentation et les licences, c'est-à-dire une copie des sources. Aucun binaire précompilé : l'image EFI doit être compilée pour vos propres partitions. Les vidages de firmware et les DLL de pilote n'y sont pas et ne peuvent pas y être ; l'installateur épargne donc le checkout, pas le déverrouillage.",
+    "packageBody": "Ce site construit un programme d'installation à partir de l'archive source v{version} épinglée. Il installe les scripts, la documentation et les licences, c'est-à-dire une copie des sources. Aucun binaire précompilé : l'image EFI doit être compilée pour vos propres partitions. Les vidages de firmware et les DLL de pilote n'y sont pas et ne peuvent pas y être ; l'installateur épargne donc le checkout, pas le déverrouillage.",
     "download": "Télécharger le programme d'installation",
     "packageVersion": "Source épinglée",
     "packageChecksum": "SHA-256 de l'archive source",
@@ -246,7 +246,7 @@
     "routes": {
       "source": {
         "h": "1. Récupérer la source épinglée",
-        "b": "Clonez l'étiquette v0.3.1, pas la branche par défaut. La documentation et la compilation EFI sont liées à cette révision, et les fichiers locaux écrits par les scripts ne se transportent pas d'une révision à l'autre."
+        "b": "Clonez l'étiquette v{version}, pas la branche par défaut. La documentation et la compilation EFI sont liées à cette révision, et les fichiers locaux écrits par les scripts ne se transportent pas d'une révision à l'autre."
       },
       "usb": {
         "h": "2a. Clé USB, sans toucher aux partitions",

@@ -233,7 +233,7 @@
     "description": "La ruta Windows de impacifist/Windows-GPU-UNLOCK: una aplicación UEFI desbloquea la tarjeta y encadena el Windows Boot Manager, así que la tarjeta queda desbloqueada con el controlador NVIDIA original sin reiniciar en Linux.",
     "lead": "El módulo Linux de este sitio debe cargarse antes del controlador NVIDIA, lo que obliga a reiniciar en Linux. Este proyecto va al revés: una aplicación UEFI compilada por ti hace la misma escritura de registro y luego cede el control al Windows Boot Manager en el mismo arranque. La tarjeta aparece desbloqueada con el controlador original de Windows.",
     "packageTitle": "Instalador para Windows",
-    "packageBody": "Este sitio compila un programa de instalación a partir del archivo fuente v0.3.1 fijado. Instala los scripts, la documentación y las licencias, es decir, una copia del código. No incluye binarios precompilados: la imagen EFI debe compilarse para tus propias particiones. Los volcados de firmware y las DLL del controlador no están ni pueden estar; el instalador ahorra el checkout, no el desbloqueo.",
+    "packageBody": "Este sitio compila un programa de instalación a partir del archivo fuente v{version} fijado. Instala los scripts, la documentación y las licencias, es decir, una copia del código. No incluye binarios precompilados: la imagen EFI debe compilarse para tus propias particiones. Los volcados de firmware y las DLL del controlador no están ni pueden estar; el instalador ahorra el checkout, no el desbloqueo.",
     "download": "Descargar el instalador",
     "packageVersion": "Fuente fijada",
     "packageChecksum": "SHA-256 del archivo fuente",
@@ -246,7 +246,7 @@
     "routes": {
       "source": {
         "h": "1. Obtener la fuente fijada",
-        "b": "Clona la etiqueta v0.3.1, no la rama por defecto. La documentación y la compilación EFI dependen de esa revisión, y los archivos locales que escriben los scripts no se transportan entre revisiones."
+        "b": "Clona la etiqueta v{version}, no la rama por defecto. La documentación y la compilación EFI dependen de esa revisión, y los archivos locales que escriben los scripts no se transportan entre revisiones."
       },
       "usb": {
         "h": "2a. Memoria USB, sin tocar particiones",
