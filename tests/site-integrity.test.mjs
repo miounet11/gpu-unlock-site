@@ -12,6 +12,11 @@ import { createHash } from "node:crypto";
 
 import { MODULES, moduleForChip } from "../src/data/modules.ts";
 import { INSTALL_STEPS, FAILURE_MODE_KEYS, REQUIREMENT_KEYS } from "../src/data/install.ts";
+import {
+  WINDOWS_LIMIT_KEYS,
+  WINDOWS_PROFILE,
+  WINDOWS_ROUTES,
+} from "../src/data/windows.ts";
 
 const LOCALES = ["en", "zh", "ja", "de", "fr", "es", "pt"];
 // The pinned upstream tag, shared by the site and the installer build. Read from the JSON the
@@ -76,6 +81,54 @@ test("failure and requirement entries are identical in every locale", () => {
       [...REQUIREMENT_KEYS],
       `${loc}: install.requirements keys drifted`,
     );
+  }
+});
+
+// /windows renders its sections by iterating data, so a locale missing one entry loses a
+// whole table row or route block in that language only — nothing else fails, and nobody
+// reviews seven translations looking for a gap. The install page has had this check since it
+// was written; the windows page did not.
+test("windows section keys are identical in every locale", () => {
+  const routeIds = WINDOWS_ROUTES.map((r) => r.id);
+  const profileKeys = WINDOWS_PROFILE.map((r) => r.key);
+
+  for (const loc of LOCALES) {
+    const w = loadMessages(loc).windows;
+
+    assert.deepEqual(
+      Object.keys(w.routes),
+      routeIds,
+      `${loc}: windows.routes keys drifted from WINDOWS_ROUTES`,
+    );
+    for (const id of routeIds) {
+      for (const field of ["h", "b"]) {
+        assert.ok(w.routes[id][field], `${loc}: windows.routes.${id}.${field} is empty`);
+      }
+    }
+
+    assert.deepEqual(
+      Object.keys(w.limits),
+      [...WINDOWS_LIMIT_KEYS],
+      `${loc}: windows.limits keys drifted from WINDOWS_LIMIT_KEYS`,
+    );
+    for (const key of WINDOWS_LIMIT_KEYS) {
+      for (const field of ["h", "b"]) {
+        assert.ok(w.limits[key][field], `${loc}: windows.limits.${key}.${field} is empty`);
+      }
+    }
+
+    // The profile table's row labels come from labels.<key>, keyed by the data row.
+    assert.deepEqual(
+      Object.keys(w.labels),
+      profileKeys,
+      `${loc}: windows.labels keys drifted from WINDOWS_PROFILE`,
+    );
+
+    // The benchmark table prints the workload name itself (row.key.toUpperCase()) and only
+    // translates the column headers, so those four are what a locale has to carry.
+    for (const header of ["benchCard", "benchBefore", "benchAfter", "benchDelta"]) {
+      assert.ok(w[header], `${loc}: windows.${header} is empty`);
+    }
   }
 });
 
