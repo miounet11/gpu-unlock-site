@@ -8,7 +8,9 @@
     "reference": "Référence des cartes",
     "windows": "Windows",
     "footerSister": "Site jumeau",
-    "footerSisterBody": "identifiants de périphériques acceptés et mesures sur la même carte"
+    "footerSisterBody": "identifiants de périphériques acceptés et mesures sur la même carte",
+    "footerBody": "{site} installe trois modules amont : <ampere>Zagitta/gpu-unlock</ampere> (Ampere), <ada>JustAResearcher/gpu-unlock-ada</ada> (Ada) et <turing>nlzy/turing-unlock</turing> (Turing). Les cartes qu'il acceptent et les mesures faites sur la même carte sont consignées dans la <reference>référence des cartes</reference>.",
+    "footerMeta": "Source disponible sous GPL-2.0-only. Le firmware NVIDIA reste soumis à ses propres conditions. Sans affiliation avec NVIDIA."
   },
   "home": {
     "title": "GPU Unlock — construire, installer et vérifier les modules SM speed-select",

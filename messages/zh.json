@@ -8,7 +8,9 @@
     "reference": "显卡参考",
     "windows": "Windows",
     "footerSister": "姊妹站点",
-    "footerSisterBody": "模块接受的设备 ID，以及同卡实测数据"
+    "footerSisterBody": "模块接受的设备 ID，以及同卡实测数据",
+    "footerBody": "{site} 安装三个上游模块：<ampere>Zagitta/gpu-unlock</ampere>（Ampere）、<ada>JustAResearcher/gpu-unlock-ada</ada>（Ada）和 <turing>nlzy/turing-unlock</turing>（Turing）。它们接受哪些显卡、同卡实测数据如何，记录在<reference>显卡参考</reference>。",
+    "footerMeta": "源码以 GPL-2.0-only 发布。NVIDIA 固件仍受其自身条款约束。与 NVIDIA 无隶属关系。"
   },
   "home": {
     "title": "GPU Unlock — 构建、安装并验证 SM speed-select 模块",

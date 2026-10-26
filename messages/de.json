@@ -8,7 +8,9 @@
     "reference": "Karten-Referenz",
     "windows": "Windows",
     "footerSister": "Schwesterseite",
-    "footerSisterBody": "akzeptierte Geräte-IDs und Messwerte derselben Karte"
+    "footerSisterBody": "akzeptierte Geräte-IDs und Messwerte derselben Karte",
+    "footerBody": "{site} installiert drei Upstream-Module: <ampere>Zagitta/gpu-unlock</ampere> (Ampere), <ada>JustAResearcher/gpu-unlock-ada</ada> (Ada) und <turing>nlzy/turing-unlock</turing> (Turing). Welche Karten sie akzeptieren und was auf derselben Karte gemessen wurde, steht in der <reference>Kartenreferenz</reference>.",
+    "footerMeta": "Quelltext verfügbar unter GPL-2.0-only. NVIDIA-Firmware unterliegt weiterhin ihren eigenen Bedingungen. Nicht mit NVIDIA verbunden."
   },
   "home": {
     "title": "GPU Unlock — SM-speed-select-Module bauen, installieren und prüfen",
