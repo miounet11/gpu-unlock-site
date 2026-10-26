@@ -139,6 +139,22 @@ test("the sitemap only lists the paths this site owns", () => {
   assert.deepEqual(paths, ["", "/install", "/windows", "/faq"]);
 });
 
+// `lastModified: new Date()` is the obvious thing to write and it makes the sitemap lie: every
+// URL is stamped with the build time, so a rebuild that changed nothing announces that all 28
+// pages changed. Crawlers drop lastmod entirely once it stops correlating with the content.
+// Absent is honest; a build timestamp is not.
+test("the sitemap does not claim every page changed at build time", () => {
+  // Strip comments first: the note explaining *why* the field is gone names it, and only
+  // code that actually emits the field should fail this.
+  const code = sitemap
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "");
+  assert.ok(
+    !/lastModified|lastmod/.test(code),
+    "sitemap stamps URLs with the build time; drop the field instead of faking a date",
+  );
+});
+
 // The installer is repacked on every build and NSIS does not produce reproducible bytes, so
 // the hash printed on /windows has to come from the .sha256 file written beside the .exe. If
 // the page were to carry its own copy of the hash, a rebuild would leave the site advertising

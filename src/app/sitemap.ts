@@ -8,12 +8,14 @@ const LOCALES = ["en", "zh", "ja", "de", "fr", "es", "pt"] as const;
 const PATHS = ["", "/install", "/windows", "/faq"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
-
+  // No lastModified on purpose. `new Date()` here would stamp every URL with the build time,
+  // so a rebuild with no content change claims all 28 pages changed that day. Crawlers learn
+  // to distrust lastmod when it stops tracking the content, and then ignore it site-wide —
+  // which is worse than the field being absent. changeFrequency below still says how often
+  // each hub is worth revisiting, and that claim is not time-sensitive.
   return LOCALES.flatMap((locale) =>
     PATHS.map((path) => ({
       url: `${SITE}/${locale}${path}`,
-      lastModified,
       changeFrequency: path === "" ? ("weekly" as const) : ("monthly" as const),
       priority: path === "" ? 1 : 0.8,
       alternates: {
