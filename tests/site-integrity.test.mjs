@@ -7,7 +7,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 
 import { MODULES, moduleForChip } from "../src/data/modules.ts";
@@ -584,6 +584,24 @@ test("the argument scanner survives strings, templates and comments", () => {
   for (const [input, expected] of cases) {
     assert.deepEqual(objectKeys(input, 0), expected, `scanner split ${input} incorrectly`);
   }
+});
+
+// src/app/opengraph-image.tsx builds a 1200×630 card. Next only attaches file-based metadata
+// to a segment that does not set its own `openGraph`, and every page here sets a title and
+// description — so the image was built on every deploy and linked from nowhere, while
+// twitter:card still claimed summary_large_image. A crawler saw a large-card declaration with
+// no image and fell back to a plain link.
+test("social cards point at the generated image", () => {
+  const seo = readFileSync(new URL("../src/lib/seo.ts", import.meta.url), "utf8");
+
+  assert.match(seo, /images:\s*\[\{ url: image/, "openGraph is missing the image");
+  assert.match(seo, /twitter:[\s\S]{0,200}images:\s*\[image\]/, "twitter is missing the image");
+  // The file that builds it must still exist at the path the metadata names.
+  assert.ok(
+    existsSync(new URL("../src/app/opengraph-image.tsx", import.meta.url)),
+    "opengraph-image.tsx was removed but the metadata still points at it",
+  );
+  assert.match(seo, /"x-default"/, "hreflang has no x-default for readers outside the seven");
 });
 
 /** Look a dotted key up inside one namespace, or undefined. */
