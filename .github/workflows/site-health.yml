@@ -1,0 +1,99 @@
+name: Site health
+
+# Two independent checks, on different clocks, because they fail for different reasons.
+#
+#   build      every push: the site still compiles, the installer still matches its hash, and
+#              the sitemap's URLs are the ones the build actually emits.
+#   drift      daily: the three pinned upstream repositories, and the live deployment.
+#
+# Nothing here writes back to the repository. Upstream moving is a signal to read, not a change
+# to apply automatically — the card and benchmark data are hand-transcribed from evidence and a
+# silent rewrite would be indistinguishable from a mistake.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-health-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: lint, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run lint
+
+      - name: Tests
+        run: npm test
+
+      # The build also runs postbuild (deploy/standalone-assets.mjs), which fails if the
+      # shipped installer's hash no longer matches the one the pages quote.
+      - name: Build
+        run: npm run build
+
+      # Proves the deployed shape, not just a successful compile: every URL the sitemap lists
+      # is served 200 by the build that just ran.
+      - name: Serve and verify the sitemap's own URLs
+        run: |
+          npx next start -p 3100 > /tmp/next.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://127.0.0.1:3100/sitemap.xml && break
+            sleep 1
+          done
+          node scripts/verify-deployment.mjs --base http://127.0.0.1:3100
+        env:
+          # The local run has no GITHUB_TOKEN dependency; keep it explicit.
+          NEXT_TELEMETRY_DISABLED: "1"
+
+  upstream:
+    name: upstream pins
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Compare pinned revisions with upstream
+        run: node scripts/check-upstream-pins.mjs
+        env:
+          # Unauthenticated GitHub API allows 60 requests/hour per IP; a shared runner can hit
+          # that. The token turns 403s into a real answer rather than a false "cannot check".
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deployed:
+    name: live deployment
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Checks the host that is actually serving readers, not the one the repo would build.
+      # A sitemap listing a URL that 404s is only visible here.
+      - name: Every sitemap URL on the live host returns 200
+        run: node scripts/verify-deployment.mjs

@@ -1,0 +1,26 @@
+{
+  "note": "Pinned revisions for the three Linux modules the site documents, each verified against the GitHub API before being written here. Only Ada publishes tags; Ampere and Turing publish neither tags nor releases, so their pin is the branch head at the time of recording and `ref` says so. A drifted revision does not fail a build — upstream moves independently of this site — it fails `npm run check:upstream`, which reports the change so the card and benchmark data can be re-read against the new revision.",
+  "modules": {
+    "ampere": {
+      "repo": "Zagitta/gpu-unlock",
+      "ref": "main",
+      "refKind": "branch",
+      "commit": "6081407b312aa3139a2bed62bdda354f4ffddc1d",
+      "paths": ["README.md"]
+    },
+    "ada": {
+      "repo": "JustAResearcher/gpu-unlock-ada",
+      "ref": "v1.1.1",
+      "refKind": "tag",
+      "commit": "491925c1079435e260137b9f3526066e764de830",
+      "paths": ["README.md", "kernel/gpu_unlock/main.c", "kernel/gpu_unlock/arch_610.h"]
+    },
+    "turing": {
+      "repo": "nlzy/turing-unlock",
+      "ref": "main",
+      "refKind": "branch",
+      "commit": "417f333263ff169e8f449c931b70db9dfd7b8ef4",
+      "paths": ["README.md"]
+    }
+  }
+}

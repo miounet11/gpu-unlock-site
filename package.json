@@ -10,7 +10,9 @@
     "test": "node --test tests/*.test.mjs",
     "postbuild": "node deploy/standalone-assets.mjs",
     "build:installer": "node deploy/installer/build.mjs",
-    "check:installer": "node deploy/installer/build.mjs --check"
+    "check:installer": "node deploy/installer/build.mjs --check",
+    "check:upstream": "node scripts/check-upstream-pins.mjs",
+    "check:deploy": "node scripts/verify-deployment.mjs"
   },
   "dependencies": {
     "next": "^15.5.4",
