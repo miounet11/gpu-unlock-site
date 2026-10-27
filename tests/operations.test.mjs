@@ -58,6 +58,20 @@ test("the deployment check probes the live host, not a guessed one", () => {
   assert.match(script, /process\.exit\(1\)/);
 });
 
+// The submission list has to track what the site actually serves. It was hand-kept once and
+// fell 308 URLs behind the day the card and benchmark pages moved onto this host — the pages
+// existed, the sitemap listed them, and the script announced only the six hubs.
+test("the indexnow submission reads the sitemap instead of a hand-kept list", () => {
+  const script = read("deploy/indexnow.mjs");
+  assert.match(script, /sitemap\.xml/, "indexnow must take its URL list from the sitemap");
+  assert.match(script, /<loc>/, "indexnow parses <loc> entries");
+  assert.ok(
+    !/const HUBS\s*=/.test(script),
+    "a hardcoded hub list drifts from the data-derived sitemap; read the sitemap instead",
+  );
+  assert.match(script, /process\.exit\(2\)/, "an empty or unreachable sitemap must fail loudly");
+});
+
 test("security headers are still declared for every path", () => {
   for (const [key, value] of [
     ["X-Content-Type-Options", "nosniff"],
