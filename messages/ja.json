@@ -10,7 +10,6 @@
     "reference": "カード情報",
     "windows": "Windows",
     "footerSister": "姉妹サイト",
-    "footerSisterBody": "対応デバイス ID と同一カードでの実測値",
     "footerBody": "{site} は 3 つの上流モジュールをインストールします：<ampere>Zagitta/gpu-unlock</ampere>（Ampere）、<ada>JustAResearcher/gpu-unlock-ada</ada>（Ada）、<turing>nlzy/turing-unlock</turing>（Turing）。対応するカードと同一カードでの実測値は<reference>カードリファレンス</reference>に記載しています。",
     "footerMeta": "ソースは GPL-2.0-only で公開されています。NVIDIA のファームウェアは独自の条項に従います。NVIDIA とは無関係です。"
   },

@@ -3,7 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { SITE_NAME, REPOS, REFERENCE_SITE } from "@/lib/site";
+import { SITE_NAME, REPOS, REFERENCE_SITE, SISTER_SITES } from "@/lib/site";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -67,14 +67,20 @@ export default async function LocaleLayout({
                   ),
                 })}
               </p>
-              {/* The reference site already links here from its footer. Naming it in a
-                  labelled group keeps the pair symmetric instead of one-sided. */}
+              {/* Every site on this host links to the others from its footer, so the set is
+                  symmetric rather than each pair negotiating separately. The reference site is
+                  listed first because it is the closest neighbour: same subject, different
+                  document. It is locale-prefixed; the rest are single-language sites. */}
               <p>
-                {nav.footerSister ?? "Sister site"}:{" "}
-                <a href={`${REFERENCE_SITE}/${locale}`} rel="noopener noreferrer">
-                  {REFERENCE_SITE.replace(/^https?:\/\//, "")}
-                </a>{" "}
-                — {nav.footerSisterBody ?? "accepted device IDs and same-card measurements"}
+                {nav.footerSister ?? "Sister sites"}:{" "}
+                {SISTER_SITES.map((site, i) => (
+                  <span key={site.url}>
+                    {i > 0 ? " · " : null}
+                    <a href={"prefix" in site && site.prefix ? `${site.url}/${locale}` : site.url} rel="noopener noreferrer">
+                      {site.name}
+                    </a>
+                  </span>
+                ))}
               </p>
               <p className="meta">{t("footerMeta")}</p>
             </div>

@@ -9,8 +9,7 @@
     "benchmarks": "Benchmarks",
     "reference": "Referência de placas",
     "windows": "Windows",
-    "footerSister": "Site irmão",
-    "footerSisterBody": "IDs de dispositivo aceitos e medições na mesma placa",
+    "footerSister": "Sites irmãos",
     "footerBody": "{site} instala três módulos upstream: <ampere>Zagitta/gpu-unlock</ampere> (Ampere), <ada>JustAResearcher/gpu-unlock-ada</ada> (Ada) e <turing>nlzy/turing-unlock</turing> (Turing). Quais placas eles aceitam e o que foi medido na mesma placa está registrado na <reference>referência de placas</reference>.",
     "footerMeta": "Código-fonte disponível sob GPL-2.0-only. O firmware da NVIDIA permanece sob seus próprios termos. Sem afiliação com a NVIDIA."
   },

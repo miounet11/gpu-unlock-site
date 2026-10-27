@@ -19,23 +19,39 @@ test("the reference host is a declared literal", () => {
   assert.equal(REFERENCE_SITE, "https://gpuunlock.com");
 });
 
-test("the footer names the reference site as a labelled sister link", () => {
-  // The reference site links here from its own footer group. This side needs the same
-  // shape or the pair stays one-sided.
+test("the footer links every sister site, including the locale-prefixed reference host", () => {
+  // Each site on this host links to the others from its footer, so the set stays symmetric
+  // instead of every pair negotiating separately.
   assert.ok(footer.includes("footerSister"), "footer must label the group");
-  assert.ok(footer.includes("REFERENCE_SITE"), "footer must link the reference host");
+  assert.ok(footer.includes("SISTER_SITES"), "footer must render the shared sister list");
   assert.ok(
-    footer.includes("${REFERENCE_SITE}/${locale}"),
-    "the link must carry the current locale, not the bare host",
+    footer.includes("${site.url}/${locale}"),
+    "the reference link must carry the current locale, not the bare host",
   );
+
+  // The list is the single place a site is declared. A host added to the footer without an
+  // entry here, or the reverse, means one direction of the link pair is missing.
+  const declared = [...site.matchAll(/\{ name: "[^"]+", url: (?:"([^"]+)"|REFERENCE_SITE)/g)].map(
+    (m) => m[1] ?? REFERENCE_SITE,
+  );
+  for (const host of [
+    "https://gpuunlock.com",
+    "https://www.androidadcleaner.com",
+    "https://www.cleanyourtv.cc",
+    "https://www.stratat.com",
+    "https://jevcode.ai",
+  ]) {
+    assert.ok(declared.includes(host), `${host} is missing from SISTER_SITES`);
+  }
 });
 
-test("every locale defines the sister-site labels", () => {
+test("every locale defines the sister-site label", () => {
   for (const loc of LOCALES) {
     const nav = JSON.parse(read(`messages/${loc}.json`)).nav;
-    for (const key of ["footerSister", "footerSisterBody"]) {
-      assert.ok(nav[key], `${loc}.json nav.${key} is missing`);
-    }
+    // The group now holds every site on the host, so the label is plural and the old
+    // one-line description (which described only the reference site) is gone.
+    assert.ok(nav.footerSister, `${loc}.json nav.footerSister is missing`);
+    assert.ok(!nav.footerSisterBody, `${loc}.json nav.footerSisterBody is stale`);
     // The header labels must not be collateral damage.
     assert.ok(nav.install, `${loc}.json nav.install was lost`);
     assert.ok(nav.faq, `${loc}.json nav.faq was lost`);

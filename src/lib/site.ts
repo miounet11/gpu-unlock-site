@@ -9,6 +9,20 @@ export const SITE_NAME = "GPU Unlock";
  */
 export const REFERENCE_SITE = "https://gpuunlock.com";
 
+/**
+ * The other sites on this host, linked from the footer in both directions. Each one serves
+ * real pages to readers — APIs and default catch-all vhosts are deliberately not listed.
+ * Adding an entry here obliges that site to link back; tests/sister-links.test.mjs checks
+ * the hosts, not just the presence of a link.
+ */
+export const SISTER_SITES = [
+  { name: "GPU Unlock Reference", url: REFERENCE_SITE, prefix: true },
+  { name: "Android 去广告", url: "https://www.androidadcleaner.com" },
+  { name: "CleanYourTV", url: "https://www.cleanyourtv.cc" },
+  { name: "Strata", url: "https://www.stratat.com" },
+  { name: "JevCode", url: "https://jevcode.ai" },
+] as const;
+
 export const REPOS = {
   ampere: "https://github.com/Zagitta/gpu-unlock",
   ada: "https://github.com/JustAResearcher/gpu-unlock-ada",
