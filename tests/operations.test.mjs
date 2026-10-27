@@ -127,6 +127,55 @@ test("indexnow fails instead of submitting when the sitemap has no entries", asy
   assert.match(result.stdout + result.stderr, /no <loc> entries/);
 });
 
+// The deploy script exists because building in place emptied the directory pm2 was serving
+// from, twice on this host. The properties below are the ones that make it safe, and each is
+// one edit away from being lost: a build that writes `.next` directly, a swap that copies
+// instead of renaming, or a restart that runs before the build is gated.
+const deployScript = read("deploy/deploy.sh");
+const postbuild = read("deploy/standalone-assets.mjs");
+
+test("the deploy builds into a staging distDir, never into the live one", () => {
+  assert.match(deployScript, /STAGING="\.next-next"/);
+  assert.match(deployScript, /NEXT_DIST_DIR="\$STAGING" npm run build/);
+  // A bare `npm run build` (no distDir override) writes `.next` — the tree pm2 is serving.
+  const builds = [...deployScript.matchAll(/npm run build/g)];
+  assert.equal(builds.length, 1, "exactly one build invocation, so the override cannot be bypassed");
+});
+
+test("the swap is a rename of the whole tree, and rollback uses the same path", () => {
+  // rename(2) on one filesystem: cp would leave a window where the tree is half-written.
+  assert.match(deployScript, /mv "\$to" "\$\{to\}\.old"/);
+  assert.match(deployScript, /mv "\$from" "\$to"/);
+  assert.doesNotMatch(deployScript, /cp -a|rsync/);
+  // Rollback must not be a second implementation that can drift from the forward swap.
+  assert.match(deployScript, /--rollback/);
+  assert.match(deployScript, /swap "\$PREV" "\$LIVE"/);
+});
+
+test("the restart runs only after the build, and is verified before the deploy reports success", () => {
+  const buildAt = deployScript.indexOf("npm run build");
+  const swapAt = deployScript.indexOf('swap "$STAGING" "$LIVE"');
+  // lastIndexOf: the --rollback branch also restarts, and that block sits above the main flow.
+  const restartAt = deployScript.lastIndexOf("restart_and_verify ||");
+  assert.ok(buildAt > 0 && swapAt > buildAt, "the swap must come after a finished build");
+  assert.ok(restartAt > swapAt, "the restart must come after the swap");
+  // A 200 on /sitemap.xml proves the process booted; verify-deployment proves the pages exist.
+  assert.match(deployScript, /verify-deployment\.mjs/);
+  assert.match(deployScript, /--rollback/);
+});
+
+test("postbuild follows NEXT_DIST_DIR instead of assuming .next", () => {
+  // A staging build whose assets landed in the *previous* tree would boot and 404 every chunk.
+  assert.match(postbuild, /process\.env\.NEXT_DIST_DIR/);
+  assert.match(postbuild, /join\(buildRoot, "static"\)/);
+  assert.match(postbuild, /join\(buildRoot, "server", "app"\)/);
+  assert.doesNotMatch(
+    postbuild,
+    /join\(root, "\.next", "server", "app"\)/,
+    "the installer-hash check must read the tree that was just built",
+  );
+});
+
 test("security headers are still declared for every path", () => {
   for (const [key, value] of [
     ["X-Content-Type-Options", "nosniff"],

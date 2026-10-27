@@ -13,16 +13,21 @@ import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync } from "node:f
 import { join } from "node:path";
 
 const root = process.cwd();
-const standalone = join(root, ".next", "standalone");
+// Must follow whatever distDir `next build` actually wrote. deploy.sh builds into a staging
+// distDir so the live tree is never modified mid-build; a hardcoded `.next` there would copy
+// public/ and static/ into the *previous* build and leave the new one without them.
+const distDir = process.env.NEXT_DIST_DIR || ".next";
+const buildRoot = join(root, distDir);
+const standalone = join(buildRoot, "standalone");
 
 if (!existsSync(standalone)) {
-  console.log("standalone skip  no .next/standalone in this build");
+  console.log(`standalone skip  no ${distDir}/standalone in this build`);
   process.exit(0);
 }
 
 const pairs = [
   [join(root, "public"), join(standalone, "public")],
-  [join(root, ".next", "static"), join(standalone, ".next", "static")],
+  [join(buildRoot, "static"), join(standalone, ".next", "static")],
 ];
 
 for (const [from, to] of pairs) {
@@ -43,7 +48,7 @@ for (const [from, to] of pairs) {
 // with its copied .sha256 (both from public/) would always pass and catch nothing; that
 // tautology was here before and let this exact drift through.
 const downloads = join(root, "public", "downloads");
-const pagesDir = join(root, ".next", "server", "app");
+const pagesDir = join(buildRoot, "server", "app");
 
 if (existsSync(downloads)) {
   for (const name of readdirSync(downloads)) {
