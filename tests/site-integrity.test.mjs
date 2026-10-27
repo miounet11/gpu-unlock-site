@@ -412,12 +412,66 @@ test("every key a page asks for exists in every locale", () => {
 // supplies ships to readers as the literal braces. Both happened while re-translating
 // modePage.resultBody, and every build, lint and HTTP status stayed green.
 
+// Scanning JS with a character loop has to know about strings and comments, or the separators
+// inside them are read as structure. A line comment holding a comma silently dropped every
+// argument after it, which turns a missing-placeholder failure into a pass — the failure mode
+// this whole test exists to prevent.
+//
+// `mask()` blanks out string, template and comment contents while keeping length and newlines,
+// so index arithmetic still lines up with the original source.
+
+/** Replace the contents of strings, templates and comments with spaces. */
+function mask(source) {
+  const out = source.split("");
+  let i = 0;
+  const blank = (from, to) => {
+    for (let k = from; k < to; k += 1) if (out[k] !== "\n") out[k] = " ";
+  };
+
+  while (i < source.length) {
+    const ch = source[i];
+    const next = source[i + 1];
+
+    if (ch === "/" && next === "/") {
+      const end = source.indexOf("\n", i);
+      const stop = end < 0 ? source.length : end;
+      blank(i, stop);
+      i = stop;
+      continue;
+    }
+    if (ch === "/" && next === "*") {
+      const end = source.indexOf("*/", i + 2);
+      const stop = end < 0 ? source.length : end + 2;
+      blank(i, stop);
+      i = stop;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === "`") {
+      // Keep the delimiters; blank the body. Template interpolations `${…}` are blanked too,
+      // which is what we want: their contents are not object keys.
+      let k = i + 1;
+      while (k < source.length) {
+        if (source[k] === "\\") k += 2;
+        else if (source[k] === ch) break;
+        else k += 1;
+      }
+      blank(i + 1, k);
+      i = k + 1;
+      continue;
+    }
+    i += 1;
+  }
+  return out.join("");
+}
+
 /** Argument names of a `{ ... }` object literal starting at `open`, respecting nesting. */
 function objectKeys(source, open) {
+  const masked = mask(source);
+
   let depth = 0;
   let close = -1;
-  for (let i = open; i < source.length; i += 1) {
-    const ch = source[i];
+  for (let i = open; i < masked.length; i += 1) {
+    const ch = masked[i];
     if (ch === "{" || ch === "(" || ch === "[") depth += 1;
     else if (ch === "}" || ch === ")" || ch === "]") {
       depth -= 1;
@@ -430,8 +484,10 @@ function objectKeys(source, open) {
   if (close < 0) return null;
 
   // Split the body on top-level commas, then keep `name:` prefixes. Computed or spread
-  // entries are not names, so they are skipped rather than guessed at.
-  const body = source.slice(open + 1, close);
+  // entries are not names, so they are skipped rather than guessed at. Values are read from
+  // the masked copy so a comma inside a string cannot split an entry; names come from the
+  // original, where they are not blanked.
+  const body = masked.slice(open + 1, close);
   const keys = [];
   let depth2 = 0;
   let start = 0;
@@ -440,6 +496,8 @@ function objectKeys(source, open) {
     if (ch === "{" || ch === "(" || ch === "[") depth2 += 1;
     else if (ch === "}" || ch === ")" || ch === "]") depth2 -= 1;
     if ((ch === "," && depth2 === 0) || i === body.length) {
+      // Read the name from the masked copy. Identifiers survive masking; comments and string
+      // bodies do not, so a segment that starts with a comment still exposes its own key.
       const part = body.slice(start, i).trim();
       // `cards: expr` and the shorthand `cards` both pass an argument named cards.
       const name = part.match(/^(\w+)\s*:/) ?? part.match(/^(\w+)$/);
@@ -504,6 +562,28 @@ test("every translation call passes exactly the placeholders its message names",
   }
 
   assert.ok(checked > 20, `only ${checked} placeholder checks ran`);
+});
+
+// The scanner above is the test's own weak point: if it mis-splits an argument list, it reports
+// fewer arguments than the page passes and the placeholder check quietly passes. These cases
+// are the ones a character loop gets wrong without knowing about strings and comments.
+test("the argument scanner survives strings, templates and comments", () => {
+  const cases = [
+    ["{ a: 1, b: 2 }", ["a", "b"]],
+    ["{ cards }", ["cards"]],
+    ['{ label: "hello, world", n: 1 }', ["label", "n"]],
+    ["{ a: 1, // note, still comment\n b: 2 }", ["a", "b"]],
+    ["{ a: 1, /* x, y */ b: 2 }", ["a", "b"]],
+    ['{ a: "q\\", r", b: 2 }', ["a", "b"]],
+    ["{ a: `t, ${x, y}`, b: 2 }", ["a", "b"]],
+    [
+      "{ mode: group.name, count: rows.length, cards: new Set(rows.map((r) => r.cardSlug)).size }",
+      ["mode", "count", "cards"],
+    ],
+  ];
+  for (const [input, expected] of cases) {
+    assert.deepEqual(objectKeys(input, 0), expected, `scanner split ${input} incorrectly`);
+  }
 });
 
 /** Look a dotted key up inside one namespace, or undefined. */
