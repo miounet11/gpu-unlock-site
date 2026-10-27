@@ -39,9 +39,11 @@ export default async function LocaleLayout({
                 <Link href="/#modules">{nav.modules ?? "Modules"}</Link>
                 <Link href="/install">{nav.install ?? "Install"}</Link>
                 <Link href="/windows">{nav.windows ?? "Windows"}</Link>
+                <Link href="/gpus">{nav.cards ?? "Cards"}</Link>
+                <Link href="/benchmarks">{nav.benchmarks ?? "Benchmarks"}</Link>
                 <Link href="/faq">{nav.faq ?? "FAQ"}</Link>
-                {/* The card list and the measurements are the reference site's job. Linking out
-                    keeps one copy of that content instead of two nearly identical ones. */}
+                {/* The reference site still covers cards independently; the label says it is a
+                    different site rather than a section of this one. */}
                 <a href={`${REFERENCE_SITE}/${locale}`} rel="noopener noreferrer">
                   {nav.reference ?? "Card reference"}
                 </a>

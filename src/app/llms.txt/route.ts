@@ -9,7 +9,7 @@ export function GET() {
   lines.push("# GPU Unlock — build and install");
   lines.push("");
   lines.push(
-    "> Install notes for three upstream NVIDIA kernel modules that enable the SM speed-select override: Zagitta/gpu-unlock (Ampere), JustAResearcher/gpu-unlock-ada (Ada) and nlzy/turing-unlock (Turing, RTX 20 series). This file is the install side of the project. The accepted device IDs and the same-card measurements are on the card reference at gpuunlock.com.",
+    "> Install notes for three upstream NVIDIA kernel modules that enable the SM speed-select override: Zagitta/gpu-unlock (Ampere), JustAResearcher/gpu-unlock-ada (Ada) and nlzy/turing-unlock (Turing, RTX 20 series). This file lists the pages, the modules and the boot order; the card and measurement pages carry the accepted device IDs and the same-card numbers.",
   );
   lines.push("");
   lines.push("Key facts:");
@@ -27,8 +27,10 @@ export function GET() {
   lines.push(`- [Home](${SITE}/en): the module table, the build commands and the verification steps`);
   lines.push(`- [Install](${SITE}/en/install): initramfs ordering, kernel parameters, verification, rollback`);
   lines.push(`- [Windows](${SITE}/en/windows): UEFI unlock that returns the card to Windows, the installer and its limits`);
+  lines.push(`- [Cards](${SITE}/en/gpus): every accepted PCI ID with its status, plus one page per card`);
+  lines.push(`- [Benchmarks](${SITE}/en/benchmarks): same-card stock-vs-unlocked measurements, including modes that did not change`);
   lines.push(`- [FAQ](${SITE}/en/faq): module choice, safety, driver requirements, failure modes`);
-  lines.push(`- [Card reference](${REFERENCE_SITE}/en): accepted device IDs and same-card measurements`);
+  lines.push(`- [Card reference](${REFERENCE_SITE}/en): the companion site, which maintains its own card coverage`);
   lines.push("");
   lines.push("## Modules");
   lines.push("");
