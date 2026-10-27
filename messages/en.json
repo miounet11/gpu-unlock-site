@@ -5,6 +5,8 @@
     "modules": "Modules",
     "install": "Install",
     "faq": "FAQ",
+    "cards": "Cards",
+    "benchmarks": "Benchmarks",
     "reference": "Card reference",
     "windows": "Windows",
     "footerSister": "Sister site",
@@ -317,5 +319,25 @@
     "linkHeadless": "Internal headless guide",
     "linkCompatibility": "Compatibility and other profiles",
     "faqLink": "Still installing the Linux modules? Read the Linux install page."
+  },
+  "modePage": {
+    "metaTitle": "Measurement path: {mode}",
+    "metaDescription": "Stock-versus-unlocked {mode} numbers from every card measured: {count} rows over {cards} cards, each with both values.",
+    "sms": "{sms} SMs",
+    "gatedYes": "yes",
+    "gatedNo": "no",
+    "gatedNote": "Governed by the SM speed-select fuse: {gated}",
+    "resultTitle": "What the unlock changes on this path",
+    "resultBody": "{count} rows over {cards} cards. {moved} improved by more than 5%, {flat} did not; the largest gain is {best} at {bestRatio}×.",
+    "methodTitle": "How this path is measured",
+    "readTitle": "Reading the numbers",
+    "flatNote": "The smallest ratio in this set is {worst} at {worstRatio}×.",
+    "colCard": "Card",
+    "otherModes": "Other measurement paths",
+    "byModeTitle": "The same path across cards",
+    "byModeBody": "A card page answers what one card gained. This table answers what one measurement path gains across every card measured, which is the question a reader asks before buying. A row that did not move is listed too: a path that was never limited is evidence the unlock targeted the right unit.",
+    "rowCount": "{count} rows",
+    "gated": "speed-select fuse",
+    "ungated": "no fuse"
   }
 }

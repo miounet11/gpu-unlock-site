@@ -5,6 +5,8 @@
     "modules": "Módulos",
     "install": "Instalação",
     "faq": "Perguntas frequentes",
+    "cards": "Placas",
+    "benchmarks": "Benchmarks",
     "reference": "Referência de placas",
     "windows": "Windows",
     "footerSister": "Site irmão",
@@ -54,7 +56,7 @@
   "gpus": {
     "title": "Placas NVIDIA suportadas",
     "description": "Os IDs PCI que o módulo GPU Unlock aceita, separados pelo que realmente se sabe de cada um: medido na mesma placa, relatado por usuário, parcial, não testado ou deliberadamente não suportado.",
-    "summary": "{total} IDs PCI aceitos pelos módulos Ampere, Ada e Turing (AD102, AD103, GA102, GA103, GA104, GA106, TU102, TU104, TU106); {cards} placas descritas aqui.",
+    "summary": "{total} IDs PCI aceitos pelos módulos Ampere, Ada e Turing (AD102, AD103, AD103M, AD104, AD106, AD107, GA102, GA103, GA104, GA106, GA107, TU102, TU104, TU106); {cards} placas descritas aqui.",
     "statusHeading": {
       "measured": "Medido na mesma placa",
       "reported": "Relatado por usuários",
@@ -77,7 +79,7 @@
       "unsupported": "não suportado"
     },
     "idsTitle": "Como verificar sua própria placa",
-    "idsBody": "Rode `lspci -nn | grep -i nvidia` e compare o ID `10de:xxxx` com a lista acima. IDs GeForce e CMP GA102/GA104 estão na lista Ampere/Ada; as RTX A profissionais e os modelos de datacenter não. AD102 aceita apenas a RTX 4090, e AD103 fica restrita ao endereço canário exato da RTX 4070 Ti SUPER. Nas placas RTX 20 o módulo responsável é `turing_unlock`; IDs AD102/GA102 não significam nada para ele.",
+    "idsBody": "Rode `lspci -nn | grep -i nvidia` e compare o ID `10de:xxxx` com a lista acima. IDs GeForce e CMP GA102/GA104 estão na lista Ampere/Ada; as RTX A profissionais e os modelos de datacenter não. Em Ada, apenas a RTX 4090 (10de:2684) é aceita por `targets=all`; cada outro die Ada exige seu próprio flag e o endereço PCI exato. Por isso AD102 também cobre a 4090 D e a 4070 Ti SUPER reduzida, e AD103/AD104/AD106/AD107 seguem experimentais die a die. As placas RTX 20 ficam com `turing_unlock`; IDs AD102/GA102 não significam nada para ele.",
     "installLink": "Passos de instalação"
   },
   "device": {
@@ -142,7 +144,7 @@
     "steps": {
       "pick-fork": {
         "title": "Escolha o fork que corresponde à sua placa",
-        "body": "O fork Ampere (Zagitta/gpu-unlock, v1.0.0) cobre GA102, GA103, GA104 e GA106. O fork Ada (JustAResearcher/gpu-unlock-ada, v1.1.1) é esse mesmo módulo com AD102 (RTX 4090) e um canário AD103 experimental adicionados, então também trata a lista de dispositivos Ampere. O fork Turing (nlzy/turing-unlock, v2.0.0) é um módulo separado para a série RTX 20: TU102, TU104 e TU106.",
+        "body": "O fork Ampere (Zagitta/gpu-unlock, main @ 6081407) cobre GA102, GA103, GA104 e GA106. O fork Ada (JustAResearcher/gpu-unlock-ada, v1.1.1) é esse mesmo módulo com AD102 (RTX 4090) e um canário AD103 experimental adicionados, então também trata a lista de dispositivos Ampere. O fork Turing (nlzy/turing-unlock, main @ 417f333) é um módulo separado para a série RTX 20: TU102, TU104 e TU106.",
         "note": "O fork Ada mantém as listas originais de GeForce/CMP para GA102 e GA104 e acrescenta a lista GA103/GA106. As RTX A-series profissionais e os modelos de datacenter não são aceitos por nenhum dos três. Os módulos Turing e Ampere/Ada não são intercambiáveis — uma placa TU102 não será tocada pelo `gpu_unlock`."
       },
       "clone": {
@@ -317,5 +319,25 @@
     "linkHeadless": "Guia headless interno",
     "linkCompatibility": "Compatibilidade e outros perfis",
     "faqLink": "Quer os módulos Linux? Veja a página de instalação do Linux."
+  },
+  "modePage": {
+    "metaTitle": "{mode} — stock contra desbloqueado",
+    "metaDescription": "Todas as medições de {mode} na mesma placa publicadas upstream: {count} linhas em {cards} placas, cada uma com o valor stock e desbloqueado.",
+    "methodTitle": "Como foram medidas",
+    "gatedNote": "Sob o fusível SM speed-select: {gated}",
+    "gatedYes": "sim",
+    "gatedNo": "não",
+    "resultTitle": "Linhas medidas",
+    "colCard": "Placa",
+    "sms": "{sms} SMs",
+    "otherModes": "Outros caminhos de medição",
+    "readTitle": "Como ler um rácio de 1,00×",
+    "resultBody": "{count} linhas em {cards} placas. {moved} subiram mais de 5 % e {flat} não; o maior ganho é {best} com {bestRatio}×.",
+    "flatNote": "O menor rácio deste conjunto é {worst} com {worstRatio}×.",
+    "byModeTitle": "O mesmo caminho em todas as placas",
+    "byModeBody": "A página de uma placa responde quanto aquela placa ganhou. Esta tabela responde quanto um caminho de medição ganha em todas as placas medidas — a pergunta feita antes de comprar. As linhas sem mudança também aparecem: um caminho que nunca foi limitado prova que o desbloqueio mirou a unidade certa.",
+    "rowCount": "{count} linhas",
+    "gated": "fusível speed-select",
+    "ungated": "sem fusível"
   }
 }

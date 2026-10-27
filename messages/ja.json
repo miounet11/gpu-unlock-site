@@ -5,6 +5,8 @@
     "modules": "モジュール",
     "install": "導入",
     "faq": "よくある質問",
+    "cards": "カード",
+    "benchmarks": "ベンチマーク",
     "reference": "カード情報",
     "windows": "Windows",
     "footerSister": "姉妹サイト",
@@ -54,7 +56,7 @@
   "gpus": {
     "title": "対応 NVIDIA カード",
     "description": "GPU Unlock モジュールが受け付ける PCI ID を、実際にどこまで分かっているかで分類しています: 同一カード実測、ユーザー報告、部分対応、未検証、意図的非対応。",
-    "summary": "Ampere・Ada・Turing の各モジュール（AD102、AD103、GA102、GA103、GA104、GA106、TU102、TU104、TU106）で {total} 個の PCI ID を受け付け、ここでは {cards} 枚を解説しています。",
+    "summary": "Ampere・Ada・Turing の各モジュール（AD102、AD103、AD103M、AD104、AD106、AD107、GA102、GA103、GA104、GA106、GA107、TU102、TU104、TU106）で {total} 個の PCI ID を受け付け、ここでは {cards} 枚を解説しています。",
     "statusHeading": {
       "measured": "同一カードで実測",
       "reported": "ユーザー報告",
@@ -77,7 +79,7 @@
       "unsupported": "非対応"
     },
     "idsTitle": "自分のカードを確認する方法",
-    "idsBody": "`lspci -nn | grep -i nvidia` を実行し、`10de:xxxx` のデバイス ID を上の一覧と照合してください。GeForce と CMP の GA102/GA104 ID は Ampere/Ada の一覧にありますが、プロ向け RTX A シリーズやデータセンター向けは含まれません。AD102 は RTX 4090 のみ、AD103 は RTX 4070 Ti SUPER の実験的な特定アドレスのみです。RTX 20 シリーズを受け持つのは `turing_unlock` で、AD102/GA102 の ID は無関係です。",
+    "idsBody": "`lspci -nn | grep -i nvidia` を実行し、`10de:xxxx` のデバイス ID を上の一覧と照合してください。GeForce と CMP の GA102/GA104 ID は Ampere/Ada の一覧にありますが、プロ向け RTX A シリーズやデータセンター向けは含まれません。Ada で `targets=all` により選ばれるのは RTX 4090（10de:2684）だけです。他の Ada ダイは個別のフラグと正確な PCI アドレスの指定が必要で、AD102 は 4090 D と簡略版 4070 Ti SUPER も含み、AD103/AD104/AD106/AD107 はダイごとに実験段階です。RTX 20 シリーズを受け持つのは `turing_unlock` で、AD102/GA102 の ID は無関係です。",
     "installLink": "導入手順"
   },
   "device": {
@@ -142,7 +144,7 @@
     "steps": {
       "pick-fork": {
         "title": "カードに合ったフォークを選ぶ",
-        "body": "Ampere フォーク（Zagitta/gpu-unlock、v1.0.0）は GA102・GA103・GA104・GA106 を扱います。Ada フォーク（JustAResearcher/gpu-unlock-ada、v1.1.1）は同じモジュールに AD102（RTX 4090）と実験的な AD103 カナリアを加えたもので、Ampere のデバイス一覧もそのまま含みます。Turing フォーク（nlzy/turing-unlock、v2.0.0）は RTX 20 シリーズ専用の別モジュールで、TU102・TU104・TU106 に対応します。",
+        "body": "Ampere フォーク（Zagitta/gpu-unlock、main @ 6081407）は GA102・GA103・GA104・GA106 を扱います。Ada フォーク（JustAResearcher/gpu-unlock-ada、v1.1.1）は同じモジュールに AD102（RTX 4090）と実験的な AD103 カナリアを加えたもので、Ampere のデバイス一覧もそのまま含みます。Turing フォーク（nlzy/turing-unlock、main @ 417f333）は RTX 20 シリーズ専用の別モジュールで、TU102・TU104・TU106 に対応します。",
         "note": "Ada フォークは従来の GeForce/CMP 向け GA102・GA104 リストに加えて GA103/GA106 リストを保持します。プロ向け RTX A シリーズとデータセンター向け製品はいずれも対象外です。Turing と Ampere/Ada のモジュールに互換性はなく、TU102 のカードが `gpu_unlock` で処理されることはありません。"
       },
       "clone": {
@@ -317,5 +319,25 @@
     "linkHeadless": "内蔵 headless ガイド",
     "linkCompatibility": "互換性と他のプロファイル",
     "faqLink": "Linux モジュールを入れたい場合は Linux のインストールページへ。"
+  },
+  "modePage": {
+    "metaTitle": "{mode} — 通常時とアンロック後",
+    "metaDescription": "上流が公開した {mode} の同一カード実測をすべて掲載。{cards} 枚のカードにわたる {count} 行で、各行に通常時とアンロック後の値があります。",
+    "methodTitle": "測定方法",
+    "gatedNote": "SM speed-select ヒューズの対象か: {gated}",
+    "gatedYes": "はい",
+    "gatedNo": "いいえ",
+    "resultTitle": "実測行",
+    "colCard": "カード",
+    "sms": "{sms} SM",
+    "otherModes": "他の測定パス",
+    "readTitle": "1.00× の読み方",
+    "resultBody": "{cards} 枚のカードにわたる {count} 行。{moved} 行が 5% 超の向上、{flat} 行は変化なし。最大の向上は {best} の {bestRatio}× です。",
+    "flatNote": "このセットで最小の比率は {worst} の {worstRatio}× です。",
+    "byModeTitle": "同じパスのカード間比較",
+    "byModeBody": "カードページは 1 枚のカードの伸びを示します。ここでは 1 つの測定パスが測定済みの全カードでどう伸びるかを示します。変化しなかった行も掲載します。制限されていなかったパスは、解除が正しいユニットを狙った証拠だからです。",
+    "rowCount": "{count} 行",
+    "gated": "speed-select ヒューズあり",
+    "ungated": "ヒューズなし"
   }
 }

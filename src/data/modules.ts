@@ -17,7 +17,12 @@ export interface Module {
   module: string;
   /** The kernel command line parameter that opts a card in. */
   parameter: string;
-  /** Upstream release this site installs. */
+  /**
+   * What the site tells a reader this module is at. Not every upstream publishes a version:
+   * only the Ada fork has tags, so the other two show the branch plus the pinned commit
+   * recorded in upstream-pins.json. Showing a made-up tag would be the one claim a reader
+   * can check in ten seconds and find false.
+   */
   version: string;
   /** Chip families the module covers. */
   chips: string;
@@ -36,7 +41,7 @@ export const MODULES: Module[] = [
     id: "ampere",
     module: "gpu_unlock",
     parameter: "gpu_unlock.targets=",
-    version: "v1.0.0",
+    version: "main @ 6081407",
     chips: "GA102, GA103, GA104, GA106",
     repo: REPOS.ampere,
     repoName: "Zagitta/gpu-unlock",
@@ -66,7 +71,7 @@ export const MODULES: Module[] = [
     id: "turing",
     module: "turing_unlock",
     parameter: "turing_unlock.targets=",
-    version: "v2.0.0",
+    version: "main @ 417f333",
     chips: "TU102, TU104, TU106",
     repo: REPOS.turing,
     repoName: "nlzy/turing-unlock",

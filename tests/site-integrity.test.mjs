@@ -132,11 +132,26 @@ test("windows section keys are identical in every locale", () => {
   }
 });
 
-test("the sitemap only lists the paths this site owns", () => {
+test("the sitemap lists every hub this site serves", () => {
+  // A hub that ships without a sitemap entry is a page crawlers find only by accident.
   const paths = JSON.parse(
     sitemap.match(/const PATHS = (\[[\s\S]*?\]);/)[1],
   );
-  assert.deepEqual(paths, ["", "/install", "/windows", "/faq"]);
+  assert.deepEqual(paths, ["", "/install", "/windows", "/gpus", "/benchmarks", "/faq"]);
+});
+
+// Detail pages are generated from the data they render. Hardcoding them in the sitemap would
+// mean the day a card or a mode is added, its page exists but no crawler is told about it.
+test("the sitemap derives every detail page from its data", () => {
+  const derived = [...sitemap.matchAll(/const (\w+_PATHS) = /g)].map((m) => m[1]);
+  assert.deepEqual(derived.sort(), ["CARD_PATHS", "MODE_PATHS"]);
+
+  // Each derived array must actually reach the emitted list. A defined-but-unused array is the
+  // failure mode this guards: it reads as wired up and produces no URL.
+  const emitted = sitemap.match(/\[\.\.\.PATHS, ([^\]]+)\]/)?.[1] ?? "";
+  for (const name of derived) {
+    assert.ok(emitted.includes(`...${name}`), `${name} is not spread into the sitemap`);
+  }
 });
 
 // `lastModified: new Date()` is the obvious thing to write and it makes the sitemap lie: every
@@ -251,17 +266,16 @@ test("standalone tree carries the installer and the client assets", (t) => {
 });
 
 test("cross-site redirects point at the host that owns the path", () => {
-  // gpus/benchmarks live on the reference site, install/faq live here.
-  assert.match(nextConfig, /source: "\/:locale\/gpus"[\s\S]*?destination: "https:\/\/gpuunlock\.com\/:locale\/gpus"/);
-  assert.match(nextConfig, /source: "\/:locale\/benchmarks"[\s\S]*?destination: "https:\/\/gpuunlock\.com\/:locale\/benchmarks"/);
-  assert.ok(
-    !/source: "\/:locale\/install"[\s\S]*?destination: "https:\/\/gpuunlock\.com/.test(nextConfig),
-    "install must stay on this host",
-  );
-  assert.ok(
-    !/source: "\/:locale\/faq"[\s\S]*?destination: "https:\/\/gpuunlock\.com/.test(nextConfig),
-    "faq must stay on this host",
-  );
+  // All content paths are served here. A redirect for one of them would mean the route files
+  // still build pages that no request can reach, and crawlers would index a redirect instead.
+  for (const page of ["gpus", "benchmarks", "install", "faq", "windows"]) {
+    assert.ok(
+      !new RegExp(`source: "/:locale/${page}"[\\s\\S]*?destination: "https://gpuunlock\\.com`).test(
+        nextConfig,
+      ),
+      `${page} must stay on this host`,
+    );
+  }
 });
 
 // The page renders `v{version}` from windows-package.json. A locale that spells the tag out
@@ -283,3 +297,221 @@ test("every locale carries the same top-level namespaces", () => {
     assert.deepEqual(Object.keys(loadMessages(loc)), base, `${loc}: top-level namespaces drifted`);
   }
 });
+
+// A message key that does not exist does not throw: next-intl renders the key itself, so the
+// page ships the literal text "modePage.byModeTitle" to readers. This happened on /benchmarks
+// and no test caught it, because the build, lint and every HTTP status were green.
+//
+// This walks every page instead of one hand-listed file, because the failure is not specific
+// to /benchmarks. It reads each file's own `getTranslations` binding, so a page that renames
+// its helper or switches namespace is still covered without editing this test.
+
+/** Every .tsx file under src/app, as URLs. */
+function pageFiles(dir) {
+  const out = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const child = new URL(`${entry.name}${entry.isDirectory() ? "/" : ""}`, dir);
+    if (entry.isDirectory()) out.push(...pageFiles(child));
+    else if (entry.name.endsWith(".tsx")) out.push(child);
+  }
+  return out;
+}
+
+/** `const t = await getTranslations("ns")` and the `{ locale, namespace: "ns" }` form. */
+function bindingsIn(source) {
+  const found = new Map();
+  const re =
+    /const\s+(\w+)\s*=\s*await\s+getTranslations\(\s*(?:\{[^}]*namespace:\s*"([\w]+)"[^}]*\}|"([\w]+)")\s*\)/g;
+  for (const m of source.matchAll(re)) {
+    found.set(m[1], m[2] ?? m[3]);
+  }
+  return found;
+}
+
+/** Literal keys and template keys, as `t("x")`, `t.rich("x")`, `t(`x.${y}`)`. */
+function callsIn(source, fn) {
+  const callee = `${fn}(?:\\.(?:rich|raw|markup))?`;
+  const literal = [...source.matchAll(new RegExp(`\\b${callee}\\(\\s*"([\\w.]+)"`, "g"))].map(
+    (m) => ({ kind: "literal", key: m[1] }),
+  );
+  const template = [...source.matchAll(new RegExp(`\\b${callee}\\(\\s*\`([^\`]+)\``, "g"))].map(
+    (m) => {
+      // Two shapes, and they need different rules:
+      //   `modules.${m.summaryKey}` — static part ends with a dot: a nested lookup, so
+      //                               "modules" must be an object.
+      //   `q${i + 1}`               — no dot: a bare stem, satisfied by any key starting with it.
+      // Collapsing both into "prefix" and then allowing startsWith for the nested shape is what
+      // made deleting `windows.routes` pass, because `routesTitle` also starts with "routes".
+      const staticPart = m[1].split("${")[0];
+      const nested = staticPart.endsWith(".");
+      return { kind: "template", prefix: staticPart.replace(/\.$/, ""), nested };
+    },
+  );
+  return [...literal, ...template];
+}
+
+test("every key a page asks for exists in every locale", () => {
+  const pages = pageFiles(new URL("../src/app/", import.meta.url));
+  assert.ok(pages.length >= 8, `expected the site's pages, found ${pages.length}`);
+
+  const locales = LOCALES.map((loc) => ({ loc, messages: loadMessages(loc) }));
+  let checked = 0;
+
+  for (const file of pages) {
+    const source = readFileSync(file, "utf8");
+    const bindings = bindingsIn(source);
+    const where = file.pathname.split("/src/app/")[1];
+
+    for (const [fn, ns] of bindings) {
+      for (const { kind, key, prefix, nested } of callsIn(source, fn)) {
+        for (const { loc, messages } of locales) {
+          const table = messages[ns];
+          assert.ok(table, `${loc}: ${where} uses namespace "${ns}", which does not exist`);
+
+          if (kind === "literal") {
+            assert.ok(
+              Object.hasOwn(table, key),
+              `${loc}: ${where} calls ${fn}("${key}") but ${ns}.${key} is missing`,
+            );
+            checked += 1;
+            continue;
+          }
+
+          // A template key cannot be checked exactly without running the page, but its static
+          // part can.
+          if (prefix === "") continue;
+
+          // Nested: walk the dotted path and stop at the leaf object. Falling back to a
+          // prefix match here would accept `routesTitle` for a missing `routes`.
+          const segments = prefix.split(".");
+          let node = table;
+          for (const segment of segments) {
+            node = node && Object.hasOwn(node, segment) ? node[segment] : undefined;
+          }
+          const found = nested
+            ? node !== undefined
+            : Object.keys(table).some((k) => k.startsWith(prefix));
+          assert.ok(
+            found,
+            nested
+              ? `${loc}: ${where} builds keys from "${prefix}.…" but ${ns}.${prefix} is missing`
+              : `${loc}: ${where} builds keys from "${prefix}", which ${ns} has no entries for`,
+          );
+          checked += 1;
+        }
+      }
+    }
+  }
+
+  assert.ok(checked > 200, `only ${checked} key checks ran; the parser probably missed the pages`);
+});
+
+// Existence is not enough. next-intl takes the values it is handed and interpolates only the
+// placeholders the message actually names; anything else is dropped without a warning. The
+// reverse case is louder but equally silent at build time: a {placeholder} the call never
+// supplies ships to readers as the literal braces. Both happened while re-translating
+// modePage.resultBody, and every build, lint and HTTP status stayed green.
+
+/** Argument names of a `{ ... }` object literal starting at `open`, respecting nesting. */
+function objectKeys(source, open) {
+  let depth = 0;
+  let close = -1;
+  for (let i = open; i < source.length; i += 1) {
+    const ch = source[i];
+    if (ch === "{" || ch === "(" || ch === "[") depth += 1;
+    else if (ch === "}" || ch === ")" || ch === "]") {
+      depth -= 1;
+      if (depth === 0) {
+        close = i;
+        break;
+      }
+    }
+  }
+  if (close < 0) return null;
+
+  // Split the body on top-level commas, then keep `name:` prefixes. Computed or spread
+  // entries are not names, so they are skipped rather than guessed at.
+  const body = source.slice(open + 1, close);
+  const keys = [];
+  let depth2 = 0;
+  let start = 0;
+  for (let i = 0; i <= body.length; i += 1) {
+    const ch = body[i];
+    if (ch === "{" || ch === "(" || ch === "[") depth2 += 1;
+    else if (ch === "}" || ch === ")" || ch === "]") depth2 -= 1;
+    if ((ch === "," && depth2 === 0) || i === body.length) {
+      const part = body.slice(start, i).trim();
+      // `cards: expr` and the shorthand `cards` both pass an argument named cards.
+      const name = part.match(/^(\w+)\s*:/) ?? part.match(/^(\w+)$/);
+      if (name) keys.push(name[1]);
+      start = i + 1;
+    }
+  }
+  return keys;
+}
+
+/** Every `t("key", {...})` call, with the key and the names it passes. */
+function callsWithArgs(source, fn) {
+  const re = new RegExp(`\\b${fn}\\(\\s*"([\\w.]+)"\\s*(,|\\s*\\))`, "g");
+  const out = [];
+  for (const m of source.matchAll(re)) {
+    if (m[2] === ")" || !m[2]) {
+      out.push({ key: m[1], args: [] });
+      continue;
+    }
+    const open = source.indexOf("{", m.index + m[0].length - 1);
+    const args = open >= 0 ? objectKeys(source, open) : null;
+    out.push({ key: m[1], args: args ?? [] });
+  }
+  return out;
+}
+
+test("every translation call passes exactly the placeholders its message names", () => {
+  const pages = pageFiles(new URL("../src/app/", import.meta.url));
+  const locales = LOCALES.map((loc) => ({ loc, messages: loadMessages(loc) }));
+  let checked = 0;
+
+  for (const file of pages) {
+    const source = readFileSync(file, "utf8");
+    const where = file.pathname.split("/src/app/")[1];
+
+    for (const [fn, ns] of bindingsIn(source)) {
+      for (const { key, args } of callsWithArgs(source, fn)) {
+        for (const { loc, messages } of locales) {
+          const found = findMessage(messages, ns, key);
+          // Missing keys are the other test's job; skip so one failure is not reported twice.
+          if (found === undefined) continue;
+
+          const named = new Set([...found.matchAll(/\{(\w+)\}/g)].map((m) => m[1]));
+          const passed = new Set(args);
+
+          for (const name of named) {
+            assert.ok(
+              passed.has(name),
+              `${loc}: ${where} calls ${fn}("${key}") without {${name}}, so it renders as literal text`,
+            );
+          }
+          for (const name of passed) {
+            assert.ok(
+              named.has(name),
+              `${loc}: ${where} passes {${name}} to ${fn}("${key}") but the message never uses it`,
+            );
+          }
+          checked += 1;
+        }
+      }
+    }
+  }
+
+  assert.ok(checked > 20, `only ${checked} placeholder checks ran`);
+});
+
+/** Look a dotted key up inside one namespace, or undefined. */
+function findMessage(messages, ns, key) {
+  let node = messages[ns];
+  for (const segment of key.split(".")) {
+    if (!node || !Object.hasOwn(node, segment)) return undefined;
+    node = node[segment];
+  }
+  return typeof node === "string" ? node : undefined;
+}

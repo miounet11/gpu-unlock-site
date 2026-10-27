@@ -5,6 +5,8 @@
     "modules": "模块",
     "install": "安装",
     "faq": "常见问题",
+    "cards": "显卡",
+    "benchmarks": "跑分",
     "reference": "显卡参考",
     "windows": "Windows",
     "footerSister": "姊妹站点",
@@ -54,7 +56,7 @@
   "gpus": {
     "title": "支持的 NVIDIA 显卡",
     "description": "GPU Unlock 模块接受的 PCI ID，按「已知程度」划分：同卡实测、用户报告、部分生效、未测试、明确不支持。",
-    "summary": "共接受 {total} 个 PCI ID，覆盖 Ampere、Ada 与 Turing 三个模块（AD102、AD103、GA102、GA103、GA104、GA106、TU102、TU104、TU106）；本页描述 {cards} 张卡。",
+    "summary": "共接受 {total} 个 PCI ID，覆盖 Ampere、Ada 与 Turing 三个模块（AD102、AD103、AD103M、AD104、AD106、AD107、GA102、GA103、GA104、GA106、GA107、TU102、TU104、TU106）；本页描述 {cards} 张卡。",
     "statusHeading": {
       "measured": "同卡实测",
       "reported": "用户报告",
@@ -77,7 +79,7 @@
       "unsupported": "不支持"
     },
     "idsTitle": "如何查自己的卡",
-    "idsBody": "运行 `lspci -nn | grep -i nvidia`，把 `10de:xxxx` 设备 ID 与上面的列表对照。GeForce 与 CMP 的 GA102/GA104 ID 在 Ampere/Ada 列表里，专业 RTX A 系列与数据中心型号不在。AD102 只接受 RTX 4090，AD103 仅限 RTX 4070 Ti SUPER 那个确切的实验地址。RTX 20 系列对应的模块是 `turing_unlock`，AD102/GA102 的 ID 对它没有意义。",
+    "idsBody": "运行 `lspci -nn | grep -i nvidia`，把 `10de:xxxx` 设备 ID 与上面的列表对照。GeForce 与 CMP 的 GA102/GA104 ID 在 Ampere/Ada 列表里，专业 RTX A 系列与数据中心型号不在。Ada 这边只有 RTX 4090（10de:2684）能被 `targets=all` 选中；其余 Ada 核心都要单独开对应的开关并写出确切的 PCI 地址，所以 AD102 还包含 4090 D 与削减版 4070 Ti SUPER，AD103/AD104/AD106/AD107 则按核心各自处于实验阶段。RTX 20 系列对应的模块是 `turing_unlock`，AD102/GA102 的 ID 对它没有意义。",
     "installLink": "安装步骤"
   },
   "device": {
@@ -142,7 +144,7 @@
     "steps": {
       "pick-fork": {
         "title": "选择与你的显卡匹配的分支",
-        "body": "Ampere 分支（Zagitta/gpu-unlock，v1.0.0）覆盖 GA102、GA103、GA104 与 GA106。Ada 分支（JustAResearcher/gpu-unlock-ada，v1.1.1）是同一个模块加上 AD102（RTX 4090）和实验性的 AD103 金丝雀，因此也包含 Ampere 设备表。Turing 分支（nlzy/turing-unlock，v2.0.0）是面向 RTX 20 系列的独立模块，覆盖 TU102、TU104 与 TU106。",
+        "body": "Ampere 分支（Zagitta/gpu-unlock，main @ 6081407）覆盖 GA102、GA103、GA104 与 GA106。Ada 分支（JustAResearcher/gpu-unlock-ada，v1.1.1）是同一个模块加上 AD102（RTX 4090）和实验性的 AD103 金丝雀，因此也包含 Ampere 设备表。Turing 分支（nlzy/turing-unlock，main @ 417f333）是面向 RTX 20 系列的独立模块，覆盖 TU102、TU104 与 TU106。",
         "note": "Ada 分支保留了原有的 GeForce/CMP GA102、GA104 列表，并新增 GA103/GA106 列表。专业级 RTX A 系列和数据中心产品都不在其接受范围内。Turing 与 Ampere/Ada 模块不可互换：TU102 显卡不会被 `gpu_unlock` 处理。"
       },
       "clone": {
@@ -317,5 +319,25 @@
     "linkHeadless": "内置 headless 指南",
     "linkCompatibility": "兼容性与其它机型",
     "faqLink": "想装的是 Linux 模块？看 Linux 安装页。"
+  },
+  "modePage": {
+    "metaTitle": "{mode} — 解锁前后对比",
+    "metaDescription": "上游公布的全部 {mode} 同卡实测：{count} 行，覆盖 {cards} 张卡，每行都有解锁前后的数值。",
+    "methodTitle": "数据怎么来的",
+    "gatedNote": "是否受 SM speed-select 熔丝约束：{gated}",
+    "gatedYes": "是",
+    "gatedNo": "否",
+    "resultTitle": "实测行",
+    "colCard": "显卡",
+    "sms": "{sms} SM",
+    "otherModes": "其他测量路径",
+    "readTitle": "1.00× 该怎么读",
+    "resultBody": "共 {count} 行，覆盖 {cards} 张卡。{moved} 行提升超过 5%，{flat} 行没有变化；提升最大的是 {best}，为 {bestRatio}×。",
+    "flatNote": "这组里最小的比值是 {worst}，为 {worstRatio}×。",
+    "byModeTitle": "同一路径的跨卡对比",
+    "byModeBody": "显卡页回答一张卡提升了多少；这里回答同一条测量路径在所有已测显卡上的表现，这正是购买前想知道的问题。没有变化的行同样列出：一条从未被限制的路径，本身就是「解锁改对了单元」的证据。",
+    "rowCount": "{count} 行",
+    "gated": "受 speed-select 熔丝限制",
+    "ungated": "不受熔丝限制"
   }
 }

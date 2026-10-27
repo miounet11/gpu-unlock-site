@@ -5,6 +5,8 @@
     "modules": "Module",
     "install": "Installation",
     "faq": "FAQ",
+    "cards": "Karten",
+    "benchmarks": "Benchmarks",
     "reference": "Karten-Referenz",
     "windows": "Windows",
     "footerSister": "Schwesterseite",
@@ -54,7 +56,7 @@
   "gpus": {
     "title": "Unterstützte NVIDIA-Karten",
     "description": "Die PCI-IDs, die das GPU-Unlock-Modul akzeptiert, geteilt danach, wie gut jede tatsächlich belegt ist: auf derselben Karte gemessen, von Nutzern berichtet, teilweise, ungetestet oder bewusst nicht unterstützt.",
-    "summary": "{total} PCI-IDs werden von den Modulen für Ampere, Ada und Turing akzeptiert (AD102, AD103, GA102, GA103, GA104, GA106, TU102, TU104, TU106); {cards} Karten werden hier beschrieben.",
+    "summary": "{total} PCI-IDs werden von den Modulen für Ampere, Ada und Turing akzeptiert (AD102, AD103, AD103M, AD104, AD106, AD107, GA102, GA103, GA104, GA106, GA107, TU102, TU104, TU106); {cards} Karten werden hier beschrieben.",
     "statusHeading": {
       "measured": "Auf derselben Karte gemessen",
       "reported": "Von Nutzern berichtet",
@@ -77,7 +79,7 @@
       "unsupported": "nicht unterstützt"
     },
     "idsTitle": "Die eigene Karte prüfen",
-    "idsBody": "`lspci -nn | grep -i nvidia` ausführen und die `10de:xxxx`-Geräte-ID mit der Liste oben abgleichen. GeForce- und CMP-IDs für GA102/GA104 stehen in der Ampere/Ada-Liste; professionelle RTX-A-Serie und Rechenzentrumsmodelle nicht. AD102 akzeptiert nur die RTX 4090, AD103 nur die exakte Kanarienvogel-Adresse der RTX 4070 Ti SUPER. Auf RTX-20-Karten ist `turing_unlock` das zuständige Modul; AD102/GA102-IDs bedeuten ihm nichts.",
+    "idsBody": "`lspci -nn | grep -i nvidia` ausführen und die `10de:xxxx`-Geräte-ID mit der Liste oben abgleichen. GeForce- und CMP-IDs für GA102/GA104 stehen in der Ampere/Ada-Liste; professionelle RTX-A-Serie und Rechenzentrumsmodelle nicht. Unter Ada wählt `targets=all` nur die RTX 4090 (10de:2684) aus; jedes andere Ada-Die braucht sein eigenes Flag und die exakte PCI-Adresse. AD102 umfasst daher auch die 4090 D und die beschnittene 4070 Ti SUPER, AD103/AD104/AD106/AD107 bleiben je Die experimentell. RTX-20-Karten übernimmt `turing_unlock`; AD102/GA102-IDs bedeuten dort nichts.",
     "installLink": "Installationsschritte"
   },
   "device": {
@@ -142,7 +144,7 @@
     "steps": {
       "pick-fork": {
         "title": "Den Fork passend zur Karte wählen",
-        "body": "Der Ampere-Fork (Zagitta/gpu-unlock, v1.0.0) deckt GA102, GA103, GA104 und GA106 ab. Der Ada-Fork (JustAResearcher/gpu-unlock-ada, v1.1.1) ist dasselbe Modul mit AD102 (RTX 4090) und einem experimentellen AD103-Canary, enthält also auch die Ampere-Geräteliste. Der Turing-Fork (nlzy/turing-unlock, v2.0.0) ist ein eigenes Modul für die RTX-20-Serie: TU102, TU104 und TU106.",
+        "body": "Der Ampere-Fork (Zagitta/gpu-unlock, main @ 6081407) deckt GA102, GA103, GA104 und GA106 ab. Der Ada-Fork (JustAResearcher/gpu-unlock-ada, v1.1.1) ist dasselbe Modul mit AD102 (RTX 4090) und einem experimentellen AD103-Canary, enthält also auch die Ampere-Geräteliste. Der Turing-Fork (nlzy/turing-unlock, main @ 417f333) ist ein eigenes Modul für die RTX-20-Serie: TU102, TU104 und TU106.",
         "note": "Der Ada-Fork behält die ursprünglichen GeForce/CMP-Listen für GA102 und GA104 und ergänzt die neuere GA103/GA106-Liste. Professionelle RTX-A-Serie und Data-Center-Modelle werden von keinem der Forks akzeptiert. Turing- und Ampere/Ada-Module sind nicht austauschbar — eine TU102-Karte wird von `gpu_unlock` nicht angefasst."
       },
       "clone": {
@@ -317,5 +319,25 @@
     "linkHeadless": "Interne Headless-Anleitung",
     "linkCompatibility": "Kompatibilität und andere Profile",
     "faqLink": "Du willst die Linux-Module? Dann zur Linux-Installationsseite."
+  },
+  "modePage": {
+    "metaTitle": "{mode} — Stock gegen entsperrt",
+    "metaDescription": "Alle upstream veröffentlichten Messungen von {mode} auf derselben Karte: {count} Zeilen über {cards} Karten, jeweils mit Stock- und entsperrtem Wert.",
+    "methodTitle": "So wurden sie gemessen",
+    "gatedNote": "Unter der Kontrolle der SM-Speed-Select-Sicherung: {gated}",
+    "gatedYes": "ja",
+    "gatedNo": "nein",
+    "resultTitle": "Gemessene Zeilen",
+    "colCard": "Karte",
+    "sms": "{sms} SMs",
+    "otherModes": "Andere Messpfade",
+    "readTitle": "Wie ein Verhältnis von 1,00× zu lesen ist",
+    "resultBody": "{count} Zeilen über {cards} Karten. {moved} verbesserten sich um mehr als 5 %, {flat} nicht; der größte Gewinn ist {best} mit {bestRatio}×.",
+    "flatNote": "Das kleinste Verhältnis in diesem Satz ist {worst} mit {worstRatio}×.",
+    "byModeTitle": "Derselbe Pfad über alle Karten",
+    "byModeBody": "Eine Kartenseite beantwortet, was eine Karte gewonnen hat. Diese Tabelle beantwortet, was ein Messpfad über alle gemessenen Karten gewinnt — die Frage, die man vor dem Kauf stellt. Auch unveränderte Zeilen stehen hier: Ein Pfad, der nie begrenzt war, belegt, dass das Unlock die richtige Einheit getroffen hat.",
+    "rowCount": "{count} Zeilen",
+    "gated": "Speed-Select-Fuse",
+    "ungated": "kein Fuse"
   }
 }
