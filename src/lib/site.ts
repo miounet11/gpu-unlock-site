@@ -20,7 +20,8 @@ export const SISTER_SITES = [
   { name: "Android 去广告", url: "https://www.androidadcleaner.com" },
   { name: "CleanYourTV", url: "https://www.cleanyourtv.cc" },
   { name: "Strata", url: "https://www.stratat.com" },
-  { name: "JevCode", url: "https://jevcode.ai" },
+  // www, not the bare apex: jevcode.ai has no A record, so the apex link fails to resolve.
+  { name: "JevCode", url: "https://www.jevcode.ai" },
 ] as const;
 
 export const REPOS = {

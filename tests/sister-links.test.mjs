@@ -39,10 +39,21 @@ test("the footer links every sister site, including the locale-prefixed referenc
     "https://www.androidadcleaner.com",
     "https://www.cleanyourtv.cc",
     "https://www.stratat.com",
-    "https://jevcode.ai",
+    "https://www.jevcode.ai",
   ]) {
     assert.ok(declared.includes(host), `${host} is missing from SISTER_SITES`);
   }
+});
+
+test("every sister origin is the host that actually answers", () => {
+  // The footer used to point at https://jevcode.ai, whose apex has no A record: the link
+  // failed to resolve rather than 404ing, so no build check would have caught it. Only the
+  // www host answers. Pinning each origin keeps a bare-apex entry from creeping back.
+  const url = (re) => site.match(re)?.[1];
+  assert.equal(url(/JevCode", url: "([^"]+)"/), "https://www.jevcode.ai");
+  assert.equal(url(/Strata", url: "([^"]+)"/), "https://www.stratat.com");
+  assert.equal(url(/CleanYourTV", url: "([^"]+)"/), "https://www.cleanyourtv.cc");
+  assert.equal(url(/Android 去广告", url: "([^"]+)"/), "https://www.androidadcleaner.com");
 });
 
 test("every locale defines the sister-site label", () => {
