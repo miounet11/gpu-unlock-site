@@ -208,6 +208,51 @@ test("the live tree is taken from pm2, not assumed to be the repo's own .next", 
   assert.match(deployScript, /swap refused/);
 });
 
+// A deploy can be perfect and the site still degrade afterwards: the sibling site lost its
+// footer links for days while every page kept answering 200. Nothing on this host looked at a
+// live page after it shipped, so the gap was invisible until a human noticed.
+test("the live patrol reads the footer links from the same source the footer renders", () => {
+  const patrol = read("scripts/patrol-live.mjs");
+  // Reading site.ts as text keeps the patrol runnable on a bare checkout; importing the TS
+  // module would need a build, and a check that needs a build is one nobody schedules.
+  assert.match(patrol, /src\/lib\/site\.ts/);
+  assert.match(patrol, /SISTER_SITES/);
+  assert.match(patrol, /footer is missing/);
+  // <html lang> and an h1 are the two cheapest proofs the route rendered rather than 404'd
+  // into a shell that still returns 200.
+  assert.match(patrol, /html lang is/);
+  assert.match(patrol, /no h1 rendered/);
+});
+
+test("the live patrol honours --base, so it can be pointed at a staging host", () => {
+  // Only `--base=URL` was parsed at first; `--base URL` silently used production and reported
+  // a clean run against a host it never contacted.
+  const patrol = read("scripts/patrol-live.mjs");
+  assert.match(patrol, /args\.indexOf\(`--\$\{name\}`\)/);
+  assert.match(patrol, /args\[i \+ 1\]/);
+});
+
+test("the nightly patrol runs the live host, not the loopback", () => {
+  const patrolSh = read("deploy/patrol-live.sh");
+  // deploy.sh already checks the tree it swapped in over loopback. This one answers a different
+  // question: does the public hostname, through DNS, TLS, and the proxy, still serve the pages
+  // with their footer. Pointing it at 127.0.0.1 would duplicate deploy.sh and test nothing new.
+  assert.match(patrolSh, /GPU_UNLOCK_PATROL_BASE:-https:\/\/gpu-unlock\.com/);
+  // It reports only. A job that re-baselines or rebuilds what it failed against goes green
+  // tomorrow with the problem still there. Comments are stripped first: the header explains in
+  // prose that there is no --update, and that sentence must not trip the check.
+  const patrolCode = patrolSh
+    .split("\n")
+    .filter((line) => !line.trimStart().startsWith("#"))
+    .join("\n");
+  assert.doesNotMatch(patrolCode, /--update|npm run build|pm2 restart/);
+  // The webhook URL is a credential: read from the environment, never a literal in the script.
+  assert.doesNotMatch(patrolSh, /https:\/\/open\.feishu\.cn\/open-apis\/bot/);
+  assert.match(patrolSh, /NOTIFY_WEBHOOK/);
+  // A failed alert must not mask the real exit code.
+  assert.match(patrolSh, /exit "\$rc"/);
+});
+
 test("the restart runs only after the build, and is verified before the deploy reports success", () => {
   const buildAt = deployScript.indexOf("npm run build");
   const swapAt = deployScript.indexOf('swap "$STAGING" "$LIVE"');

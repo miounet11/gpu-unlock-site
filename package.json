@@ -12,7 +12,8 @@
     "build:installer": "node deploy/installer/build.mjs",
     "check:installer": "node deploy/installer/build.mjs --check",
     "check:upstream": "node scripts/check-upstream-pins.mjs",
-    "check:deploy": "node scripts/verify-deployment.mjs"
+    "check:deploy": "node scripts/verify-deployment.mjs",
+    "patrol:live": "node scripts/patrol-live.mjs"
   },
   "dependencies": {
     "next": "^15.5.4",
