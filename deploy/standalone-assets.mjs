@@ -10,14 +10,15 @@
 
 import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join, resolve } from "node:path";
 
 const root = process.cwd();
 // Must follow whatever distDir `next build` actually wrote. deploy.sh builds into a staging
 // distDir so the live tree is never modified mid-build; a hardcoded `.next` there would copy
 // public/ and static/ into the *previous* build and leave the new one without them.
+// deploy.sh passes an absolute path, and join() would nest that under root instead of using it.
 const distDir = process.env.NEXT_DIST_DIR || ".next";
-const buildRoot = join(root, distDir);
+const buildRoot = isAbsolute(distDir) ? distDir : resolve(root, distDir);
 const standalone = join(buildRoot, "standalone");
 
 if (!existsSync(standalone)) {

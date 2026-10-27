@@ -135,8 +135,14 @@ const deployScript = read("deploy/deploy.sh");
 const postbuild = read("deploy/standalone-assets.mjs");
 
 test("the deploy builds into a staging distDir, never into the live one", () => {
-  assert.match(deployScript, /STAGING="\.next-next"/);
-  assert.match(deployScript, /NEXT_DIST_DIR="\$STAGING" npm run build/);
+  // Absolute: pm2's cwd is the live tree elsewhere on disk, and a relative staging dir would
+  // put the build somewhere the swap does not look.
+  // Next resolves distDir with path.join(root, distDir), and join() concatenates rather than
+  // treating an absolute second argument as a new base — passing the absolute path produced
+  // <repo>/opt/gpu-unlock/site/.next-next. The value handed to next must stay relative.
+  assert.match(deployScript, /STAGING_DIR="\.next-next"/);
+  assert.match(deployScript, /NEXT_DIST_DIR="\$STAGING_DIR" npm run build/);
+  assert.doesNotMatch(deployScript, /NEXT_DIST_DIR="\$STAGING" npm run build/);
   // A bare `npm run build` (no distDir override) writes `.next` — the tree pm2 is serving.
   const builds = [...deployScript.matchAll(/npm run build/g)];
   assert.equal(builds.length, 1, "exactly one build invocation, so the override cannot be bypassed");
@@ -144,12 +150,62 @@ test("the deploy builds into a staging distDir, never into the live one", () => 
 
 test("the swap is a rename of the whole tree, and rollback uses the same path", () => {
   // rename(2) on one filesystem: cp would leave a window where the tree is half-written.
-  assert.match(deployScript, /mv "\$to" "\$\{to\}\.old"/);
+  assert.match(deployScript, /mv "\$to" "\$held"/);
   assert.match(deployScript, /mv "\$from" "\$to"/);
   assert.doesNotMatch(deployScript, /cp -a|rsync/);
   // Rollback must not be a second implementation that can drift from the forward swap.
   assert.match(deployScript, /--rollback/);
   assert.match(deployScript, /swap "\$PREV" "\$LIVE"/);
+});
+
+test("the swap keeps the previous tree for rollback", () => {
+  // The first version of this script deleted the outgoing tree at the end of a successful
+  // swap, so --rollback had nothing to move. A rollback path that is never exercised is
+  // indistinguishable from one that does not work.
+  const swapBody = deployScript.slice(
+    deployScript.indexOf("swap() {"),
+    deployScript.indexOf("restart_and_verify() {"),
+  );
+  // Look only at what happens after the incoming tree is in place: the `rm -rf "$held"` at the
+  // top of swap is stale-leftover cleanup and is fine.
+  const afterSwapIn = swapBody.slice(swapBody.indexOf('mv "$from" "$to"'));
+  assert.match(afterSwapIn, /mv "\$held" "\$PREV"/, "the replaced tree must become $PREV");
+  assert.doesNotMatch(
+    afterSwapIn,
+    /rm -rf "\$held"(?!.*mv "\$held")/s,
+    "deleting the replaced tree is what left --rollback with no target",
+  );
+});
+
+// The first version defaulted LIVE to "$ROOT/.next". On this host that is the *source* tree:
+// pm2 serves /opt/gpu-unlock/.next while the checkout sits at /opt/gpu-unlock/site. It swapped
+// a directory nobody served, restarted the unchanged process, and then verified that process —
+// a deploy that prints "ok" while the live bytes never moved, and that a green run cannot catch.
+test("the live tree is taken from pm2, not assumed to be the repo's own .next", () => {
+  assert.match(deployScript, /pm2_cwd\(\)/, "the served tree must come from pm2's cwd");
+  assert.match(deployScript, /pm_cwd/, "pm2 jlist exposes the app cwd as pm_cwd");
+  // A fallback is still allowed, for the case where pm2 is not answering.
+  assert.match(deployScript, /LIVE="\$ROOT\/\.next"/, "keep a fallback for an unreachable pm2");
+  assert.doesNotMatch(
+    deployScript,
+    /^LIVE="\.next"$/m,
+    "a relative LIVE is the bug: it resolves to the source tree",
+  );
+  // And the restart has to prove the process picked the tree up, or the checks below are moot.
+  assert.match(deployScript, /running from .*not \$LIVE\/standalone/);
+
+  // pm2's cwd is <LIVE>/standalone, so one dirname. Two resolved to the directory *containing*
+  // the site, and the deploy renamed /opt/gpu-unlock itself out of the way before recovering.
+  assert.match(deployScript, /LIVE="\$\(dirname "\$cwd"\)"/);
+  assert.doesNotMatch(
+    deployScript,
+    /LIVE="\$\(dirname "\$\(dirname "\$cwd"\)"\)"/,
+    "two dirnames gives the site's parent, not the dist tree",
+  );
+
+  // A dist tree is identifiable, so a bad LIVE can be rejected before any rename.
+  assert.match(deployScript, /is_dist_tree\(\)/);
+  assert.match(deployScript, /swap refused/);
 });
 
 test("the restart runs only after the build, and is verified before the deploy reports success", () => {

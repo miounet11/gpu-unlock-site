@@ -26,27 +26,96 @@ cd "$ROOT" || exit 1
 
 PM2_APP="${GPU_UNLOCK_PM2_APP:-gpu-unlock}"
 PORT="${GPU_UNLOCK_PORT:-3200}"
-STAGING=".next-next"
-LIVE=".next"
-PREV=".next-prev"
+# Relative, and it has to stay that way: Next resolves distDir with path.join(root, distDir),
+# and join() ignores the "start over" meaning of an absolute second argument — passing
+# /opt/gpu-unlock/site/.next-next produced /opt/gpu-unlock/site/opt/gpu-unlock/site/.next-next.
+STAGING_DIR=".next-next"
+STAGING="$ROOT/$STAGING_DIR"
+
+# Which tree pm2 actually serves. On this host that is NOT the repo's own `.next`: the site
+# lives at /opt/gpu-unlock with the source checked out beside it at /opt/gpu-unlock/site, and
+# `next build` writes into the source tree. Defaulting LIVE to "$ROOT/.next" swapped a
+# directory nobody served, then restarted the unchanged process and verified *it* — a deploy
+# that reports ok while the live bytes never changed. pm2's own cwd is the authority.
+pm2_cwd() {
+  pm2 jlist 2>/dev/null | node -e '
+    let raw = "";
+    process.stdin.on("data", (d) => (raw += d));
+    process.stdin.on("end", () => {
+      try {
+        const app = JSON.parse(raw).find((a) => a.name === process.argv[1]);
+        process.stdout.write(app?.pm2_env?.pm_cwd ?? "");
+      } catch {}
+    });
+  ' "$PM2_APP"
+}
+
+if [ -n "${GPU_UNLOCK_LIVE:-}" ]; then
+  LIVE="$GPU_UNLOCK_LIVE"
+else
+  # pm2 runs with cwd <LIVE>/standalone, so the tree is one level up from that. One dirname,
+  # not two: two gives the directory that *contains* the site, and swapping that moved
+  # /opt/gpu-unlock itself out of the way on 2026-10-27 before the guard below existed.
+  cwd="$(pm2_cwd)"
+  case "$cwd" in
+    */standalone) LIVE="$(dirname "$cwd")" ;;
+    *) LIVE="$ROOT/.next" ;;
+  esac
+fi
+
+# A dist tree serves from its own standalone/, and carries a BUILD_ID — but not always at the
+# same level. A fresh `next build` puts BUILD_ID at the root, while the tree that was uploaded
+# to this host is a bare standalone bundle whose id lives at standalone/.next/BUILD_ID.
+# Anything matching neither is an enclosing directory, and swapping it would move the site,
+# its source, and the rollback copy in one rename. Fail before touching anything.
+build_id() {
+  cat "$1/BUILD_ID" 2>/dev/null || cat "$1/standalone/.next/BUILD_ID" 2>/dev/null || echo "unknown BUILD_ID"
+}
+
+is_dist_tree() {
+  [ -d "$1/standalone" ] || return 1
+  [ -f "$1/BUILD_ID" ] || [ -f "$1/standalone/.next/BUILD_ID" ]
+}
+
+if [ -n "${LIVE:-}" ] && [ -d "$LIVE" ] && ! is_dist_tree "$LIVE"; then
+  echo "refusing to swap: LIVE=$LIVE is not a build tree (no BUILD_ID + standalone/)" >&2
+  exit 78
+fi
+# Beside the live tree, never inside the checkout: LIVE is /opt/gpu-unlock/.next there, while
+# $ROOT is /opt/gpu-unlock/site. dirname "$LIVE" would put the rollback copy at /opt/.next-prev.
+PREV="${LIVE}-prev"
 
 NO_RESTART=0
 [ "${1:-}" = "--no-restart" ] && NO_RESTART=1
 
+# The tree that was live before the last swap is kept, always. It is the only way back once a
+# deploy has restarted into a tree that verifies badly, and deleting it at the end of a
+# successful swap — which this did — leaves --rollback with nothing to move.
 swap() {
   local from="$1" to="$2"
   [ -d "$from" ] || return 1
-  rm -rf "${to}.old" 2>/dev/null
+  # Both sides must look like build trees. This is the check that would have caught LIVE
+  # pointing at /opt/gpu-unlock instead of /opt/gpu-unlock/.next.
+  if ! is_dist_tree "$from" || { [ -d "$to" ] && ! is_dist_tree "$to"; }; then
+    echo "swap refused: $from or $to is not a build tree" >&2
+    return 1
+  fi
+  local held="${LIVE}.swapping"
+  rm -rf "$held" 2>/dev/null
   # rename(2), not copy: two renames on one filesystem, no window where `to` is missing.
   if [ -d "$to" ]; then
-    mv "$to" "${to}.old" || return 1
+    mv "$to" "$held" || return 1
   fi
   if ! mv "$from" "$to"; then
     # Put the old tree back before reporting, or the site has no tree at all.
-    [ -d "${to}.old" ] && mv "${to}.old" "$to"
+    [ -d "$held" ] && mv "$held" "$to"
     return 1
   fi
-  rm -rf "${to}.old"
+  # Whatever was live a moment ago becomes $PREV, so --rollback always has somewhere to go.
+  if [ -d "$held" ]; then
+    rm -rf "$PREV"
+    mv "$held" "$PREV" || return 1
+  fi
 }
 
 restart_and_verify() {
@@ -54,6 +123,19 @@ restart_and_verify() {
     echo "pm2 restart $PM2_APP failed" >&2
     return 1
   fi
+
+  # The restarted process must be running the tree we just swapped in. Without this the
+  # checks below can all pass against a process that never picked up the new bytes — which is
+  # exactly what happened when LIVE pointed at a directory pm2 did not serve.
+  local running
+  running="$(pm2_cwd)"
+  case "$running" in
+    "$LIVE"/standalone|"$LIVE"/standalone/) ;;
+    *)
+      echo "pm2 $PM2_APP is running from ${running:-<unknown>}, not $LIVE/standalone" >&2
+      return 1
+      ;;
+  esac
 
   # The process needs a moment to bind. Poll instead of sleeping a fixed time: a slow start
   # would fail a fixed sleep, and a fast one would waste it on every deploy.
@@ -86,7 +168,7 @@ if [ "${1:-}" = "--rollback" ]; then
     echo "rollback swap failed" >&2
     exit 1
   }
-  echo "rolled back to $(cat "$LIVE/BUILD_ID" 2>/dev/null || echo "unknown BUILD_ID")"
+  echo "rolled back to $(build_id "$LIVE")"
   if [ "$NO_RESTART" = "1" ]; then
     echo "skipping restart (--no-restart)"
     exit 0
@@ -136,7 +218,7 @@ rm -rf "$STAGING"
 # makes the next typecheck fail on a file it just described and then deleted.
 rm -rf tsconfig.tsbuildinfo
 
-if ! NEXT_DIST_DIR="$STAGING" npm run build; then
+if ! NEXT_DIST_DIR="$STAGING_DIR" npm run build; then
   echo "build failed — live site untouched, $LIVE still serves" >&2
   rm -rf "$STAGING"
   exit 1
@@ -145,6 +227,7 @@ fi
 # postbuild copies public/ and .next/static into the standalone tree. If that silently skipped,
 # the new tree would boot and serve HTML with every JS and CSS chunk 404ing.
 if [ ! -d "$STAGING/standalone/.next/static" ] || [ ! -d "$STAGING/standalone/public" ]; then
+  echo "looked in: $STAGING/standalone" >&2
   echo "standalone tree is missing static/ or public/ — live site untouched" >&2
   exit 1
 fi
@@ -159,7 +242,7 @@ swap "$STAGING" "$LIVE" || {
   echo "swap failed — live site untouched" >&2
   exit 1
 }
-echo "live BUILD_ID $(cat "$LIVE/BUILD_ID")"
+echo "live BUILD_ID $(build_id "$LIVE")"
 
 if [ "$NO_RESTART" = "1" ]; then
   echo "skipping restart (--no-restart); the running process still serves the previous tree"
