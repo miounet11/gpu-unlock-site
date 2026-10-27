@@ -7,6 +7,7 @@
 //
 //   node deploy/indexnow.mjs
 //   node deploy/indexnow.mjs --base http://127.0.0.1:3191
+//   node deploy/indexnow.mjs --dry-run        # list what would be submitted, POST nothing
 //
 // Reads the live sitemap, so it reports what is actually deployed. Exits non-zero if the key
 // file or the sitemap is not being served, because the submission would be rejected anyway
@@ -21,6 +22,9 @@ function arg(name, fallback) {
 
 const SITE = arg("base", "https://gpu-unlock.com").replace(/\/$/, "");
 const KEY = "fe762070f9f94699958963f0e664db51";
+// --dry-run is what the test uses: it exercises the whole discovery path (key file, sitemap,
+// <loc> parsing, the empty-list guard) without writing to a third-party service.
+const DRY_RUN = args.includes("--dry-run");
 
 const keyLocation = `${SITE}/${KEY}.txt`;
 const keyResponse = await fetch(keyLocation);
@@ -37,6 +41,12 @@ const urlList = [...(await sitemapResponse.text()).matchAll(/<loc>([^<]+)<\/loc>
 if (urlList.length === 0) {
   console.error("sitemap: no <loc> entries found; refusing to submit an empty list");
   process.exit(2);
+}
+
+if (DRY_RUN) {
+  console.log(`dry run: ${urlList.length} urls would be submitted`);
+  for (const url of urlList) console.log(url);
+  process.exit(0);
 }
 
 const response = await fetch("https://api.indexnow.org/indexnow", {

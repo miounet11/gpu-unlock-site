@@ -61,15 +61,70 @@ test("the deployment check probes the live host, not a guessed one", () => {
 // The submission list has to track what the site actually serves. It was hand-kept once and
 // fell 308 URLs behind the day the card and benchmark pages moved onto this host — the pages
 // existed, the sitemap listed them, and the script announced only the six hubs.
-test("the indexnow submission reads the sitemap instead of a hand-kept list", () => {
-  const script = read("deploy/indexnow.mjs");
-  assert.match(script, /sitemap\.xml/, "indexnow must take its URL list from the sitemap");
-  assert.match(script, /<loc>/, "indexnow parses <loc> entries");
-  assert.ok(
-    !/const HUBS\s*=/.test(script),
-    "a hardcoded hub list drifts from the data-derived sitemap; read the sitemap instead",
-  );
-  assert.match(script, /process\.exit\(2\)/, "an empty or unreachable sitemap must fail loudly");
+//
+// This runs the script, rather than matching its source text: a regex over the file passes
+// just as well when the parsing is broken. `--dry-run` keeps it off the network, and the
+// throwaway server below is the whole "deployed site" as far as the script can tell.
+const KEY_FILE = "/fe762070f9f94699958963f0e664db51.txt";
+
+async function withFakeSite(sitemapBody, fn) {
+  const { createServer } = await import("node:http");
+  const server = createServer((req, res) => {
+    if (req.url === KEY_FILE) {
+      res.writeHead(200, { "content-type": "text/plain" });
+      res.end("fe762070f9f94699958963f0e664db51");
+      return;
+    }
+    if (req.url === "/sitemap.xml") {
+      res.writeHead(200, { "content-type": "application/xml" });
+      res.end(sitemapBody);
+      return;
+    }
+    res.writeHead(404).end();
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  try {
+    return await fn(base);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+}
+
+async function runIndexNow(base) {
+  const { execFile } = await import("node:child_process");
+  const { promisify } = await import("node:util");
+  const run = promisify(execFile);
+  try {
+    const { stdout } = await run(process.execPath, ["deploy/indexnow.mjs", "--base", base, "--dry-run"], {
+      cwd: new URL("../", import.meta.url),
+    });
+    return { code: 0, stdout };
+  } catch (err) {
+    return { code: err.code, stdout: err.stdout ?? "", stderr: err.stderr ?? "" };
+  }
+}
+
+test("indexnow submits every <loc> in the sitemap, not a hand-kept hub list", async () => {
+  const urls = [
+    "https://example.test/en",
+    "https://example.test/zh/gpus/rtx-4090",
+    "https://example.test/de/benchmarks/fp32",
+  ];
+  const body = `<?xml version="1.0"?><urlset>${urls.map((u) => `<url><loc>${u}</loc></url>`).join("")}</urlset>`;
+
+  const result = await withFakeSite(body, runIndexNow);
+  assert.equal(result.code, 0, `indexnow exited ${result.code}: ${result.stderr}`);
+  for (const url of urls) {
+    assert.ok(result.stdout.includes(url), `indexnow did not list ${url}`);
+  }
+  assert.match(result.stdout, /3 urls/, "indexnow must report the full count it read");
+});
+
+test("indexnow fails instead of submitting when the sitemap has no entries", async () => {
+  const result = await withFakeSite("<urlset></urlset>", runIndexNow);
+  assert.equal(result.code, 2, "an empty sitemap must exit 2, not succeed with nothing sent");
+  assert.match(result.stdout + result.stderr, /no <loc> entries/);
 });
 
 test("security headers are still declared for every path", () => {
