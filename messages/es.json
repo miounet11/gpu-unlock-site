@@ -339,5 +339,13 @@
     "rowCount": "{count} filas",
     "gated": "fusible speed-select",
     "ungated": "sin fusible"
+  },
+  "notFound": {
+    "title": "No encontrada",
+    "body": "Esa página no existe. El sitio tiene cinco secciones y una página por tarjeta; los enlaces de abajo cubren todo.",
+    "home": "Volver al inicio",
+    "cards": "Tarjetas compatibles",
+    "benchmarks": "Benchmarks",
+    "install": "Instalación"
   }
 }

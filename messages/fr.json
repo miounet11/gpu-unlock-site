@@ -339,5 +339,13 @@
     "rowCount": "{count} lignes",
     "gated": "fusible speed-select",
     "ungated": "sans fusible"
+  },
+  "notFound": {
+    "title": "Introuvable",
+    "body": "Cette page n’existe pas. Le site compte cinq sections et des pages par carte ; les liens ci-dessous couvrent l’ensemble.",
+    "home": "Retour à l’accueil",
+    "cards": "Cartes prises en charge",
+    "benchmarks": "Benchmarks",
+    "install": "Installation"
   }
 }

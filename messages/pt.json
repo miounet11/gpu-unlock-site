@@ -339,5 +339,13 @@
     "rowCount": "{count} linhas",
     "gated": "fusível speed-select",
     "ungated": "sem fusível"
+  },
+  "notFound": {
+    "title": "Não encontrada",
+    "body": "Essa página não existe. O site tem cinco seções e uma página por placa; os links abaixo cobrem tudo.",
+    "home": "Voltar ao início",
+    "cards": "Placas compatíveis",
+    "benchmarks": "Benchmarks",
+    "install": "Instalação"
   }
 }

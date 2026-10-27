@@ -339,5 +339,13 @@
     "rowCount": "{count} rows",
     "gated": "speed-select fuse",
     "ungated": "no fuse"
+  },
+  "notFound": {
+    "title": "Not found",
+    "body": "That page does not exist. The site keeps five sections and a set of card pages; the links below cover all of them.",
+    "home": "Home page",
+    "cards": "Supported cards",
+    "benchmarks": "Benchmarks",
+    "install": "Installation"
   }
 }

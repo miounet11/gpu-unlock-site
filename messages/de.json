@@ -339,5 +339,13 @@
     "rowCount": "{count} Zeilen",
     "gated": "Speed-Select-Fuse",
     "ungated": "kein Fuse"
+  },
+  "notFound": {
+    "title": "Nicht gefunden",
+    "body": "Diese Seite existiert nicht. Die Seite besteht aus fünf Bereichen und den Karten-Seiten; die folgenden Links decken alles ab.",
+    "home": "Zur Startseite",
+    "cards": "Unterstützte Karten",
+    "benchmarks": "Benchmarks",
+    "install": "Installation"
   }
 }
