@@ -3,12 +3,20 @@ import { SITE } from "@/lib/site";
 import { DEVICES } from "@/data/devices";
 import { BENCH_RUNS } from "@/data/benchmarks";
 import { groupForRow, groupSlug, pageGroups } from "@/data/modes";
+import { ANSWER_PAGES } from "@/data/answers";
+import { SCENARIOS } from "@/data/use-cases";
+import { CHIPS } from "@/data/chips";
 
 const LOCALES = ["en", "zh", "ja", "de", "fr", "es", "pt"] as const;
 
 // Hubs built from a fixed list. Detail pages are appended below from the data they render,
 // because a hand-kept list here would drift the first time a card or a mode is added.
-const PATHS = ["", "/install", "/windows", "/gpus", "/benchmarks", "/faq"];
+const PATHS = ["", "/install", "/windows", "/gpus", "/chips", "/benchmarks", "/answers", "/use-cases", "/faq", "/about", "/changelog"];
+
+/** One URL per answered question. These are the pages an answer engine cites, so they sit at 0.8. */
+const ANSWER_PATHS = ANSWER_PAGES.map((page) => `/answers/${page.slug}`);
+const USE_CASE_PATHS = SCENARIOS.map((scenario) => `/use-cases/${scenario.slug}`);
+const CHIP_PATHS = CHIPS.map((chip) => `/chips/${chip.slug}`);
 
 // Card pages change when the upstream evidence does, which is not on a schedule.
 const CARD_PATHS = DEVICES.map((device) => `/gpus/${device.slug}`);
@@ -28,7 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // which is worse than the field being absent. changeFrequency below still says how often
   // each hub is worth revisiting, and that claim is not time-sensitive.
   return LOCALES.flatMap((locale) =>
-    [...PATHS, ...MODE_PATHS, ...CARD_PATHS].map((path) => ({
+    [...PATHS, ...MODE_PATHS, ...CARD_PATHS, ...CHIP_PATHS, ...ANSWER_PATHS, ...USE_CASE_PATHS].map((path) => ({
       url: `${SITE}/${locale}${path}`,
       changeFrequency: path === "" ? ("weekly" as const) : ("monthly" as const),
       priority: path === "" ? 1 : path.startsWith("/gpus") ? 0.7 : 0.8,

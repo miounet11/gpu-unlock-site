@@ -40,8 +40,13 @@ export default async function LocaleLayout({
                 <Link href="/install">{nav.install ?? "Install"}</Link>
                 <Link href="/windows">{nav.windows ?? "Windows"}</Link>
                 <Link href="/gpus">{nav.cards ?? "Cards"}</Link>
+                <Link href="/chips">{nav.chips ?? "Chips"}</Link>
                 <Link href="/benchmarks">{nav.benchmarks ?? "Benchmarks"}</Link>
+                <Link href="/answers">{nav.answers ?? "Answers"}</Link>
+                <Link href="/use-cases">{nav.useCases ?? "Use cases"}</Link>
                 <Link href="/faq">{nav.faq ?? "FAQ"}</Link>
+                <Link href="/about">{nav.about ?? "About"}</Link>
+                <Link href="/changelog">{nav.changelog ?? "Changelog"}</Link>
                 {/* The reference site still covers cards independently; the label says it is a
                     different site rather than a section of this one. */}
                 <a href={`${REFERENCE_SITE}/${locale}`} rel="noopener noreferrer">

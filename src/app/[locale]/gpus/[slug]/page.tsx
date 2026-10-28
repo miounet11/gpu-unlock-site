@@ -86,7 +86,8 @@ export default async function DevicePage({
 
       <h1>{d.name}</h1>
       <p className="meta">
-        <code>{d.pciId}</code> · {d.chip} ·{" "}
+        <code>{d.pciId}</code> ·{" "}
+        <Link href={`/chips/${d.chip.toLowerCase()}`}>{d.chip}</Link> ·{" "}
         <span className={`badge ${d.status}`}>{tStatus(`status.${d.status}`)}</span>
       </p>
 

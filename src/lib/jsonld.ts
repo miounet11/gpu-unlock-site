@@ -80,3 +80,39 @@ export function breadcrumbLd(
     })),
   };
 }
+
+/**
+ * The question-and-answer shape an answer engine reads. Kept separate from the page node so a
+ * page can carry both: the article says what the page is, this says what it answers.
+ */
+export function faqLd(url: string, faqs: { q: string; a: string }[]) {
+  return {
+    "@type": "FAQPage",
+    "@id": nodeId(url, "faq"),
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+}
+
+/** One list node for a hub page, so the set of answers is visible without parsing the HTML. */
+export function itemListLd(
+  url: string,
+  name: string,
+  items: { name: string; url: string }[],
+) {
+  return {
+    "@type": "ItemList",
+    "@id": nodeId(url, "list"),
+    name,
+    numberOfItems: items.length,
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      url: item.url,
+    })),
+  };
+}

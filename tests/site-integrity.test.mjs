@@ -137,14 +137,32 @@ test("the sitemap lists every hub this site serves", () => {
   const paths = JSON.parse(
     sitemap.match(/const PATHS = (\[[\s\S]*?\]);/)[1],
   );
-  assert.deepEqual(paths, ["", "/install", "/windows", "/gpus", "/benchmarks", "/faq"]);
+  assert.deepEqual(paths, [
+    "",
+    "/install",
+    "/windows",
+    "/gpus",
+    "/chips",
+    "/benchmarks",
+    "/answers",
+    "/use-cases",
+    "/faq",
+    "/about",
+    "/changelog",
+  ]);
 });
 
 // Detail pages are generated from the data they render. Hardcoding them in the sitemap would
 // mean the day a card or a mode is added, its page exists but no crawler is told about it.
 test("the sitemap derives every detail page from its data", () => {
   const derived = [...sitemap.matchAll(/const (\w+_PATHS) = /g)].map((m) => m[1]);
-  assert.deepEqual(derived.sort(), ["CARD_PATHS", "MODE_PATHS"]);
+  assert.deepEqual(derived.sort(), [
+    "ANSWER_PATHS",
+    "CARD_PATHS",
+    "CHIP_PATHS",
+    "MODE_PATHS",
+    "USE_CASE_PATHS",
+  ]);
 
   // Each derived array must actually reach the emitted list. A defined-but-unused array is the
   // failure mode this guards: it reads as wired up and produces no URL.

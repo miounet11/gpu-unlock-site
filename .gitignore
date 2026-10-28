@@ -8,3 +8,7 @@ node_modules
 tsconfig.tsbuildinfo
 deploy/installer/.build
 deploy/installer/licence.txt
+
+# local tool state
+.clavue
+.cursor

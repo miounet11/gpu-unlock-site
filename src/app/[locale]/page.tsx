@@ -1,5 +1,10 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { MODULES } from "@/data/modules";
+import { ANSWER_PAGES, cardStats, type AnswerRef } from "@/data/answers";
+import { SCENARIOS } from "@/data/use-cases";
+import { scenarioQuestion } from "@/data/use-case-copy";
+import { getDevice } from "@/data/devices";
 import { jsonLdGraph, organizationLd, pageLd, websiteLd } from "@/lib/jsonld";
 import { pageMeta } from "@/lib/seo";
 import { REPOS, REFERENCE_SITE, SITE } from "@/lib/site";
@@ -19,10 +24,38 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   });
 }
 
+/**
+ * Six card answers, chosen by evidence rather than by hand: the cards with the most published
+ * rows first. A hub page that links to an arbitrary six of 36 card pages passes crawlers into
+ * the family; linking to the six with the most measurement behind them also passes readers to
+ * the pages most worth arriving at.
+ */
+function featuredAnswers(limit = 6): { slug: string; label: string }[] {
+  return ANSWER_PAGES.filter((page): page is AnswerRef & { cardSlug: string } =>
+    page.kind === "card" && Boolean(page.cardSlug),
+  )
+    .map((page) => ({ page, stats: cardStats(page.cardSlug) }))
+    .sort(
+      (a, b) =>
+        b.stats.rows - a.stats.rows ||
+        (b.stats.best?.ratio ?? 0) - (a.stats.best?.ratio ?? 0) ||
+        a.page.slug.localeCompare(b.page.slug),
+    )
+    .slice(0, limit)
+    .map(({ page }) => ({
+      slug: page.slug,
+      label: getDevice(page.cardSlug)?.name ?? page.cardSlug,
+    }));
+}
+
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("home");
+  const tExplore = await getTranslations("explore");
+  // scenarioQuestion reads keys from `useCases`, not from `explore`, so it takes its own binding.
+  const tUseCases = await getTranslations("useCases");
+  const featured = featuredAnswers();
 
   return (
     <div className="container page">
@@ -131,6 +164,38 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <div className="callout danger">
         <p>{t("riskBody")}</p>
       </div>
+
+      <h2>{tExplore("title")}</h2>
+      <p>{tExplore("lead")}</p>
+      <ul className="answer-index">
+        {featured.map((ref) => (
+          <li key={ref.slug}>
+            <Link href={`/answers/${ref.slug}`}>{ref.label}</Link>
+          </li>
+        ))}
+      </ul>
+      <p>
+        <Link href="/answers">{tExplore("answersLink")}</Link>
+        {" · "}
+        <Link href="/gpus">{tExplore("cardsLink")}</Link>
+        {" · "}
+        <Link href="/benchmarks">{tExplore("benchLink")}</Link>
+        {" · "}
+        <Link href="/about">{tExplore("aboutLink")}</Link>
+      </p>
+
+      <h2>{tExplore("useCases")}</h2>
+      <p>{tExplore("useCasesBody")}</p>
+      <ul className="answer-index">
+        {SCENARIOS.map((scenario) => (
+          <li key={scenario.slug}>
+            <Link href={`/use-cases/${scenario.slug}`}>{scenarioQuestion(scenario.slug, tUseCases)}</Link>
+          </li>
+        ))}
+      </ul>
+      <p>
+        <Link href="/use-cases">{tExplore("useCasesLink")}</Link>
+      </p>
 
       <h2>{t("referenceTitle")}</h2>
       <p>{t("referenceBody")}</p>

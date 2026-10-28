@@ -30,6 +30,24 @@ export function GET() {
   lines.push(`- [Cards](${SITE}/en/gpus): every accepted PCI ID with its status, plus one page per card`);
   lines.push(`- [Benchmarks](${SITE}/en/benchmarks): same-card stock-vs-unlocked measurements, including modes that did not change`);
   lines.push(`- [FAQ](${SITE}/en/faq): module choice, safety, driver requirements, failure modes`);
+  lines.push(
+    `- [Answers](${SITE}/en/answers): one page per question, each led by a direct answer and the measurements behind it`,
+  );
+  lines.push(
+    `- [Full corpus](${SITE}/llms-full.txt): every question and answer in one file, for retrieval`,
+  );
+  lines.push(
+    `- [Use cases](${SITE}/en/use-cases): local LLM inference, fine-tuning, Stable Diffusion and quantised inference, each judged by the paths it runs through`,
+  );
+  lines.push(
+    `- [By chip](${SITE}/en/chips): support is decided per chip, so each chip page lists the cards built on it and which of them were measured`,
+  );
+  lines.push(
+    `- [About](${SITE}/en/about): who publishes this, how the numbers are taken, and what the site does not claim`,
+  );
+  lines.push(
+    `- [Changelog](${SITE}/en/changelog): pinned module revisions and the commit each comes from`,
+  );
   lines.push(`- [Card reference](${REFERENCE_SITE}/en): the companion site, which maintains its own card coverage`);
   lines.push("");
   lines.push("## Modules");
