@@ -95,7 +95,7 @@ export default async function Windows({ params }: { params: Promise<{ locale: st
       </nav>
 
       <section id="package">
-        <h2>{t("packageTitle")}</h2>
+        <h2 className="sec first">{t("packageTitle")}</h2>
         <p>{t("packageBody", { version: WINDOWS_PACKAGE.version })}</p>
         <p>
           {installerSha256 ? (
@@ -155,7 +155,7 @@ export default async function Windows({ params }: { params: Promise<{ locale: st
       </section>
 
       <section id="routes">
-        <h2>{t("routesTitle")}</h2>
+        <h2 className="sec">{t("routesTitle")}</h2>
         <p>{t("routesIntro")}</p>
         {WINDOWS_ROUTES.map((route) => (
           <section key={route.id} id={`route-${route.id}`}>
@@ -171,7 +171,7 @@ export default async function Windows({ params }: { params: Promise<{ locale: st
       </section>
 
       <section id="assets">
-        <h2>{t("assetsTitle")}</h2>
+        <h2 className="sec">{t("assetsTitle")}</h2>
         <p>{t("assetsBody")}</p>
         <ul className="gpu-list">
           {WINDOWS_ASSETS.map((asset) => (
@@ -184,7 +184,7 @@ export default async function Windows({ params }: { params: Promise<{ locale: st
       </section>
 
       <section id="profile">
-        <h2>{t("profileTitle")}</h2>
+        <h2 className="sec">{t("profileTitle")}</h2>
         <p>{t("profileIntro")}</p>
         <table>
           <tbody>
@@ -201,7 +201,7 @@ export default async function Windows({ params }: { params: Promise<{ locale: st
       </section>
 
       <section id="bench">
-        <h2>{t("benchTitle")}</h2>
+        <h2 className="sec">{t("benchTitle")}</h2>
         <p>{t("benchIntro")}</p>
         <table>
           <thead>
@@ -226,12 +226,12 @@ export default async function Windows({ params }: { params: Promise<{ locale: st
       </section>
 
       <section id="how">
-        <h2>{t("howTitle")}</h2>
+        <h2 className="sec">{t("howTitle")}</h2>
         <p>{t("howBody")}</p>
       </section>
 
       <section id="limits">
-        <h2>{t("limitsTitle")}</h2>
+        <h2 className="sec">{t("limitsTitle")}</h2>
         <div className="grid">
           {WINDOWS_LIMIT_KEYS.map((key) => (
             <div className="card" key={key}>
@@ -243,7 +243,7 @@ export default async function Windows({ params }: { params: Promise<{ locale: st
       </section>
 
       <section id="links">
-        <h2>{t("linksTitle")}</h2>
+        <h2 className="sec">{t("linksTitle")}</h2>
         <ul>
           <li>
             <a href={REPOS.windows} rel="noopener noreferrer">

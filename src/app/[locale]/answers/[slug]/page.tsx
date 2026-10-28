@@ -299,7 +299,7 @@ export default async function AnswerPage({
 
       {rows.length > 0 ? (
         <section>
-          <h2>{t("evidenceTitle")}</h2>
+          <h2 className="sec first">{t("evidenceTitle")}</h2>
           <p className="meta">{t("evidenceBody", { rows: rows.length })}</p>
           <table>
             <thead>
@@ -332,7 +332,7 @@ export default async function AnswerPage({
 
       {faqs.length > 0 ? (
         <section>
-          <h2>{t("faqTitle")}</h2>
+          <h2 className="sec">{t("faqTitle")}</h2>
           {faqs.map((f) => (
             <div key={f.q} className="faq-item">
               <h3>{f.q}</h3>
@@ -344,7 +344,7 @@ export default async function AnswerPage({
 
       {ref.kind === "card" && ref.cardSlug && sourceForCard(ref.cardSlug) ? (
         <section>
-          <h2>{tBench("methodTitle")}</h2>
+          <h2 className="sec">{tBench("methodTitle")}</h2>
           <p className="meta">
             {t("sourceLine")}{" "}
             <a href={sourceForCard(ref.cardSlug)!} rel="noopener noreferrer">
@@ -356,7 +356,7 @@ export default async function AnswerPage({
 
       {related.length > 0 ? (
         <section>
-          <h2>{t("relatedTitle")}</h2>
+          <h2 className="sec">{t("relatedTitle")}</h2>
           <ul className="answer-index">
             {related.map((next) => (
               <li key={next.slug}>
@@ -369,7 +369,7 @@ export default async function AnswerPage({
 
       {scenarios.length > 0 ? (
         <section>
-          <h2>{tExplore("useCases")}</h2>
+          <h2 className="sec">{tExplore("useCases")}</h2>
           <p className="meta">{tExplore("useCasesBody")}</p>
           <ul className="answer-index">
             {scenarios.map((scenario) => (

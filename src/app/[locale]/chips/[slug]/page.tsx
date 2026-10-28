@@ -133,7 +133,7 @@ export default async function ChipPage({
       <p className="page-intro">{answer}</p>
 
       <section>
-        <h2>{t("cardsTitle", { chip: chip.chip })}</h2>
+        <h2 className="sec first">{t("cardsTitle", { chip: chip.chip })}</h2>
         <table className="data-table">
           <thead>
             <tr>
@@ -181,7 +181,7 @@ export default async function ChipPage({
       </section>
 
       <section>
-        <h2>{t("statusTitle")}</h2>
+        <h2 className="sec">{t("statusTitle")}</h2>
         <ul className="answer-index">
           {STATUSES.filter((status) => chip.statusCounts[status] > 0).map((status) => (
             <li key={status}>
@@ -192,7 +192,7 @@ export default async function ChipPage({
       </section>
 
       <section>
-        <h2>{t("faqTitle")}</h2>
+        <h2 className="sec">{t("faqTitle")}</h2>
         {faqs.map((faq) => (
           <div key={faq.q} className="faq-item">
             <h3>{faq.q}</h3>
@@ -202,7 +202,7 @@ export default async function ChipPage({
       </section>
 
       <section>
-        <h2>{t("relatedTitle")}</h2>
+        <h2 className="sec">{t("relatedTitle")}</h2>
         <ul className="answer-index">
           {CHIPS.filter((other) => other.slug !== chip.slug)
             .slice(0, 6)

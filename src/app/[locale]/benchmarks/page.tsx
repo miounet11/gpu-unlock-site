@@ -65,7 +65,7 @@ export default async function Benchmarks({ params }: { params: Promise<{ locale:
           answers "what does this path gain across cards", which is the question a reader asks
           before buying. Only pageworthy groups are linked, because the page 404s otherwise. */}
       <section className="section">
-        <h2>{tm("byModeTitle")}</h2>
+        <h2 className="sec first">{tm("byModeTitle")}</h2>
         <p>{tm("byModeBody")}</p>
         <ul className="link-list">
           {MODE_GROUPS.filter((g) => g.pageworthy).map((g) => {
@@ -85,7 +85,7 @@ export default async function Benchmarks({ params }: { params: Promise<{ locale:
 
       {BENCH_RUNS.map((run) => (
         <section key={run.cardSlug}>
-          <h2>
+          <h2 className="sec">
             <Link href={`/gpus/${run.cardSlug}`}>{run.card}</Link>
           </h2>
           <p className="meta">
@@ -142,7 +142,7 @@ export default async function Benchmarks({ params }: { params: Promise<{ locale:
         </section>
       ))}
 
-      <h2>{t("fp8Title")}</h2>
+      <h2 className="sec">{t("fp8Title")}</h2>
       <p>{t("fp8Body")}</p>
       <table>
         <thead>
@@ -169,7 +169,7 @@ export default async function Benchmarks({ params }: { params: Promise<{ locale:
         {FP8_CUTLASS.card} · <code>{FP8_CUTLASS.kernel}</code> · {FP8_CUTLASS.ratio}×
       </p>
 
-      <h2>{t("readTitle")}</h2>
+      <h2 className="sec">{t("readTitle")}</h2>
       <p>{t("readBody")}</p>
     </div>
   );

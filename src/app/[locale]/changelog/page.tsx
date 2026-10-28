@@ -79,7 +79,7 @@ export default async function Changelog({ params }: { params: Promise<{ locale: 
       <p className="page-intro">{t("lead")}</p>
 
       <section>
-        <h2>{t("modulesTitle")}</h2>
+        <h2 className="sec first">{t("modulesTitle")}</h2>
         {moduleItems.map((m) => (
           <section key={m.id} id={m.id}>
             <h3>{m.module}</h3>
@@ -90,14 +90,14 @@ export default async function Changelog({ params }: { params: Promise<{ locale: 
       </section>
 
       <section>
-        <h2>{t("dataTitle")}</h2>
+        <h2 className="sec">{t("dataTitle")}</h2>
         <p>{t("dataBody")}</p>
         <p>{t("dataCards", { count: DEVICES.length, chips: chipCount })}</p>
         <p>{t("dataRows", { rows: benchRows, cards: benchCards })}</p>
       </section>
 
       <section>
-        <h2>{t("lastCheckedTitle")}</h2>
+        <h2 className="sec">{t("lastCheckedTitle")}</h2>
         <p>{t("lastCheckedBody")}</p>
       </section>
     </div>

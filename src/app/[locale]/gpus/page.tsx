@@ -65,7 +65,7 @@ export default async function GpusIndex({ params }: { params: Promise<{ locale: 
 
       {groups.map((g) => (
         <section key={g.status}>
-          <h2>{t(`statusHeading.${g.status}`)}</h2>
+          <h2 className="sec first">{t(`statusHeading.${g.status}`)}</h2>
           <p className="meta">{t(`statusExplain.${g.status}`)}</p>
           <ul className="gpu-list">
             {g.items.map((d) => (
@@ -87,7 +87,7 @@ export default async function GpusIndex({ params }: { params: Promise<{ locale: 
         </section>
       ))}
 
-      <h2>{t("idsTitle")}</h2>
+      <h2 className="sec">{t("idsTitle")}</h2>
       <p>{t("idsBody")}</p>
       <p className="meta">
         <Link href="/install">{t("installLink")}</Link>

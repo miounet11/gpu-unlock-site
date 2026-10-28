@@ -198,9 +198,10 @@ h1 + .page-intro { margin-bottom: var(--space-2); }
 }
 .stat-row li { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
 
-/* Numbered section rules. The reference site separates blocks with a hairline instead of a
-   stack of boxes, and the numbers give the page a reading order at a glance. The index is
-   aria-hidden in the markup: it orders the page visually, it is not content. */
+/* Section rules. The reference site separates blocks with a hairline instead of a stack of
+   boxes. Inner pages reuse this without the number: on the home page the index gives a long
+   page a reading order, but an inner page has only three or four sections and numbering them
+   would imply a sequence that is not there. The index is aria-hidden either way. */
 h2.sec {
   display: flex;
   align-items: baseline;
@@ -209,6 +210,9 @@ h2.sec {
   padding-top: var(--space-6);
   border-top: 1px solid var(--border);
 }
+/* An inner page opens with the header hairline already closing above it, so only later sections
+   get a rule. Numbered sections on the home page always keep theirs. */
+h2.sec.first { border-top: 0; padding-top: 0; margin-top: var(--space-6); }
 h2.sec .idx {
   font-family: var(--mono);
   font-size: 0.75rem;

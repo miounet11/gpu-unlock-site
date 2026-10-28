@@ -64,7 +64,7 @@ export default async function ChipsIndex({
         if (chips.length === 0) return null;
         return (
           <section key={family}>
-            <h2>{t(`family.${family}`)}</h2>
+            <h2 className="sec first">{t(`family.${family}`)}</h2>
             <ul className="answer-index">
               {chips.map((chip) => (
                 <li key={chip.slug}>

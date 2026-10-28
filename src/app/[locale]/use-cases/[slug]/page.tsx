@@ -116,7 +116,7 @@ export default async function UseCase({
       <p className="page-intro answer-lead">{verdict}</p>
 
       <section>
-        <h2>{t("pathsTitle")}</h2>
+        <h2 className="sec first">{t("pathsTitle")}</h2>
         <p>{t("pathsBody")}</p>
         <ul>
           {modeNames(scenario.modes).map((name) => (
@@ -126,7 +126,7 @@ export default async function UseCase({
       </section>
 
       <section>
-        <h2>{t("evidenceTitle")}</h2>
+        <h2 className="sec">{t("evidenceTitle")}</h2>
         <p className="meta">{t("evidenceBody", { rows: scenario.rows.length })}</p>
         <table>
           <thead>
@@ -159,7 +159,7 @@ export default async function UseCase({
       </section>
 
       <section>
-        <h2>{t("cardsTitle")}</h2>
+        <h2 className="sec">{t("cardsTitle")}</h2>
         <p className="meta">{t("cardsBody", { cards: scenario.cardCount })}</p>
         <ul className="answer-index">
           {scenario.cards.map((cardSlug) => (
@@ -181,7 +181,7 @@ export default async function UseCase({
       </section>
 
       <section>
-        <h2>{t("faqTitle")}</h2>
+        <h2 className="sec">{t("faqTitle")}</h2>
         {faqs.map((f) => (
           <div key={f.q} className="faq-item">
             <h3>{f.q}</h3>
@@ -191,7 +191,7 @@ export default async function UseCase({
       </section>
 
       <section>
-        <h2>{t("methodTitle")}</h2>
+        <h2 className="sec">{t("methodTitle")}</h2>
         <p className="meta">{t("methodBody")}</p>
       </section>
     </div>

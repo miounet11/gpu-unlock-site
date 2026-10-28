@@ -105,7 +105,7 @@ export default async function AnswersIndex({
 
       {groups.map((group) => (
         <section key={group.title}>
-          <h2>{group.title}</h2>
+          <h2 className="sec first">{group.title}</h2>
           <ul className="answer-index">
             {group.refs.map((ref) => (
               <li key={ref.slug}>

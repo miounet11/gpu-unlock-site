@@ -138,7 +138,7 @@ export default async function ModePage({
       </div>
 
       <section>
-        <h2>{t("resultTitle")}</h2>
+        <h2 className="sec first">{t("resultTitle")}</h2>
         <p>
           {t("resultBody", {
             count: rows.length,
@@ -190,12 +190,12 @@ export default async function ModePage({
       </section>
 
       <section>
-        <h2>{t("readTitle")}</h2>
+        <h2 className="sec">{t("readTitle")}</h2>
         <p>{tBench("readBody")}</p>
       </section>
 
       <section>
-        <h2>{t("otherModes")}</h2>
+        <h2 className="sec">{t("otherModes")}</h2>
         <ul className="link-list">
           {groupsWithPages()
             .filter((g) => g.id !== group.id)

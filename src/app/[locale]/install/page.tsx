@@ -94,7 +94,7 @@ export default async function Install({ params }: { params: Promise<{ locale: st
         </ol>
       </nav>
 
-      <h2>{t("reqTitle")}</h2>
+      <h2 className="sec first">{t("reqTitle")}</h2>
       <ul>
         {REQUIREMENT_KEYS.map((key) => (
           <li key={key}>{t(`requirements.${key}`)}</li>
@@ -116,13 +116,13 @@ export default async function Install({ params }: { params: Promise<{ locale: st
         </section>
       ))}
 
-      <h2>{t("verifyTitle")}</h2>
+      <h2 className="sec">{t("verifyTitle")}</h2>
       <p>{t("verifyBody")}</p>
       <pre>
         <code>{`# Ampere / Ada\njournalctl -k -b | grep gpu_unlock\n\n# Turing (RTX 20 series)\njournalctl -k -b | grep turing_unlock\n\nlspci -nnk -s 0000:21:00.0`}</code>
       </pre>
 
-      <h2>{t("failTitle")}</h2>
+      <h2 className="sec">{t("failTitle")}</h2>
       <ul>
         {FAILURE_MODE_KEYS.map((key) => (
           <li key={key}>
@@ -131,10 +131,10 @@ export default async function Install({ params }: { params: Promise<{ locale: st
         ))}
       </ul>
 
-      <h2>{t("disableTitle")}</h2>
+      <h2 className="sec">{t("disableTitle")}</h2>
       <p>{t("disableBody")}</p>
 
-      <h2>{t("reposTitle")}</h2>
+      <h2 className="sec">{t("reposTitle")}</h2>
       <ul>
         <li>
           <a href={REPOS.ampere} rel="noopener noreferrer">

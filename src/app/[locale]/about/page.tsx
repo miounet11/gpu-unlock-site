@@ -78,17 +78,17 @@ export default async function About({ params }: { params: Promise<{ locale: stri
       <p className="page-intro">{t("lead")}</p>
 
       <section>
-        <h2>{t("whoTitle")}</h2>
+        <h2 className="sec first">{t("whoTitle")}</h2>
         <p>{t("whoBody")}</p>
       </section>
 
       <section>
-        <h2>{t("methodTitle")}</h2>
+        <h2 className="sec">{t("methodTitle")}</h2>
         <p>{t("methodBody")}</p>
       </section>
 
       <section>
-        <h2>{t("sourcesTitle")}</h2>
+        <h2 className="sec">{t("sourcesTitle")}</h2>
         <p>{t("sourcesBody")}</p>
         <ul>
           {SOURCES.map((source) => (
@@ -102,12 +102,12 @@ export default async function About({ params }: { params: Promise<{ locale: stri
       </section>
 
       <section>
-        <h2>{t("limitTitle")}</h2>
+        <h2 className="sec">{t("limitTitle")}</h2>
         <p>{t("limitBody")}</p>
       </section>
 
       <section>
-        <h2>{t("contactTitle")}</h2>
+        <h2 className="sec">{t("contactTitle")}</h2>
         <p>{t("contactBody")}</p>
       </section>
     </div>

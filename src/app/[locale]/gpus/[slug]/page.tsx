@@ -91,12 +91,12 @@ export default async function DevicePage({
         <span className={`badge ${d.status}`}>{tStatus(`status.${d.status}`)}</span>
       </p>
 
-      <h2>{t("statusTitle")}</h2>
+      <h2 className="sec first">{t("statusTitle")}</h2>
       <p>{d.notes}</p>
 
       {run ? (
         <>
-          <h2>{t("benchTitle")}</h2>
+          <h2 className="sec">{t("benchTitle")}</h2>
           <p className="meta">
             {t("benchMeta", { sms: run.sms, driver: run.driver })}
           </p>
@@ -132,12 +132,12 @@ export default async function DevicePage({
         </>
       ) : (
         <>
-          <h2>{t("benchTitle")}</h2>
+          <h2 className="sec">{t("benchTitle")}</h2>
           <p>{t("noBench")}</p>
         </>
       )}
 
-      <h2>{t("sourcesTitle")}</h2>
+      <h2 className="sec">{t("sourcesTitle")}</h2>
       <ul>
         {d.sources.map((s) => (
           <li key={s}>
