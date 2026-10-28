@@ -157,34 +157,66 @@ h1 + .page-intro { margin-bottom: var(--space-2); }
 }
 .grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 
-/* Hero: the two entry points, then the scale of the data set as one quiet line. */
+/* Hero: one statement, edge to edge, with no panel around it. A bordered box made the opening
+   read as one more card in a column of cards; dropping the frame and centring the type lets the
+   headline carry the page and the hairline below it start the reference material on a clean
+   edge. The page-wide glow in body already sits behind this block. */
 .hero {
-  /* A panel, not a banner: it separates the statement from the reference material below it
-     without turning into a full-bleed gradient. The glow is the page's existing accent colour
-     at very low alpha, so it reads as the same surface lit from the top edge. */
   position: relative;
-  margin: 0 0 var(--space-7);
-  padding: var(--space-6) var(--space-6) var(--space-5);
-  border: 1px solid var(--border);
-  border-radius: calc(var(--radius-lg) + 4px);
-  background:
-    radial-gradient(680px 260px at 12% -80px, var(--accent-wash), transparent 70%),
-    var(--surface);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), var(--shadow-sm);
+  margin: 0 0 var(--space-8);
+  padding: var(--space-7) 0 var(--space-6);
+  text-align: center;
+  border-bottom: 1px solid var(--border);
 }
-.hero h1 { max-width: 24ch; }
-.hero-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: var(--space-5) 0 0; }
+.hero h1 {
+  max-width: 20ch;
+  margin: 0 auto var(--space-4);
+  font-size: clamp(2.35rem, 6vw, 4.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  /* Uneven line lengths in a centred block look accidental; this balances them. */
+  text-wrap: balance;
+}
+.hero .lead { margin: 0 auto; max-width: 58ch; }
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  margin: var(--space-6) 0 0;
+}
 
 .stat-row {
   list-style: none;
   padding: var(--space-5) 0 0;
-  margin: var(--space-5) 0 0;
+  margin: var(--space-7) auto 0;
+  max-width: 640px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-4);
   border-top: 1px solid var(--border);
 }
-.stat-row li { margin: 0; display: flex; flex-direction: column; gap: 0.15rem; }
+.stat-row li { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+
+/* Numbered section rules. The reference site separates blocks with a hairline instead of a
+   stack of boxes, and the numbers give the page a reading order at a glance. The index is
+   aria-hidden in the markup: it orders the page visually, it is not content. */
+h2.sec {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin: var(--space-8) 0 var(--space-3);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border);
+}
+h2.sec .idx {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--accent-dim);
+  flex: none;
+}
 .stat-row .v { font-size: clamp(1.7rem, 3vw, 2.1rem); font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; letter-spacing: -0.03em; line-height: 1; }
 .stat-row .k { color: var(--muted); font-size: 0.86rem; }
 

@@ -109,7 +109,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </ul>
       </section>
 
-      <h2 id="modules">{t("modulesTitle")}</h2>
+      <h2 id="modules" className="sec">
+        <span className="idx" aria-hidden="true">01</span>
+        {t("modulesTitle")}
+      </h2>
       <p>{t("modulesIntro")}</p>
       <table className="module-table">
         <thead>
@@ -153,7 +156,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         ))}
       </ul>
 
-      <h2>{t("quickstartTitle")}</h2>
+      <h2 className="sec">
+        <span className="idx" aria-hidden="true">02</span>
+        {t("quickstartTitle")}
+      </h2>
       <p>{t("quickstartBody")}</p>
       <div className="quickstart">
         <div>
@@ -172,13 +178,19 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <p className="meta">{t("quickstartAmpere")}</p>
       <p className="meta">{t("quickstartTuring")}</p>
 
-      <h2>{t("optInTitle")}</h2>
+      <h2 className="sec">
+        <span className="idx" aria-hidden="true">03</span>
+        {t("optInTitle")}
+      </h2>
       <p>{t("optInBody")}</p>
       <pre>
         <code>{"# all accepted cards\ngpu_unlock.targets=all\n\n# one card, by PCI address\ngpu_unlock.targets=0000:21:00.0\n\n# RTX 20 series — a different module, a different parameter\nturing_unlock.targets=all"}</code>
       </pre>
 
-      <h2>{t("verifyTitle")}</h2>
+      <h2 className="sec">
+        <span className="idx" aria-hidden="true">04</span>
+        {t("verifyTitle")}
+      </h2>
       <p>{t("verifyBody")}</p>
       <ol>
         <li>{t("verify1")}</li>
@@ -186,12 +198,18 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <li>{t("verify3")}</li>
       </ol>
 
-      <h2>{t("riskTitle")}</h2>
+      <h2 className="sec">
+        <span className="idx" aria-hidden="true">05</span>
+        {t("riskTitle")}
+      </h2>
       <div className="callout danger">
         <p>{t("riskBody")}</p>
       </div>
 
-      <h2>{tExplore("title")}</h2>
+      <h2 className="sec">
+        <span className="idx" aria-hidden="true">06</span>
+        {tExplore("title")}
+      </h2>
       <p>{tExplore("lead")}</p>
       <ul className="answer-index">
         {featured.map((ref) => (
@@ -210,7 +228,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <Link href="/about">{tExplore("aboutLink")}</Link>
       </p>
 
-      <h2>{tExplore("useCases")}</h2>
+      <h2 className="sec">
+        <span className="idx" aria-hidden="true">07</span>
+        {tExplore("useCases")}
+      </h2>
       <p>{tExplore("useCasesBody")}</p>
       <ul className="answer-index">
         {SCENARIOS.map((scenario) => (
@@ -223,7 +244,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <Link href="/use-cases">{tExplore("useCasesLink")}</Link>
       </p>
 
-      <h2>{t("referenceTitle")}</h2>
+      <h2 className="sec">
+        <span className="idx" aria-hidden="true">08</span>
+        {t("referenceTitle")}
+      </h2>
       <p>{t("referenceBody")}</p>
       <ul className="link-list">
         <li>
@@ -238,7 +262,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </li>
       </ul>
 
-      <h2>{t("upstreamTitle")}</h2>
+      <h2 className="sec">
+        <span className="idx" aria-hidden="true">09</span>
+        {t("upstreamTitle")}
+      </h2>
       <p>{t("upstreamBody")}</p>
       <ul className="link-list">
         <li>
