@@ -79,6 +79,21 @@ export default async function Install({ params }: { params: Promise<{ locale: st
         <p>{t("riskBody")}</p>
       </div>
 
+      {/* Nine steps over ~1900 words. Without this a reader who only needs the Turing parameter
+          has to scroll past everything else to find it. */}
+      <nav className="toc" aria-label={t("tocTitle")}>
+        <p className="toc-title">{t("tocTitle")}</p>
+        <ol>
+          {INSTALL_STEPS.map((s, i) => (
+            <li key={s.id}>
+              <a href={`#step-${s.id}`}>
+                {i + 1}. {t(`steps.${s.id}.title`)}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
       <h2>{t("reqTitle")}</h2>
       <ul>
         {REQUIREMENT_KEYS.map((key) => (

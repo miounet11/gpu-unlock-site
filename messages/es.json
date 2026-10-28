@@ -16,7 +16,9 @@
     "about": "Acerca de",
     "changelog": "Cambios",
     "useCases": "Casos de uso",
-    "chips": "Chips"
+    "chips": "Chips",
+    "language": "Idioma",
+    "footerNav": "Pie de página"
   },
   "home": {
     "title": "GPU Unlock — compilar, instalar y verificar los módulos SM speed-select",
@@ -55,7 +57,12 @@
       "ampere": "El módulo original: GA102, GA103, GA104 y GA106, cargado como gpu_unlock.",
       "ada": "El fork de Ada: añade AD102 y un canary AD103 experimental, y sigue cubriendo las listas de Ampere.",
       "turing": "Un módulo aparte para las tarjetas serie RTX 20, cargado como turing_unlock con su propio parámetro."
-    }
+    },
+    "ctaInstall": "Instalar un módulo",
+    "ctaChips": "Explorar por chip",
+    "statModules": "módulos del kernel",
+    "statCards": "tarjetas",
+    "statRows": "mediciones"
   },
   "gpus": {
     "title": "Tarjetas NVIDIA compatibles",
@@ -159,7 +166,7 @@
       "initramfs": {
         "title": "Deja que el paquete integre el módulo en el initramfs",
         "body": "El desbloqueo solo se aplica si el módulo se carga antes de que el driver de NVIDIA enlace la tarjeta: `gpu_unlock` en Ampere/Ada, `turing_unlock` en la serie RTX 20. Cargarlo manualmente después no puede desbloquearla, porque el módulo rechaza una tarjeta que ya tiene driver enlazado (`-EBUSY`). Por eso cada paquete pone su módulo y su firmware en el initramfs y los carga ahí.",
-        "note": "Con initramfs-tools y dracut el módulo se recompila para cada kernel instalado que tenga cabeceras, y las imágenes se regeneran al instalar y al desinstalar. Los kernels instalados después obtienen el módulo de sus propios hooks. mkinitcpio ignora los drop-ins en una imagen construida con `-c <config>` o un `_config` de preset: coloca tú mismo `gpu_unlock` (o `turing_unlock`) justo antes de `nvidia` en los MODULES de esa configuración."
+        "note": "Con initramfs-tools y dracut el módulo se recompila para cada kernel instalado que tenga cabeceras, y las imágenes se regeneran al instalar y al desinstalar. Los kernels instalados después obtienen el módulo de sus propios hooks. mkinitcpio ignora los drop-ins en una imagen construida con `-c '<config>'` o un `_config` de preset: coloca tú mismo `gpu_unlock` (o `turing_unlock`) justo antes de `nvidia` en los MODULES de esa configuración."
       },
       "opt-in": {
         "title": "Actívalo en la línea de comandos del kernel",
@@ -220,7 +227,8 @@
         "symptom": "El firmware de una tarjeta nunca se detiene",
         "cause": "El módulo lo registra y conserva los búferes DMA que el firmware aún podría usar hasta el siguiente apagado. Apaga antes de reintentar."
       }
-    }
+    },
+    "tocTitle": "En esta página"
   },
   "faq": {
     "title": "FAQ de los módulos GPU Unlock",
@@ -322,7 +330,8 @@
     "linkGuide": "Guía USB",
     "linkHeadless": "Guía headless interna",
     "linkCompatibility": "Compatibilidad y otros perfiles",
-    "faqLink": "¿Buscas los módulos de Linux? Ve a la página de instalación de Linux."
+    "faqLink": "¿Buscas los módulos de Linux? Ve a la página de instalación de Linux.",
+    "tocTitle": "En esta página"
   },
   "modePage": {
     "metaTitle": "{mode} — stock frente a desbloqueado",

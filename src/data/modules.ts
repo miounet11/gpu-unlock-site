@@ -32,6 +32,12 @@ export interface Module {
   repoName: string;
   /** Message key under home.modules.<id>.* for the one-line summary. */
   summaryKey: string;
+  /**
+   * The real section id on /install this module's opt-in step lives under. Ampere and Ada share
+   * `gpu_unlock.targets=`, Turing uses its own parameter — and nothing on that page is keyed by
+   * module name, so linking to `#module-<id>` produced three anchors that never resolved.
+   */
+  installAnchor: string;
   /** Copy-pasteable commands, in shell, not translated. */
   commands: string[];
 }
@@ -46,6 +52,7 @@ export const MODULES: Module[] = [
     repo: REPOS.ampere,
     repoName: "Zagitta/gpu-unlock",
     summaryKey: "ampere",
+    installAnchor: "step-opt-in",
     commands: [
       "git clone https://github.com/Zagitta/gpu-unlock.git",
       "cd gpu-unlock",
@@ -61,6 +68,7 @@ export const MODULES: Module[] = [
     repo: REPOS.ada,
     repoName: "JustAResearcher/gpu-unlock-ada",
     summaryKey: "ada",
+    installAnchor: "step-ad103",
     commands: [
       "git clone https://github.com/JustAResearcher/gpu-unlock-ada.git",
       "cd gpu-unlock-ada",
@@ -76,6 +84,7 @@ export const MODULES: Module[] = [
     repo: REPOS.turing,
     repoName: "nlzy/turing-unlock",
     summaryKey: "turing",
+    installAnchor: "step-turing-opt-in",
     commands: [
       "git clone https://github.com/nlzy/turing-unlock.git",
       "cd turing-unlock",

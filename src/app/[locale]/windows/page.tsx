@@ -73,6 +73,27 @@ export default async function Windows({ params }: { params: Promise<{ locale: st
       <p className="page-intro">{t("description")}</p>
       <p className="lead">{t("lead")}</p>
 
+      {/* Seven sections down a long page, and the boot-route subsections are the reason most
+          readers arrive. This is the same in-page contents the install guide uses. */}
+      <nav className="toc" aria-label={t("tocTitle")}>
+        <p className="toc-title">{t("tocTitle")}</p>
+        <ol>
+          {[
+            ["package", t("packageTitle")],
+            ["routes", t("routesTitle")],
+            ["assets", t("assetsTitle")],
+            ["profile", t("profileTitle")],
+            ["bench", t("benchTitle")],
+            ["how", t("howTitle")],
+            ["links", t("linksTitle")],
+          ].map(([id, label]) => (
+            <li key={id}>
+              <a href={`#${id}`}>{label}</a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
       <section id="package">
         <h2>{t("packageTitle")}</h2>
         <p>{t("packageBody", { version: WINDOWS_PACKAGE.version })}</p>
@@ -186,18 +207,18 @@ export default async function Windows({ params }: { params: Promise<{ locale: st
           <thead>
             <tr>
               <th scope="col">{t("benchCard")}</th>
-              <th scope="col">{t("benchBefore")}</th>
-              <th scope="col">{t("benchAfter")}</th>
-              <th scope="col">{t("benchDelta")}</th>
+              <th scope="col" className="num">{t("benchBefore")}</th>
+              <th scope="col" className="num">{t("benchAfter")}</th>
+              <th scope="col" className="num">{t("benchDelta")}</th>
             </tr>
           </thead>
           <tbody>
             {WINDOWS_BENCH.map((row) => (
               <tr key={row.key}>
                 <th scope="row">{row.key.toUpperCase()}</th>
-                <td>{row.before}</td>
-                <td>{row.after}</td>
-                <td>{row.delta}</td>
+                <td className="num">{row.before}</td>
+                <td className="num">{row.after}</td>
+                <td className="num">{row.delta}</td>
               </tr>
             ))}
           </tbody>

@@ -3,29 +3,50 @@
   --surface: #14181d;
   --surface-2: #1b2027;
   --border: #262d36;
+  --border-strong: #35404d;
   --text: #e8edf3;
   --muted: #9aa7b6;
   --accent: #57d68d;
   --accent-dim: #2f8a58;
+  --accent-wash: rgba(87, 214, 141, 0.12);
   --warn: #e8b055;
   --danger: #e06c6c;
   --radius: 10px;
-  --max: 1040px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --max: 1080px;
+  /* One spacing scale, so vertical rhythm is a decision made once instead of per rule. */
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 * { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; }
+/* The header is sticky and now two rows tall, so an in-page jump would otherwise land with
+   the target heading underneath it. */
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 7rem; }
 
 body {
   margin: 0;
   background: var(--bg);
+  /* A single very wide, very faint accent glow behind the top of the page. It replaces the flat
+     black band without becoming a gradient hero. */
+  background-image: radial-gradient(1200px 520px at 50% -240px, rgba(87, 214, 141, 0.07), transparent 70%);
+  background-repeat: no-repeat;
   color: var(--text);
   font-family: var(--font);
-  font-size: 18px;
-  line-height: 1.65;
+  font-size: 17.5px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a { color: var(--accent); text-decoration: none; }
@@ -33,59 +54,158 @@ a:hover { text-decoration: underline; }
 
 a:focus-visible,
 button:focus-visible,
-summary:focus-visible {
+.btn:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
   border-radius: 4px;
 }
+/* A pill keeps its own radius when focused; the square ring would clip it. */
+.btn:focus-visible { border-radius: var(--radius-pill); }
 
 .container { max-width: var(--max); margin: 0 auto; padding: 0 1.25rem; }
 
+/* Prose carries repository names, kernel-parameter paths and full evidence URLs. On a phone
+   those are wider than the column, and without this they scroll the whole page sideways.
+   `break-word` only kicks in when a word cannot fit, and unlike `anywhere` it leaves intrinsic
+   sizing alone, so no table column gets squeezed to compensate. */
+main { overflow-wrap: break-word; }
+
 .site-header {
   border-bottom: 1px solid var(--border);
-  background: rgba(11, 13, 16, 0.9);
+  background: rgba(11, 13, 16, 0.88);
   position: sticky;
   top: 0;
   z-index: 20;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px) saturate(140%);
 }
+/* Two rows: brand + language on the first, the section links on the second. With thirteen
+   links and seven locales there is no single row that stays legible at 1040px. */
 .site-header .inner {
   max-width: var(--max);
   margin: 0 auto;
-  padding: 0.85rem 1.25rem;
+  padding: var(--space-3) 1.25rem var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.masthead {
   display: flex;
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
 }
-.brand { font-weight: 700; font-size: 1.05rem; color: var(--text); }
+.brand { font-weight: 700; font-size: 1.15rem; color: var(--text); letter-spacing: -0.02em; }
 .brand span { color: var(--accent); }
-.site-nav { display: flex; gap: 1rem; flex-wrap: wrap; margin-left: auto; font-size: 0.95rem; }
+.masthead .lang-switch { margin-left: auto; }
+/* The section row scrolls sideways instead of wrapping to three lines on narrow screens. */
+.site-nav {
+  display: flex;
+  gap: 1.15rem;
+  font-size: 0.93rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 0.25rem;
+  scrollbar-width: none;
+  scroll-margin: 0;
+}
+.site-nav::-webkit-scrollbar { display: none; }
+/* The current section gets a soft pill, not just a colour change, so the cue survives at a
+   glance and matches the badge/button language used elsewhere. */
+.site-nav a[aria-current="page"] {
+  color: var(--accent);
+  font-weight: 600;
+  background: var(--accent-wash);
+  border-radius: var(--radius-pill);
+  padding: 0.1rem 0.55rem;
+  margin: -0.1rem -0.55rem;
+}
 .site-nav a { color: var(--muted); }
 .site-nav a:hover { color: var(--text); }
 
-main { padding: 2.5rem 0 4rem; }
+main { padding: var(--space-7) 0 var(--space-8); }
 
-h1 { font-size: clamp(1.85rem, 4vw, 2.7rem); line-height: 1.2; margin: 0 0 0.75rem; letter-spacing: -0.02em; }
-h2 { font-size: 1.4rem; margin: 2.25rem 0 0.75rem; letter-spacing: -0.01em; }
-h3 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
-p { margin: 0 0 1rem; }
-.lead { font-size: 1.1rem; color: var(--muted); max-width: 68ch; }
+/* The scale steps down sharply from the h1 so a page reads as one headline with supporting
+   sections, rather than five near-equal headings. */
+h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.1; margin: 0 0 var(--space-3); letter-spacing: -0.03em; font-weight: 700; }
+h2 { font-size: clamp(1.3rem, 2.4vw, 1.65rem); margin: var(--space-7) 0 var(--space-3); letter-spacing: -0.02em; line-height: 1.25; }
+h3 { font-size: 1.08rem; margin: var(--space-5) 0 var(--space-2); letter-spacing: -0.01em; }
+p { margin: 0 0 var(--space-4); }
+.lead { font-size: clamp(1.05rem, 1.5vw, 1.2rem); color: var(--muted); max-width: 62ch; line-height: 1.65; }
 .meta { color: var(--muted); font-size: 0.9rem; }
-.page-intro { color: var(--muted); max-width: 70ch; }
+.page-intro { color: var(--muted); max-width: 70ch; font-size: 1.05rem; }
+
+/* Inner-page header. Every index page is breadcrumb → h1 → intro → a summary line, so the
+   rhythm is set here once instead of per page: the summary sits tight under the intro, and a
+   hairline closes the block so the list below starts on a clean edge. */
+h1 + .page-intro { margin-bottom: var(--space-2); }
+.page-intro + .meta {
+  margin: 0 0 var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+/* The home page has no summary line; its hero panel already supplies the closing edge. */
+.hero .page-intro, .hero .lead { margin-bottom: 0; }
 
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  /* A hairline highlight along the top edge reads as depth on a dark surface, where a shadow
+     alone is invisible. */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), var(--shadow-sm);
 }
-.grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 
-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95rem; }
-th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
-th { color: var(--muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-tbody tr:hover { background: var(--surface); }
+/* Hero: the two entry points, then the scale of the data set as one quiet line. */
+.hero {
+  /* A panel, not a banner: it separates the statement from the reference material below it
+     without turning into a full-bleed gradient. The glow is the page's existing accent colour
+     at very low alpha, so it reads as the same surface lit from the top edge. */
+  position: relative;
+  margin: 0 0 var(--space-7);
+  padding: var(--space-6) var(--space-6) var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius-lg) + 4px);
+  background:
+    radial-gradient(680px 260px at 12% -80px, var(--accent-wash), transparent 70%),
+    var(--surface);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), var(--shadow-sm);
+}
+.hero h1 { max-width: 24ch; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: var(--space-5) 0 0; }
+
+.stat-row {
+  list-style: none;
+  padding: var(--space-5) 0 0;
+  margin: var(--space-5) 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+.stat-row li { margin: 0; display: flex; flex-direction: column; gap: 0.15rem; }
+.stat-row .v { font-size: clamp(1.7rem, 3vw, 2.1rem); font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; letter-spacing: -0.03em; line-height: 1; }
+.stat-row .k { color: var(--muted); font-size: 0.86rem; }
+
+table { width: 100%; border-collapse: collapse; margin: var(--space-4) 0; font-size: 0.95rem; }
+th, td { text-align: left; padding: 0.7rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+/* A quiet header band with a stronger rule under it, so the column labels read as chrome
+   rather than as the first data row. */
+thead th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-strong);
+}
+/* Only the table that already scrolls sideways may forbid wrapping. Everywhere else a nowrap
+   header would widen a five-column table past the viewport with nothing to scroll. */
+.module-table thead th { white-space: nowrap; }
+tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.014); }
+tbody tr:hover { background: var(--surface-2); }
 td code, p code, li code {
   font-family: var(--mono);
   font-size: 0.9em;
@@ -96,14 +216,14 @@ td code, p code, li code {
 
 pre {
   font-family: var(--mono);
-  font-size: 0.88rem;
-  line-height: 1.55;
+  font-size: 0.86rem;
+  line-height: 1.6;
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1rem;
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
   overflow-x: auto;
-  margin: 0.75rem 0 1rem;
+  margin: var(--space-3) 0 var(--space-4);
 }
 pre code { background: none; padding: 0; font-size: inherit; }
 
@@ -111,62 +231,166 @@ pre code { background: none; padding: 0; font-size: inherit; }
   display: inline-block;
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
   border: 1px solid var(--border);
   color: var(--muted);
   white-space: nowrap;
+  letter-spacing: 0.01em;
 }
-.badge.measured { color: var(--accent); border-color: var(--accent-dim); }
-.badge.reported { color: var(--text); border-color: var(--border); }
-.badge.partial { color: var(--warn); border-color: #6b5220; }
-.badge.untested { color: var(--muted); }
-.badge.unsupported { color: var(--danger); border-color: #6b2b2b; }
+.badge.measured { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-wash); }
+.badge.reported { color: var(--text); border-color: var(--border-strong); background: var(--surface-2); }
+.badge.partial { color: var(--warn); border-color: #6b5220; background: rgba(232, 176, 85, 0.1); }
+.badge.untested { color: var(--muted); background: var(--surface); }
+.badge.unsupported { color: var(--danger); border-color: #6b2b2b; background: rgba(224, 108, 108, 0.1); }
 
+/* The house button. Pill shaped, one accent fill for the primary action and an outlined
+   variant for the secondary one. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.15rem;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.btn:hover { text-decoration: none; }
+.btn-primary { background: var(--accent); color: #04160c; }
+.btn-primary:hover { background: #6ee39d; }
+.btn-ghost { border-color: var(--border-strong); color: var(--text); background: transparent; }
+.btn-ghost:hover { border-color: var(--accent-dim); color: var(--accent); }
+
+/* Warnings carry weight by the rule down their left edge, not by a filled background, so they
+   stay quiet next to the body text they interrupt. */
 .callout {
   border-left: 3px solid var(--warn);
   background: var(--surface);
-  padding: 0.9rem 1.1rem;
-  border-radius: 0 var(--radius) var(--radius) 0;
-  margin: 1.25rem 0;
+  padding: var(--space-4) var(--space-5);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  margin: var(--space-5) 0;
 }
 .callout.danger { border-left-color: var(--danger); }
 .callout p:last-child { margin-bottom: 0; }
 
+/* In-page contents for the long guided pages. Outlined rather than filled, so it reads as a
+   tool next to the article instead of as a fifth callout. */
+.toc {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  margin: var(--space-5) 0;
+  background: var(--surface);
+}
+.toc-title {
+  margin: 0 0 var(--space-3);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+/* The step number is part of the link text, so the browser's own marker would double it. */
+.toc ol { margin: 0; padding-left: 0; list-style: none; columns: 2; column-gap: var(--space-6); }
+.toc li { margin: 0.3rem 0; break-inside: avoid; }
+.toc a { color: var(--text); font-size: 0.94rem; }
+.toc a:hover { color: var(--accent); }
+
+@media (max-width: 640px) {
+  .toc ol { columns: 1; }
+}
+
 ul, ol { padding-left: 1.3rem; }
 li { margin: 0.35rem 0; }
 
-.gpu-list { list-style: none; padding: 0; display: grid; gap: 0.6rem; }
+.gpu-list { list-style: none; padding: 0; display: grid; gap: var(--space-3); }
 .gpu-list li {
   margin: 0;
-  padding: 0.75rem 1rem;
+  position: relative;
+  padding: var(--space-4) var(--space-5);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   display: flex;
   gap: 0.75rem;
   align-items: baseline;
   flex-wrap: wrap;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
+.gpu-list li:hover,
+.gpu-list li:focus-within { border-color: var(--border-strong); background: var(--surface-2); }
 .gpu-list .name { font-weight: 600; }
+/* The whole row is the target, matching the rule the other index lists already follow. */
+.gpu-list .name::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+}
 .gpu-list .pid { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
 
-.breadcrumbs { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.25rem; }
+/* Above an h1 this is orientation, not content: small, spaced, and quieter than the meta line
+   so it never competes with the headline. */
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: var(--space-4);
+  letter-spacing: 0.01em;
+}
 .breadcrumbs a { color: var(--muted); }
-.breadcrumbs .sep { margin: 0 0.45rem; }
+.breadcrumbs a:hover { color: var(--accent); text-decoration: none; }
+.breadcrumbs .sep { margin: 0 0.5rem; color: var(--border-strong); }
+.breadcrumbs [aria-current="page"] { color: var(--text); }
 
-.lang-switch { display: flex; gap: 0.5rem; flex-wrap: wrap; font-size: 0.8rem; }
-.lang-switch a { color: var(--muted); }
-.lang-switch a[aria-current="true"] { color: var(--accent); font-weight: 600; }
+/* Seven two-letter codes read better as one segmented control than as seven loose links. */
+.lang-switch {
+  display: flex;
+  gap: 0.15rem;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 0.15rem;
+  background: var(--surface);
+}
+.lang-switch a {
+  color: var(--muted);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.lang-switch a:hover { color: var(--text); text-decoration: none; background: var(--surface-2); }
+.lang-switch a[aria-current="true"] { color: #04160c; background: var(--accent); font-weight: 700; }
 
 .site-footer {
   border-top: 1px solid var(--border);
-  padding: 2rem 0;
+  padding: var(--space-6) 0;
   color: var(--muted);
   font-size: 0.9rem;
+  background: rgba(0, 0, 0, 0.2);
 }
 .site-footer .inner { max-width: var(--max); margin: 0 auto; padding: 0 1.25rem; }
 .site-footer a { color: var(--muted); }
+.site-footer a:hover { color: var(--text); }
+
+/* The sections, repeated so the bottom of a long page is a way out rather than a dead end. */
+.footer-nav { margin-bottom: var(--space-5); }
+.footer-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-2) var(--space-4);
+}
+.footer-nav-list li { margin: 0; }
+.footer-nav-list a { font-size: 0.92rem; }
 
 .skip-link {
   position: absolute;
@@ -180,25 +404,115 @@ li { margin: 0.35rem 0; }
 }
 .skip-link:focus { left: 0; }
 
-.stat { display: flex; gap: 0.5rem; align-items: baseline; }
-.stat .v { font-size: 1.6rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
-.stat .k { font-size: 0.85rem; color: var(--muted); }
 
+/* The primary download is the one action on the Windows page, so it carries the filled accent
+   treatment rather than the outlined one. */
 .download-button {
   display: inline-block;
-  border: 1px solid var(--accent-dim);
-  border-radius: var(--radius);
-  background: var(--surface-2);
-  color: var(--accent);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: #04160c;
   font-weight: 600;
-  padding: 0.7rem 1.1rem;
-  word-break: break-all;
+  padding: 0.7rem 1.25rem;
+  /* Break at the hyphens the filename already has rather than mid-token, and only fall back to
+     anywhere if one segment still cannot fit. */
+  word-break: normal;
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
-.download-button:hover { background: var(--surface); text-decoration: none; }
+.download-button:hover { background: #6ee39d; text-decoration: none; }
 
-details { border: 1px solid var(--border); border-radius: var(--radius); padding: 0.9rem 1.1rem; margin: 0.6rem 0; background: var(--surface); }
-summary { cursor: pointer; font-weight: 600; }
-details[open] summary { margin-bottom: 0.6rem; }
+
+.page { padding-bottom: var(--space-2); }
+/* Sections are usually plain <section> with an h2 inside, so the h2 margin is what sets the
+   rhythm. This only has to keep two adjacent sections from collapsing onto each other. */
+.section + .section { margin-top: var(--space-6); }
+
+/* Link lists: one question per row, so a hub page reads as a scannable index rather than
+   browser-default bullets. The row is the target, not just the text. */
+.answer-index {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 1.25rem;
+  display: grid;
+  gap: 0.5rem;
+}
+.answer-index > li {
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.75rem;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+/* Only rows that actually lead somewhere get the hover lift. The chip page reuses this list for
+   plain status counts, and a row that highlights but does not respond reads as a broken link. */
+.answer-index > li:has(> a):hover,
+.answer-index > li:focus-within { border-color: var(--border-strong); background: var(--surface-2); }
+.answer-index > li > a { font-weight: 600; }
+.answer-index > li .meta { margin: 0.15rem 0 0; flex-basis: 100%; }
+
+/* The one-sentence answer under the h1. Larger and in body colour, because it is the part
+   a reader and an answer engine both take away. */
+.answer-lead {
+  font-size: 1.1rem;
+  color: var(--text);
+  max-width: 70ch;
+  padding-left: 0.9rem;
+  border-left: 3px solid var(--accent-dim);
+}
+
+.link-list { list-style: none; padding: 0; display: grid; gap: var(--space-2); }
+.link-list > li {
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.link-list > li:hover { border-color: var(--border-strong); background: var(--surface-2); }
+
+.data-table td.num, .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Follow-up questions: stacked cards, not bordered disclosures, so they stay skimmable
+   next to the evidence table above them. */
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  padding: var(--space-4) var(--space-5);
+  margin: var(--space-3) 0;
+}
+/* The question is an h2 on the FAQ page and an h3 inside the per-card follow-ups, because the
+   standalone page has no section wrapper above it. Styling only h3 left the FAQ page inheriting
+   the global h2 margin (3rem above each question) inside a card. */
+.faq-item :is(h2, h3) { margin: 0 0 0.4rem; font-size: 1rem; line-height: 1.4; }
+.faq-item p { margin: 0; color: var(--muted); }
+
+.module-notes { color: var(--muted); font-size: 0.9rem; }
+.quickstart { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.quickstart h3 { margin-top: 0; }
+
+@media (max-width: 640px) {
+  body { font-size: 17px; }
+  .site-nav { gap: 0.75rem; font-size: 0.9rem; }
+  th, td { padding: 0.5rem 0.5rem; }
+  .answer-lead { font-size: 1.02rem; }
+  /* The panel's own padding is generous for a wide viewport; at 390px it costs a line of copy. */
+  .hero { padding: var(--space-5) var(--space-4); }
+  .stat-row { gap: var(--space-3); }
+  /* Below 640px a five-column table cannot compress without crushing its cells, and the page has
+     no other way to scroll it. `display: block` on the table itself lets it scroll while its
+     cells keep normal wrapping, so only the tables that genuinely cannot fit go sideways. */
+  table { display: block; overflow-x: auto; }
+  .module-table { white-space: nowrap; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }

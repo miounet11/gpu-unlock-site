@@ -16,7 +16,9 @@
     "about": "关于",
     "changelog": "更新记录",
     "useCases": "使用场景",
-    "chips": "芯片"
+    "chips": "芯片",
+    "language": "语言",
+    "footerNav": "页脚"
   },
   "home": {
     "title": "GPU Unlock — 构建、安装并验证 SM speed-select 模块",
@@ -55,7 +57,12 @@
       "ampere": "最早的模块：覆盖 GA102、GA103、GA104、GA106，以 gpu_unlock 加载。",
       "ada": "Ada 分支：新增 AD102 与实验性的 AD103 金丝雀，同时仍覆盖 Ampere 的列表。",
       "turing": "面向 20 系显卡的独立模块，以 turing_unlock 加载，参数名也不同。"
-    }
+    },
+    "ctaInstall": "安装模块",
+    "ctaChips": "按芯片浏览",
+    "statModules": "个内核模块",
+    "statCards": "张显卡",
+    "statRows": "条实测记录"
   },
   "gpus": {
     "title": "支持的 NVIDIA 显卡",
@@ -159,7 +166,7 @@
       "initramfs": {
         "title": "让软件包把模块接入 initramfs",
         "body": "只有模块在 NVIDIA 驱动绑定显卡之前加载，解锁才会生效：Ampere/Ada 上是 `gpu_unlock`，RTX 20 系列上是 `turing_unlock`。事后再手动加载无法解锁，因为模块会拒绝已经绑定驱动的显卡（`-EBUSY`）。因此各软件包都会把自己的模块与固件放进 initramfs，并在那里加载。",
-        "note": "使用 initramfs-tools 与 dracut 时，每个已安装且带头文件的内核都会重新构建模块，安装与卸载时都会重建镜像；之后新装的内核由各自的安装钩子生成模块。mkinitcpio 对用 `-c <config>` 或预设 `_config` 构建的镜像会忽略 drop-in，需要你在该配置的 MODULES 里自己把 `gpu_unlock`（或 `turing_unlock`）放在 `nvidia` 前面。"
+        "note": "使用 initramfs-tools 与 dracut 时，每个已安装且带头文件的内核都会重新构建模块，安装与卸载时都会重建镜像；之后新装的内核由各自的安装钩子生成模块。mkinitcpio 对用 `-c '<config>'` 或预设 `_config` 构建的镜像会忽略 drop-in，需要你在该配置的 MODULES 里自己把 `gpu_unlock`（或 `turing_unlock`）放在 `nvidia` 前面。"
       },
       "opt-in": {
         "title": "在内核命令行里显式开启",
@@ -220,7 +227,8 @@
         "symptom": "显卡上的固件始终不停",
         "cause": "模块会记录这一点，并保留固件可能仍在使用的 DMA 缓冲区直到下次断电。再次尝试前请先断电。"
       }
-    }
+    },
+    "tocTitle": "本页内容"
   },
   "faq": {
     "title": "GPU Unlock 模块问答",
@@ -322,7 +330,8 @@
     "linkGuide": "U 盘指南",
     "linkHeadless": "内置 headless 指南",
     "linkCompatibility": "兼容性与其它机型",
-    "faqLink": "想装的是 Linux 模块？看 Linux 安装页。"
+    "faqLink": "想装的是 Linux 模块？看 Linux 安装页。",
+    "tocTitle": "本页内容"
   },
   "modePage": {
     "metaTitle": "{mode} — 解锁前后对比",

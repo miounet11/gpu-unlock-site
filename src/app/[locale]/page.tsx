@@ -1,10 +1,10 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { MODULES } from "@/data/modules";
-import { ANSWER_PAGES, cardStats, type AnswerRef } from "@/data/answers";
+import { ALL_ROWS, ANSWER_PAGES, cardStats, type AnswerRef } from "@/data/answers";
 import { SCENARIOS } from "@/data/use-cases";
 import { scenarioQuestion } from "@/data/use-case-copy";
-import { getDevice } from "@/data/devices";
+import { DEVICES, getDevice } from "@/data/devices";
 import { jsonLdGraph, organizationLd, pageLd, websiteLd } from "@/lib/jsonld";
 import { pageMeta } from "@/lib/seo";
 import { REPOS, REFERENCE_SITE, SITE } from "@/lib/site";
@@ -80,10 +80,36 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         }}
       />
 
-      <h1>{t("h1")}</h1>
-      <p className="lead">{t("lead")}</p>
+      {/* One panel holds the headline, the two entry points and the scale of the data set, so the
+          top of the page reads as a single statement instead of four stacked blocks. */}
+      <section className="hero">
+        <h1>{t("h1")}</h1>
+        <p className="lead">{t("lead")}</p>
 
-      <h2>{t("modulesTitle")}</h2>
+        <div className="hero-actions">
+          <Link className="btn btn-primary" href="/install">
+            {t("ctaInstall")}
+          </Link>
+          <Link className="btn btn-ghost" href="/chips">
+            {t("ctaChips")}
+          </Link>
+        </div>
+
+        <ul className="stat-row">
+          {[
+            { v: MODULES.length, k: t("statModules") },
+            { v: DEVICES.length, k: t("statCards") },
+            { v: ALL_ROWS.length, k: t("statRows") },
+          ].map((s) => (
+            <li key={s.k}>
+              <span className="v">{s.v}</span>
+              <span className="k">{s.k}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <h2 id="modules">{t("modulesTitle")}</h2>
       <p>{t("modulesIntro")}</p>
       <table className="module-table">
         <thead>
@@ -113,7 +139,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 </a>
               </td>
               <td>
-                <a href={`${SITE}/${locale}/install#module-${m.id}`}>{m.id}</a>
+                <a href={`${SITE}/${locale}/install#${m.installAnchor}`}>{m.id}</a>
               </td>
             </tr>
           ))}
@@ -199,7 +225,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
       <h2>{t("referenceTitle")}</h2>
       <p>{t("referenceBody")}</p>
-      <ul>
+      <ul className="link-list">
         <li>
           <a href={REFERENCE_SITE} rel="noopener noreferrer">
             {t("referenceCards")}
@@ -214,7 +240,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
       <h2>{t("upstreamTitle")}</h2>
       <p>{t("upstreamBody")}</p>
-      <ul>
+      <ul className="link-list">
         <li>
           <a href={REPOS.ampere} rel="noopener noreferrer">
             Zagitta/gpu-unlock

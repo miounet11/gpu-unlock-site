@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import LocaleSwitcher from "@/components/LocaleSwitcher";
+import SiteNav from "@/components/SiteNav";
+import FooterNav from "@/components/FooterNav";
 import { routing } from "@/i18n/routing";
 import { SITE_NAME, REPOS, REFERENCE_SITE, SISTER_SITES } from "@/lib/site";
 
@@ -32,35 +35,19 @@ export default async function LocaleLayout({
           </a>
           <header className="site-header">
             <div className="inner">
-              <Link href="/" className="brand">
-                GPU<span>Unlock</span>
-              </Link>
-              <nav className="site-nav" aria-label={nav.label ?? "Main"}>
-                <Link href="/#modules">{nav.modules ?? "Modules"}</Link>
-                <Link href="/install">{nav.install ?? "Install"}</Link>
-                <Link href="/windows">{nav.windows ?? "Windows"}</Link>
-                <Link href="/gpus">{nav.cards ?? "Cards"}</Link>
-                <Link href="/chips">{nav.chips ?? "Chips"}</Link>
-                <Link href="/benchmarks">{nav.benchmarks ?? "Benchmarks"}</Link>
-                <Link href="/answers">{nav.answers ?? "Answers"}</Link>
-                <Link href="/use-cases">{nav.useCases ?? "Use cases"}</Link>
-                <Link href="/faq">{nav.faq ?? "FAQ"}</Link>
-                <Link href="/about">{nav.about ?? "About"}</Link>
-                <Link href="/changelog">{nav.changelog ?? "Changelog"}</Link>
-                {/* The reference site still covers cards independently; the label says it is a
-                    different site rather than a section of this one. */}
-                <a href={`${REFERENCE_SITE}/${locale}`} rel="noopener noreferrer">
-                  {nav.reference ?? "Card reference"}
-                </a>
-                <a href={REPOS.usage} rel="noopener noreferrer">
-                  GitHub
-                </a>
-              </nav>
+              <div className="masthead">
+                <Link href="/" className="brand">
+                  GPU<span>Unlock</span>
+                </Link>
+                <LocaleSwitcher current={locale} label={nav.language ?? "Language"} />
+              </div>
+              <SiteNav locale={locale} />
             </div>
           </header>
           <main id="main">{children}</main>
           <footer className="site-footer">
             <div className="inner">
+              <FooterNav />
               <p>
                 {t.rich("footerBody", {
                   site: SITE_NAME,

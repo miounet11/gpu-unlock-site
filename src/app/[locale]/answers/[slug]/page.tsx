@@ -306,9 +306,9 @@ export default async function AnswerPage({
               <tr>
                 <th>{t("colCard")}</th>
                 <th>{t("colMode")}</th>
-                <th>{t("colStock")}</th>
-                <th>{t("colUnlocked")}</th>
-                <th>{t("colRatio")}</th>
+                <th className="num">{t("colStock")}</th>
+                <th className="num">{t("colUnlocked")}</th>
+                <th className="num">{t("colRatio")}</th>
               </tr>
             </thead>
             <tbody>
@@ -318,11 +318,11 @@ export default async function AnswerPage({
                     <Link href={`/gpus/${row.cardSlug}`}>{row.card}</Link>
                   </td>
                   <td>{row.mode}</td>
-                  <td>
+                  <td className="num">
                     {row.stock} {row.unit}
                   </td>
-                  <td>{row.unlocked} {row.unit}</td>
-                  <td>{formatRatio(row.ratio)}</td>
+                  <td className="num">{row.unlocked} {row.unit}</td>
+                  <td className="num">{formatRatio(row.ratio)}</td>
                 </tr>
               ))}
             </tbody>

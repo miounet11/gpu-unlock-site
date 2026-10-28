@@ -16,7 +16,9 @@
     "about": "About",
     "changelog": "Changelog",
     "useCases": "Use cases",
-    "chips": "Chips"
+    "chips": "Chips",
+    "language": "Language",
+    "footerNav": "Footer"
   },
   "home": {
     "title": "GPU Unlock — build, install and verify the SM speed-select modules",
@@ -55,7 +57,12 @@
       "ampere": "The original module: GA102, GA103, GA104 and GA106, loaded as gpu_unlock.",
       "ada": "The Ada fork: adds AD102 and an experimental AD103 canary, and still covers the Ampere lists.",
       "turing": "A separate module for RTX 20 series cards, loaded as turing_unlock with its own parameter."
-    }
+    },
+    "ctaInstall": "Install a module",
+    "ctaChips": "Browse by chip",
+    "statModules": "kernel modules",
+    "statCards": "cards covered",
+    "statRows": "measured rows"
   },
   "gpus": {
     "title": "Supported NVIDIA cards",
@@ -159,7 +166,7 @@
       "initramfs": {
         "title": "Let the package wire the module into the initramfs",
         "body": "The unlock only applies if the module loads before the NVIDIA driver binds the card — `gpu_unlock` on Ampere/Ada, `turing_unlock` on the RTX 20 series. Loading it manually afterwards cannot unlock it, because the module refuses a card that already has a driver bound (`-EBUSY`). Each package therefore puts its module and firmware into the initramfs and loads it there.",
-        "note": "With initramfs-tools and dracut the module is rebuilt for every installed kernel that has headers, and images are rebuilt on install and on removal. Kernels installed later get the module from their own install hooks. mkinitcpio ignores drop-ins for an image built with `-c <config>` or a preset `_config` — put `gpu_unlock` (or `turing_unlock`) right before `nvidia` in that config's MODULES yourself."
+        "note": "With initramfs-tools and dracut the module is rebuilt for every installed kernel that has headers, and images are rebuilt on install and on removal. Kernels installed later get the module from their own install hooks. mkinitcpio ignores drop-ins for an image built with `-c '<config>'` or a preset `_config` — put `gpu_unlock` (or `turing_unlock`) right before `nvidia` in that config's MODULES yourself."
       },
       "opt-in": {
         "title": "Opt in on the kernel command line",
@@ -220,7 +227,8 @@
         "symptom": "Firmware on a card never stops",
         "cause": "The module logs it and keeps the DMA buffers that firmware may still use until the next power off. Power off before trying again."
       }
-    }
+    },
+    "tocTitle": "On this page"
   },
   "faq": {
     "title": "GPU Unlock module FAQ",
@@ -322,7 +330,8 @@
     "linkGuide": "USB guide",
     "linkHeadless": "Internal headless guide",
     "linkCompatibility": "Compatibility and other profiles",
-    "faqLink": "Still installing the Linux modules? Read the Linux install page."
+    "faqLink": "Still installing the Linux modules? Read the Linux install page.",
+    "tocTitle": "On this page"
   },
   "modePage": {
     "metaTitle": "Measurement path: {mode}",

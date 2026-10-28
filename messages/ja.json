@@ -16,7 +16,9 @@
     "about": "概要",
     "changelog": "変更履歴",
     "useCases": "ユースケース",
-    "chips": "チップ"
+    "chips": "チップ",
+    "language": "言語",
+    "footerNav": "フッター"
   },
   "home": {
     "title": "GPU Unlock — SM speed-select モジュールのビルド・導入・検証",
@@ -55,7 +57,12 @@
       "ampere": "最初のモジュール。GA102、GA103、GA104、GA106 に対応し、gpu_unlock として読み込みます。",
       "ada": "Ada 向けフォーク。AD102 と実験的な AD103 canary を追加し、Ampere のリストも対象です。",
       "turing": "RTX 20 シリーズ向けの別モジュール。turing_unlock として読み込み、パラメータも異なります。"
-    }
+    },
+    "ctaInstall": "モジュールを導入",
+    "ctaChips": "チップから探す",
+    "statModules": "カーネルモジュール",
+    "statCards": "対応カード",
+    "statRows": "実測データ"
   },
   "gpus": {
     "title": "対応 NVIDIA カード",
@@ -159,7 +166,7 @@
       "initramfs": {
         "title": "パッケージにモジュールを initramfs へ組み込ませる",
         "body": "アンロックが効くのは、NVIDIA ドライバーがカードを掴む前にモジュールが読み込まれた場合だけです（Ampere/Ada は `gpu_unlock`、RTX 20 シリーズは `turing_unlock`）。後から手動で読み込んでもアンロックできません。ドライバーが既にバインドされたカードをモジュールが拒否するためです（`-EBUSY`）。そこで各パッケージは自分のモジュールとファームウェアを initramfs に入れて、そこで読み込みます。",
-        "note": "initramfs-tools と dracut では、ヘッダーのあるインストール済みカーネルごとにモジュールを再ビルドし、インストール時と削除時にイメージを再生成します。後から入れたカーネルは各カーネルのインストールフックがモジュールを用意します。mkinitcpio は `-c <config>` やプリセットの `_config` でビルドしたイメージに対して drop-in を無視するため、その設定の MODULES で `gpu_unlock`（または `turing_unlock`）を `nvidia` の直前に自分で置いてください。"
+        "note": "initramfs-tools と dracut では、ヘッダーのあるインストール済みカーネルごとにモジュールを再ビルドし、インストール時と削除時にイメージを再生成します。後から入れたカーネルは各カーネルのインストールフックがモジュールを用意します。mkinitcpio は `-c '<config>'` やプリセットの `_config` でビルドしたイメージに対して drop-in を無視するため、その設定の MODULES で `gpu_unlock`（または `turing_unlock`）を `nvidia` の直前に自分で置いてください。"
       },
       "opt-in": {
         "title": "カーネルコマンドラインで有効にする",
@@ -220,7 +227,8 @@
         "symptom": "カード上のファームウェアが停止しない",
         "cause": "モジュールはそれを記録し、ファームウェアがまだ使う可能性のある DMA バッファーを次の電源断まで保持します。再試行の前に電源を切ってください。"
       }
-    }
+    },
+    "tocTitle": "このページの内容"
   },
   "faq": {
     "title": "GPU Unlock モジュールの FAQ",
@@ -322,7 +330,8 @@
     "linkGuide": "USB ガイド",
     "linkHeadless": "内蔵 headless ガイド",
     "linkCompatibility": "互換性と他のプロファイル",
-    "faqLink": "Linux モジュールを入れたい場合は Linux のインストールページへ。"
+    "faqLink": "Linux モジュールを入れたい場合は Linux のインストールページへ。",
+    "tocTitle": "このページの内容"
   },
   "modePage": {
     "metaTitle": "{mode} — 通常時とアンロック後",

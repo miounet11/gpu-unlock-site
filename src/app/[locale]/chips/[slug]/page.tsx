@@ -140,8 +140,8 @@ export default async function ChipPage({
               <th>{t("colCard")}</th>
               <th>{t("colPci")}</th>
               <th>{t("colStatus")}</th>
-              <th>{t("colRows")}</th>
-              <th>{t("colBest")}</th>
+              <th className="num">{t("colRows")}</th>
+              <th className="num">{t("colBest")}</th>
             </tr>
           </thead>
           <tbody>
@@ -154,7 +154,12 @@ export default async function ChipPage({
                     {answerSlugFor(device.slug) ? (
                       <>
                         {" — "}
-                        <Link href={`/answers/${answerSlugFor(device.slug)}`}>
+                        {/* Five rows repeat the same visible text. The label carries the card
+                            name so the link list stays distinguishable out of context. */}
+                        <Link
+                          href={`/answers/${answerSlugFor(device.slug)}`}
+                          aria-label={`${device.name}: ${t("answerLink")}`}
+                        >
                           {t("answerLink")}
                         </Link>
                       </>
@@ -166,8 +171,8 @@ export default async function ChipPage({
                     </code>
                   </td>
                   <td>{tStatus(`status.${device.status}`)}</td>
-                  <td>{stats.rows}</td>
-                  <td>{stats.best ? `${stats.best.ratio.toFixed(2)}×` : "—"}</td>
+                  <td className="num">{stats.rows}</td>
+                  <td className="num">{stats.best ? `${stats.best.ratio.toFixed(2)}×` : "—"}</td>
                 </tr>
               );
             })}

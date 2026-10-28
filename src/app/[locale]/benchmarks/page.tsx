@@ -95,9 +95,9 @@ export default async function Benchmarks({ params }: { params: Promise<{ locale:
             <thead>
               <tr>
                 <th>{t("colMode")}</th>
-                <th>{t("colStock")}</th>
-                <th>{t("colUnlocked")}</th>
-                <th>{t("colGain")}</th>
+                <th className="num">{t("colStock")}</th>
+                <th className="num">{t("colUnlocked")}</th>
+                <th className="num">{t("colGain")}</th>
               </tr>
             </thead>
             <tbody>
@@ -106,13 +106,13 @@ export default async function Benchmarks({ params }: { params: Promise<{ locale:
                   <td>
                     <code>{r.mode}</code>
                   </td>
-                  <td>
+                  <td className="num">
                     {r.stock.toFixed(2)} {r.unit}
                   </td>
-                  <td>
+                  <td className="num">
                     {r.unlocked.toFixed(2)} {r.unit}
                   </td>
-                  <td>
+                  <td className="num">
                     <strong>{r.ratio.toFixed(2)}×</strong>
                   </td>
                 </tr>
@@ -131,7 +131,11 @@ export default async function Benchmarks({ params }: { params: Promise<{ locale:
             </ul>
           ) : null}
           <p className="meta">
-            <a href={run.source} rel="noopener noreferrer">
+            <a
+              href={run.source}
+              rel="noopener noreferrer"
+              aria-label={`${run.card}: ${t("sourceLink")}`}
+            >
               {t("sourceLink")}
             </a>
           </p>

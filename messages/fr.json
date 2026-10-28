@@ -16,7 +16,9 @@
     "about": "À propos",
     "changelog": "Journal",
     "useCases": "Cas d'usage",
-    "chips": "Puces"
+    "chips": "Puces",
+    "language": "Langue",
+    "footerNav": "Pied de page"
   },
   "home": {
     "title": "GPU Unlock — construire, installer et vérifier les modules SM speed-select",
@@ -55,7 +57,12 @@
       "ampere": "Le module d'origine : GA102, GA103, GA104 et GA106, chargé sous le nom gpu_unlock.",
       "ada": "Le fork Ada : ajoute AD102 et un canary AD103 expérimental, et couvre toujours les listes Ampere.",
       "turing": "Un module distinct pour les cartes série RTX 20, chargé sous le nom turing_unlock avec son propre paramètre."
-    }
+    },
+    "ctaInstall": "Installer un module",
+    "ctaChips": "Parcourir par puce",
+    "statModules": "modules noyau",
+    "statCards": "cartes",
+    "statRows": "mesures"
   },
   "gpus": {
     "title": "Cartes NVIDIA prises en charge",
@@ -159,7 +166,7 @@
       "initramfs": {
         "title": "Laisser le paquet intégrer le module dans l'initramfs",
         "body": "Le déverrouillage ne s'applique que si le module est chargé avant que le pilote NVIDIA ne lie la carte — `gpu_unlock` sur Ampere/Ada, `turing_unlock` sur la série RTX 20. Un chargement manuel ultérieur ne peut pas déverrouiller, car le module refuse une carte dont le pilote est déjà lié (`-EBUSY`). Chaque paquet place donc son module et son firmware dans l'initramfs et les y charge.",
-        "note": "Avec initramfs-tools et dracut, le module est recompilé pour chaque noyau installé disposant d'en-têtes, et les images sont régénérées à l'installation comme à la suppression. Les noyaux installés plus tard obtiennent le module via leurs propres hooks. mkinitcpio ignore les drop-ins pour une image construite avec `-c <config>` ou un `_config` de preset — placez vous-même `gpu_unlock` (ou `turing_unlock`) juste avant `nvidia` dans les MODULES de cette configuration."
+        "note": "Avec initramfs-tools et dracut, le module est recompilé pour chaque noyau installé disposant d'en-têtes, et les images sont régénérées à l'installation comme à la suppression. Les noyaux installés plus tard obtiennent le module via leurs propres hooks. mkinitcpio ignore les drop-ins pour une image construite avec `-c '<config>'` ou un `_config` de preset — placez vous-même `gpu_unlock` (ou `turing_unlock`) juste avant `nvidia` dans les MODULES de cette configuration."
       },
       "opt-in": {
         "title": "Activer sur la ligne de commande du noyau",
@@ -220,7 +227,8 @@
         "symptom": "Le firmware d'une carte ne s'arrête jamais",
         "cause": "Le module le journalise et conserve les tampons DMA que le firmware peut encore utiliser jusqu'à la prochaine extinction. Éteignez avant de réessayer."
       }
-    }
+    },
+    "tocTitle": "Sur cette page"
   },
   "faq": {
     "title": "FAQ des modules GPU Unlock",
@@ -322,7 +330,8 @@
     "linkGuide": "Guide USB",
     "linkHeadless": "Guide headless interne",
     "linkCompatibility": "Compatibilité et autres profils",
-    "faqLink": "Vous cherchez plutôt les modules Linux ? Voir la page d'installation Linux."
+    "faqLink": "Vous cherchez plutôt les modules Linux ? Voir la page d'installation Linux.",
+    "tocTitle": "Sur cette page"
   },
   "modePage": {
     "metaTitle": "{mode} — stock contre débloqué",

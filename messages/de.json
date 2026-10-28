@@ -16,7 +16,9 @@
     "about": "Über",
     "changelog": "Änderungen",
     "useCases": "Anwendungsfälle",
-    "chips": "Chips"
+    "chips": "Chips",
+    "language": "Sprache",
+    "footerNav": "Fußzeile"
   },
   "home": {
     "title": "GPU Unlock — SM-speed-select-Module bauen, installieren und prüfen",
@@ -55,7 +57,12 @@
       "ampere": "Das ursprüngliche Modul: GA102, GA103, GA104 und GA106, geladen als gpu_unlock.",
       "ada": "Der Ada-Fork: ergänzt AD102 und eine experimentelle AD103-Canary und deckt weiterhin die Ampere-Listen ab.",
       "turing": "Ein eigenes Modul für RTX-20-Serie-Karten, geladen als turing_unlock mit eigenem Parameter."
-    }
+    },
+    "ctaInstall": "Modul installieren",
+    "ctaChips": "Nach Chip suchen",
+    "statModules": "Kernel-Module",
+    "statCards": "Karten",
+    "statRows": "Messwerte"
   },
   "gpus": {
     "title": "Unterstützte NVIDIA-Karten",
@@ -159,7 +166,7 @@
       "initramfs": {
         "title": "Das Paket das Modul in die initramfs einbinden lassen",
         "body": "Das Unlock greift nur, wenn das Modul geladen wird, bevor der NVIDIA-Treiber die Karte bindet — `gpu_unlock` bei Ampere/Ada, `turing_unlock` bei der RTX-20-Serie. Ein späteres manuelles Laden kann nicht mehr entsperren, weil das Modul eine Karte mit bereits gebundenem Treiber ablehnt (`-EBUSY`). Jedes Paket legt sein Modul und die Firmware daher in die initramfs und lädt sie dort.",
-        "note": "Mit initramfs-tools und dracut wird das Modul für jeden installierten Kernel mit Headern neu gebaut, und die Images werden bei Installation und Entfernung neu erzeugt. Später installierte Kernel erhalten das Modul über ihre eigenen Install-Hooks. mkinitcpio ignoriert Drop-ins für ein Image, das mit `-c <config>` oder einem Preset-`_config` gebaut wurde — trage `gpu_unlock` (oder `turing_unlock`) in den MODULES dieser Konfiguration selbst direkt vor `nvidia` ein."
+        "note": "Mit initramfs-tools und dracut wird das Modul für jeden installierten Kernel mit Headern neu gebaut, und die Images werden bei Installation und Entfernung neu erzeugt. Später installierte Kernel erhalten das Modul über ihre eigenen Install-Hooks. mkinitcpio ignoriert Drop-ins für ein Image, das mit `-c '<config>'` oder einem Preset-`_config` gebaut wurde — trage `gpu_unlock` (oder `turing_unlock`) in den MODULES dieser Konfiguration selbst direkt vor `nvidia` ein."
       },
       "opt-in": {
         "title": "Auf der Kernel-Kommandozeile aktivieren",
@@ -220,7 +227,8 @@
         "symptom": "Firmware auf einer Karte stoppt nie",
         "cause": "Das Modul protokolliert es und behält die DMA-Puffer, die die Firmware noch nutzen könnte, bis zum nächsten Ausschalten. Schalte vor einem neuen Versuch aus."
       }
-    }
+    },
+    "tocTitle": "Auf dieser Seite"
   },
   "faq": {
     "title": "GPU Unlock Modul-FAQ",
@@ -322,7 +330,8 @@
     "linkGuide": "USB-Anleitung",
     "linkHeadless": "Interne Headless-Anleitung",
     "linkCompatibility": "Kompatibilität und andere Profile",
-    "faqLink": "Du willst die Linux-Module? Dann zur Linux-Installationsseite."
+    "faqLink": "Du willst die Linux-Module? Dann zur Linux-Installationsseite.",
+    "tocTitle": "Auf dieser Seite"
   },
   "modePage": {
     "metaTitle": "{mode} — Stock gegen entsperrt",
