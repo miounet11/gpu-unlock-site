@@ -97,7 +97,9 @@ export async function buildUsersReport(
       internal,
       externalTop: [...external.entries()]
         .map(([host, visits]) => ({ host, visits }))
-        .sort((a, b) => b.visits - a.visits)
+        // Ties break on host: a map's insertion order follows whichever log file was read
+        // first, which makes the same window produce a different list on a rotation boundary.
+        .sort((a, b) => b.visits - a.visits || a.host.localeCompare(b.host))
         .slice(0, 15),
     },
     locales: [...locales.entries()]

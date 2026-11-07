@@ -8,6 +8,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
+import { gunzipSync } from "node:zlib";
 
 import { parseLine, type LogRecord } from "./logs.ts";
 
@@ -99,6 +100,12 @@ export class FileLogSource implements LogSource {
         ["-o", "BatchMode=yes", "-o", "ConnectTimeout=10", this.opts.sshHost, `gzip -dc ${quote(path)}`],
         { encoding: "utf8", maxBuffer: 1 << 30 },
       );
+    }
+    // Rotated nginx logs end in .gz once they pass the daily rotation, and this branch used to
+    // read them as text: every compressed sibling silently produced one garbage line that then
+    // failed to parse, so local reports under-counted history while looking complete.
+    if (path.endsWith(".gz")) {
+      return gunzipSync(readFileSync(path)).toString("utf8");
     }
     return readFileSync(path, "utf8");
   }

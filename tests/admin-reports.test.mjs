@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { gzipSync } from "node:zlib";
 
 import { FileLogSource, MemoryLogSource } from "../src/lib/admin/source.ts";
 import { parseWindow } from "../src/lib/admin/http.ts";
@@ -88,7 +89,14 @@ test("all three log-backed reports run end to end over a real file", async (t) =
   const dir = mkdtempSync(join(tmpdir(), "gu-admin-"));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
 
+  // Three files in the shapes nginx actually rotates to: today's uncompressed JSON, yesterday's
+  // uncompressed, and a gzipped older sibling. The .gz one is the point — the local read path
+  // used to feed compressed bytes to the parser, which produced one unparseable line and made
+  // the report quietly short of history.
   const line = (o) => JSON.stringify(o) + "\n";
+  const combined = (ip, day, month, uri, ref, ua) =>
+    `${ip} - - [${day}/${month}/2026:00:00:00 +0000] "GET ${uri} HTTP/1.1" 200 123 "${ref}" "${ua}"\n`;
+
   writeFileSync(
     join(dir, "gpu-unlock-access.log"),
     line({ t: "2026-11-07T01:00:00+00:00", ip: "66.249.66.1", uri: "/en", status: 200, ua: "Mozilla/5.0 (compatible; Googlebot/2.1)" }) +
@@ -96,6 +104,16 @@ test("all three log-backed reports run end to end over a real file", async (t) =
       line({ t: "2026-11-07T03:00:00+00:00", ip: "1.2.3.4", uri: "/en", status: 200, referer: "https://www.google.com/", ua: "Mozilla/5.0 (Windows NT 10.0) Chrome/156.0" }) +
       line({ t: "2026-11-07T04:00:00+00:00", ip: "5.6.7.8", uri: "/zh", status: 200, ua: "Mozilla/5.0 (Macintosh) Version/17.4 Safari/605.1.15" }) +
       line({ t: "2026-11-07T05:00:00+00:00", ip: "127.0.0.1", uri: "/en", status: 200, ua: "node" }),
+  );
+  // Yesterday: combined format, a reader arriving from Bing.
+  writeFileSync(
+    join(dir, "gpu-unlock-access.log.1"),
+    combined("9.9.9.9", "06", "Nov", "/ja", "https://cn.bing.com/", "Mozilla/5.0 (Windows NT 10.0) Chrome/156.0"),
+  );
+  // Older still: gzipped, a crawler hit on a path that is not in the sitemap.
+  writeFileSync(
+    join(dir, "gpu-unlock-access.log.2.gz"),
+    gzipSync(Buffer.from(combined("66.249.66.2", "05", "Nov", "/gpus/rtx-4080", "", "Mozilla/5.0 (compatible; Googlebot/2.1)"))),
   );
 
   const source = new FileLogSource({ dir, file: "gpu-unlock-access.log" });
@@ -110,22 +128,27 @@ test("all three log-backed reports run end to end over a real file", async (t) =
     sitemapUrl: "https://gpu-unlock.com/sitemap.xml",
     fetchText,
   });
-  assert.equal(crawler.totalRequests.value, 5);
-  assert.equal(crawler.botRequests.value, 2);
-  assert.equal(crawler.humanRequests.value, 2, "the node line is neither bot nor reader");
+  // 5 lines today + 1 yesterday (combined) + 1 in the .gz sibling.
+  assert.equal(crawler.totalRequests.value, 7, "the gzipped sibling must be decompressed and read");
+  assert.equal(crawler.botRequests.value, 3);
+  assert.equal(crawler.humanRequests.value, 3, "the node line is neither bot nor reader");
+  // /gpus/rtx-4080 was crawled but is not in the sitemap, so coverage is still complete.
   assert.deepEqual(crawler.sitemapCoverage.neverCrawled, []);
 
   const users = await buildUsersReport(source, window, {
     site: "gpu-unlock.com",
     ownHosts: ["gpu-unlock.com"],
   });
-  assert.equal(users.requests.value, 2);
-  assert.equal(users.uniqueIps.value, 2);
-  assert.deepEqual(users.entrySources.externalTop, [{ host: "google.com", visits: 1 }]);
+  assert.equal(users.requests.value, 3, "two from today's file, one from yesterday's combined line");
+  assert.equal(users.uniqueIps.value, 3);
+  assert.deepEqual(users.entrySources.externalTop, [
+    { host: "cn.bing.com", visits: 1 },
+    { host: "google.com", visits: 1 },
+  ]);
   assert.equal(
     users.excludedTraffic.reduce((sum, e) => sum + e.requests, 0),
-    3,
-    "two crawler lines and one own-script line",
+    4,
+    "three crawler lines and one own-script line",
   );
 
   const indexing = await buildIndexingReport(source, window, {
@@ -137,7 +160,10 @@ test("all three log-backed reports run end to end over a real file", async (t) =
   assert.equal(indexing.sitemap.urlCount, 2);
   assert.equal(indexing.robots.sitemapDirectives, 1);
   assert.equal(indexing.indexedPages, null);
-  assert.deepEqual(indexing.searchReferrals, [{ engine: "Google", visits: 1 }]);
+  assert.deepEqual(indexing.searchReferrals, [
+    { engine: "Bing", visits: 1 },
+    { engine: "Google", visits: 1 },
+  ]);
 });
 
 test("this host's own scripts are excluded from reader traffic", async () => {
