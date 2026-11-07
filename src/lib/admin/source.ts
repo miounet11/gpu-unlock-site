@@ -91,23 +91,108 @@ export class FileLogSource implements LogSource {
     return readdirSync(dir);
   }
 
-  private readFile(path: string): string {
+  /** Last-modified times in epoch ms, so the window can skip whole rotated files. */
+  private fileTimes(dir: string, file: string): Map<string, number> {
     if (this.opts.sshHost) {
-      // `gzip -dc` handles both plain and compressed files; nginx's JSON log is line-based,
-      // so this needs no parsing on the far side.
-      return execFileSync(
+      const out = execFileSync(
         "ssh",
-        ["-o", "BatchMode=yes", "-o", "ConnectTimeout=10", this.opts.sshHost, `gzip -dc ${quote(path)}`],
-        { encoding: "utf8", maxBuffer: 1 << 30 },
+        [
+          "-o",
+          "BatchMode=yes",
+          "-o",
+          "ConnectTimeout=10",
+          this.opts.sshHost,
+          `cd ${quote(dir)} && ls -ln --time-style=+%s ${quote(file)}* 2>/dev/null | awk '{print $6, $7}'`,
+        ],
+        { encoding: "utf8", maxBuffer: 1 << 26 },
       );
+      const times = new Map<string, number>();
+      for (const line of out.split("\n")) {
+        const [secs, name] = line.trim().split(/\s+/);
+        if (!secs || !name) continue;
+        times.set(join(dir, name), Number(secs) * 1000);
+      }
+      return times;
     }
-    // Rotated nginx logs end in .gz once they pass the daily rotation, and this branch used to
-    // read them as text: every compressed sibling silently produced one garbage line that then
-    // failed to parse, so local reports under-counted history while looking complete.
+    const times = new Map<string, number>();
+    for (const entry of readdirSync(dir)) {
+      const path = join(dir, entry);
+      try {
+        times.set(path, statSync(path).mtimeMs);
+      } catch {
+        // Unreadable entries are handled where they are read.
+      }
+    }
+    return times;
+  }
+
+  // Rotated nginx logs end in .gz once they pass the daily rotation, and the uncompressed
+  // branch used to read them as text: every compressed sibling silently produced one garbage
+  // line that then failed to parse, so reports under-counted history while looking complete.
+  private readLocalFile(path: string): string {
     if (path.endsWith(".gz")) {
       return gunzipSync(readFileSync(path)).toString("utf8");
     }
     return readFileSync(path, "utf8");
+  }
+
+  /**
+   * Reads every file in one ssh invocation and transfers it compressed.
+   *
+   * Two separate costs showed up measuring the production host: one ssh per file (fourteen
+   * handshakes) and the link itself, which moved ~16KB/s — so shipping decompressed log text
+   * was the larger problem, and a 7-day report was shipping every byte of a fortnight. Now the
+   * far side compresses each file before it leaves, and the whole batch is one connection.
+   *
+   * Each section is framed as `GU <index> <status> <bytes>\n` followed by exactly that many
+   * bytes of gzip data. A length header rather than a delimiter is deliberate: gzip output is
+   * arbitrary bytes, so no marker string can be assumed absent from it.
+   */
+  private readRemoteFiles(files: string[]): Map<string, { text: string; ok: boolean }> {
+    const steps = files.map((file, i) => {
+      const q = quote(file);
+      // A rotated .gz sibling is already a gzip member; a plain file is compressed on the way
+      // out. Either way the local side calls gunzip and gets the same result.
+      const body = file.endsWith(".gz") ? `cat ${q} > "$t"` : `gzip -c ${q} > "$t" 2>/dev/null`;
+      // `wc -c` pads its output; the header is parsed strictly, so the padding has to go.
+      return `t=$(mktemp); ${body}; st=$?; printf 'GU ${i} %s %s\\n' "$st" "$(wc -c < "$t" | tr -d ' ')"; cat "$t"; rm -f "$t"`;
+    });
+    const out = execFileSync(
+      "ssh",
+      ["-o", "BatchMode=yes", "-o", "ConnectTimeout=10", this.opts.sshHost!, steps.join("; ")],
+      { maxBuffer: 1 << 30 },
+    );
+
+    const collected = new Map<string, { text: string; ok: boolean }>();
+    let at = 0;
+    while (at < out.length) {
+      const nl = out.indexOf(0x0a, at);
+      if (nl < 0) break;
+      const header = /^GU (\d+) (\d+) (\d+)$/.exec(out.subarray(at, nl).toString("latin1"));
+      at = nl + 1;
+      if (!header) {
+        this.issues.push("unexpected output from remote log read");
+        break;
+      }
+      const index = Number(header[1]);
+      const status = Number(header[2]);
+      const size = Number(header[3]);
+      const section = out.subarray(at, at + size);
+      at += size;
+      const file = files[index];
+      if (file === undefined) continue;
+      if (status !== 0) {
+        collected.set(file, { text: "", ok: false });
+        continue;
+      }
+      try {
+        collected.set(file, { text: gunzipSync(section).toString("utf8"), ok: true });
+      } catch (err) {
+        collected.set(file, { text: "", ok: false });
+        this.issues.push(`cannot decompress ${file}: ${(err as Error).message}`);
+      }
+    }
+    return collected;
   }
 
   async readWindow(from: Date | null, to: Date | null): Promise<LogRecord[]> {
@@ -121,32 +206,70 @@ export class FileLogSource implements LogSource {
 
     const lo = from ? from.getTime() : -Infinity;
     const hi = to ? to.getTime() : Infinity;
-    const out: LogRecord[] = [];
 
-    for (const file of files) {
-      // Skip whole files that cannot overlap the window: rotated files are ordered newest
-      // first, so the first one older than `from` ends the search.
-      if (!this.opts.sshHost) {
-        try {
-          const mtime = statSync(file).mtimeMs;
-          if (mtime < lo - 86_400_000) break;
-        } catch {
-          // Fall through and try to read it anyway.
-        }
-      }
-      let text: string;
+    // Skip whole files that cannot overlap the window: rotated files are ordered newest first,
+    // so the first one older than `from` ends the search. This matters most over ssh, where
+    // skipping is the only thing standing between a 7-day report and shipping every byte of a
+    // fortnight of logs across a link that measured ~16KB/s.
+    if (files.length > 0 && lo !== -Infinity) {
+      let times: Map<string, number>;
       try {
-        text = this.readFile(file);
-      } catch (err) {
-        this.issues.push(`cannot read ${file}: ${(err as Error).message}`);
-        continue;
+        times = this.fileTimes(this.opts.dir, this.opts.file);
+      } catch {
+        times = new Map();
       }
+      const kept: string[] = [];
+      for (const file of files) {
+        const mtime = times.get(file);
+        if (mtime !== undefined && mtime < lo - 86_400_000) break;
+        kept.push(file);
+      }
+      files = kept;
+    }
+
+    const out: LogRecord[] = [];
+    const parseInto = (text: string) => {
       for (const line of text.split("\n")) {
         const rec = parseLine(line);
         if (!rec) continue;
         const t = Date.parse(rec.at);
         if (t >= lo && t <= hi) out.push(rec);
       }
+    };
+
+    if (this.opts.sshHost) {
+      if (files.length === 0) return out;
+      let batch: Map<string, { text: string; ok: boolean }>;
+      try {
+        batch = this.readRemoteFiles(files);
+      } catch (err) {
+        this.issues.push(`cannot read ${files.length} file(s) from ${this.opts.sshHost}: ${(err as Error).message}`);
+        return out;
+      }
+      for (const file of files) {
+        const got = batch.get(file);
+        if (!got) {
+          this.issues.push(`ssh returned no output for ${file}`);
+          continue;
+        }
+        if (!got.ok) {
+          this.issues.push(`cannot read ${file}: remote read failed`);
+          continue;
+        }
+        parseInto(got.text);
+      }
+      return out;
+    }
+
+    for (const file of files) {
+      let text: string;
+      try {
+        text = this.readLocalFile(file);
+      } catch (err) {
+        this.issues.push(`cannot read ${file}: ${(err as Error).message}`);
+        continue;
+      }
+      parseInto(text);
     }
 
     return out;
